@@ -1,5 +1,9 @@
 # nhpreskit ![R](https://www.r-project.org/favicon-32x32.png) 📦
 
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
 An R package helping process NHP model results.
 
 ## Status
