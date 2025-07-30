@@ -36,6 +36,9 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+# Quarto rendered files and artefacts
+*.files/
+
 # R Environment Variables
 .Renviron
 
@@ -83,3 +86,4 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+/.quarto/
