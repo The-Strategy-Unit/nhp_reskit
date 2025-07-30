@@ -1,4 +1,4 @@
-Package: nhpreskit
+Package: reskit
 Title: An R package helping process NHP model results
 Version: 0.0.1
 Authors@R:
