@@ -1,6 +1,6 @@
 Package: reskit
-Title: An R package helping process NHP model results
-Version: 0.0.1
+Title: Nice selection box of goodies for hobnobbing with NHP model results
+Version: 0.0.2
 Authors@R:
     person(
         "Fran", "Barton",
@@ -8,9 +8,24 @@ Authors@R:
         role = c("aut", "cre"),
         comment = c(ORCID = "0000-0002-5650-1176")
     )
-Description: Handles NHP results files in parquet format and supports their use
-    in reporting workflows.
+Description: 'Wafer' goodbye to crumbly code, and dunk a sturdy reskit
+    function in your data cuppa instead. We've clustered the cream of our
+    results code here - it's a cracker!
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Config/testthat/edition: 3
+Depends: R (>= 4.4)
+Imports:
+    azkit (== 0.0.9),
+    dplyr,
+    glue,
+    purrr,
+    rlang,
+    S7,
+    tibble
+Remotes:
+    The-Strategy-Unit/azkit
+Suggests:
+    testthat (>= 3.0.0)
