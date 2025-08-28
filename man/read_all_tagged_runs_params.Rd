@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_nhp_result_sets.R
 \name{read_all_tagged_runs_params}
 \alias{read_all_tagged_runs_params}
-\title{Read in data from the \code{params.json} file for each tagged runS}
+\title{Read in data from the \code{params.json} file for each tagged run}
 \usage{
 read_all_tagged_runs_params(runs_metadata_tbl = NULL)
 }
@@ -15,5 +15,5 @@ compile_tagged_runs_metadata_tbl() will be run anyway to create the table.}
 A list of run params data, each named with its scheme code
 }
 \description{
-Read in data from the \code{params.json} file for each tagged runS
+Read in data from the \code{params.json} file for each tagged run
 }

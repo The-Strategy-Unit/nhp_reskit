@@ -7,6 +7,7 @@
 gregg(x, rx, g = parent.frame())
 }
 \description{
-grepl a glued regex
+Facilitates using regex in search/filter patterns, and puts the
+arguments "the right way round" (x first, then pattern), unlike \code{grepl()}
 }
 \keyword{internal}

@@ -28,7 +28,7 @@ run_stages <- function() {
 }
 
 
-#' Read in data from the `params.json` file for each tagged runS
+#' Read in data from the `params.json` file for each tagged run
 #'
 #' @param runs_metadata_tbl Tibble of metadata, as produced by
 #'  [compile_tagged_runs_metadata_tbl]. If not supplied,
@@ -81,5 +81,7 @@ compile_run_metadata_tbl <- function(groups = NULL) {
 }
 
 #' grepl a glued regex
+#' @description Facilitates using regex in search/filter patterns, and puts the
+#'  arguments "the right way round" (x first, then pattern), unlike `grepl()`
 #' @keywords internal
 gregg <- \(x, rx, g = parent.frame()) grepl(glue::glue_data(g, rx), x)
