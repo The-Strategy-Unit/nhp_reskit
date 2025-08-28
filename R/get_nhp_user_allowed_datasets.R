@@ -1,4 +1,7 @@
-#' @keywords internal
+#' Return a vector of results datasets that the user is allowed to access
+#'
+#' @param groups A vector of groups that the user belongs to. `NULL` by default.
+#' @export
 get_nhp_user_allowed_datasets <- function(groups = NULL) {
   providers_vec <- get_providers()
   filter_groups <- \(x) grep("^nhp_provider_", x, value = TRUE)
