@@ -8,7 +8,7 @@ read_all_tagged_runs_params(runs_metadata_tbl = NULL)
 }
 \arguments{
 \item{runs_metadata_tbl}{Tibble of metadata, as produced by
-compile_tagged_runs_metadata_tbl(). If not supplied,
+\link{compile_tagged_runs_metadata_tbl}. If not supplied,
 compile_tagged_runs_metadata_tbl() will be run anyway to create the table.}
 }
 \value{
