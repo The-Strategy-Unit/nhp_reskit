@@ -2,4 +2,9 @@
 
 export(compile_run_metadata_tbl)
 export(compile_tagged_runs_metadata_tbl)
+export(get_nhp_user_allowed_datasets)
+export(get_providers)
+export(get_results_container)
+export(get_support_container)
 export(read_all_tagged_runs_params)
+importFrom(rlang,.data)
