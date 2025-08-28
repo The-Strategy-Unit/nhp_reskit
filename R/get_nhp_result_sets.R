@@ -4,7 +4,7 @@
 #' according to the preference order defined in `run_stages()`
 #'
 #' @param groups Used to pass through any specification to the `groups`
-#'  argument to `get_nhp_user_allowed_datasets()`
+#'  argument to [get_nhp_user_allowed_datasets]
 #' @returns A tibble
 #' @export
 compile_tagged_runs_metadata_tbl <- function(groups = NULL) {
@@ -31,7 +31,7 @@ run_stages <- function() {
 #' Read in data from the `params.json` file for each tagged runS
 #'
 #' @param runs_metadata_tbl Tibble of metadata, as produced by
-#'  compile_tagged_runs_metadata_tbl(). If not supplied,
+#'  [compile_tagged_runs_metadata_tbl]. If not supplied,
 #'  compile_tagged_runs_metadata_tbl() will be run anyway to create the table.
 #' @returns A list of run params data, each named with its scheme code
 #' @export

@@ -8,7 +8,7 @@ compile_run_metadata_tbl(groups = NULL)
 }
 \arguments{
 \item{groups}{Used to pass through any specification to the \code{groups}
-argument to \code{get_nhp_user_allowed_datasets()}}
+argument to \link{get_nhp_user_allowed_datasets}}
 }
 \value{
 A tibble
