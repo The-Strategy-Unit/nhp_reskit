@@ -87,3 +87,6 @@ ENV/
 env.bak/
 venv.bak/
 /.quarto/
+
+# VSCode extensions/settings
+/.vscode/
