@@ -19,10 +19,13 @@ compile_tagged_runs_metadata_tbl <- function(groups = NULL) {
 run_stages <- function() {
   c(
     "final_report_ndg2",
+    "final_report_ndg3",
     "final_report_ndg1",
     "intermediate_ndg2",
+    "intermediate_ndg3",
     "intermediate_ndg1",
     "initial_ndg2",
+    "initial_ndg3",
     "initial_ndg1"
   )
 }
