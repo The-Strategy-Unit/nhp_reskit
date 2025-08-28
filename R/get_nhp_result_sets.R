@@ -40,7 +40,8 @@ run_stages <- function() {
 #' @export
 read_all_tagged_runs_params <- function(runs_metadata_tbl = NULL) {
   runs_metadata_tbl <- runs_metadata_tbl %||% compile_tagged_runs_metadata_tbl()
-  msg <- azkit:::cv_error_msg("Not all files are called {.val params.json}")
+  msg <- "Not every file in {.arg runs_metadata_tbl} is a {.val params.json}" |>
+    azkit:::cv_error_msg()
   runs_metadata_tbl[["file"]] |>
     azkit:::check_vec(\(x) basename(x) == "params.json", msg)
 
