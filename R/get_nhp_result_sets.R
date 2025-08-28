@@ -61,14 +61,14 @@ read_all_tagged_runs_params <- function(runs_metadata_tbl = NULL) {
 #' @export
 compile_run_metadata_tbl <- function(groups = NULL) {
   allowed_datasets <- get_nhp_user_allowed_datasets(groups)
-  allowed_folders_rx <- paste0(allowed_datasets, collapse = "|")
-
+  allowed_dirs_rx <- paste0(allowed_datasets, collapse = "|")
   location <- "aggregated-model-results"
+  version_rx <- "/(dev|v\\d+\\.\\d+)/"
 
   results_container <- get_results_container()
   all_json_files <- azkit::list_files(results_container, location, "json")
   all_params_files <- all_json_files |>
-    purrr::keep(\(x) gregg(x, "^{location}/.*/({allowed_folders_rx})")) |>
+    purrr::keep(\(x) gregg(x, "^{location}{version_rx}({allowed_dirs_rx})")) |>
     purrr::keep(\(x) grepl("params.json$", x))
 
   metadata_to_tibble <- function(x, contnr = results_container) {
