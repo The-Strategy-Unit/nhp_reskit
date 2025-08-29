@@ -6,3 +6,5 @@
 ^\.github$
 ^nhp_reskit\.code-workspace$
 ^CODEOWNERS$
+^\.vscode$
+^[.]?air[.]toml$
