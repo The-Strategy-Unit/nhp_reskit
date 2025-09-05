@@ -1,3 +1,52 @@
+#' Read a selection of (or all) parquet files in an Azure directory
+#'
+#' @param path string. Path to an Azure directory of results data. As produced
+#'  by [get_results_folder_path()]
+#' @param tables character vector. `NULL`, the default, results in all available
+#'  parquet files in the `path` folder being read in. If you wish only to read
+#'  in a subset of the files, specify these here, without the ".parquet" file
+#'  extension
+#' @param container Azure container. Uses [get_results_container()] by default
+#' @examples
+#' \dontrun{
+#'   data <- read_results_parquet_files("data/dev/national/test", "acuity")
+#'
+#'   get_results_folder_path(version = "v4.0", scheme = "national") |>
+#'     read_results_parquet_files()
+#' }
+#' @returns A named list of tibbles
+#' @export
+read_results_parquet_files <- function(path, tables = NULL, container = NULL) {
+  stopifnot("`path` must be a single string" = rlang::is_string(path))
+  container <- container %||% get_results_container()
+  stopifnot("container not found" = inherits(container, "container"))
+  tables <- tables %||% all_parquet_names()
+  tables <- rlang::arg_match(tables, all_parquet_names(), multiple = TRUE)
+
+  file_paths <- AzureStor::list_blobs(container, path, recursive = FALSE) |>
+    dplyr::pull("name") |>
+    gregv("\\.parquet$")
+  parquet_names <- sub("^(.*/)([[:graph:]]+)(\\.parquet)$", "\\2", file_paths)
+
+  absent <- setdiff(tables, parquet_names)
+  msg <- azkit:::cv_error_msg("Table{?s} {.val {absent}} {?is/are} not present")
+  azkit:::check_vec(tables, \(x) x %in% parquet_names, msg)
+
+  named_paths <- rlang::set_names(file_paths, parquet_names)
+  named_paths[tables] |>
+    purrr::map(\(p) azkit::read_azure_parquet(container, p))
+}
+
+
+# fmt: skip
+all_parquet_names <- function() {
+  c(
+    "acuity", "age", "attendance_category", "avoided_activity", "default",
+    "sex+age_group", "sex+tretspef", "step_counts", "tretspef_raw+los_group", "tretspef_raw"
+  )
+}
+
+
 #' Specify a results folder path
 #'
 #' Provides some logic and checks to assist the user in locating
