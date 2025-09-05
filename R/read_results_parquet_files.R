@@ -1,3 +1,56 @@
+#' Specify a results folder path
+#'
+#' Provides some logic and checks to assist the user in locating
+#'  a valid folder from which to read in NHP results data
+#'
+#' @param version string. The NHP model version in the format "v3.6", or "dev"
+#' @param scheme string. The code/name of the NHP scheme. May be "national" etc
+#' @param scenario string. If `NULL`, the default, and only a single scenario is
+#'  available within the particular combination of `version` and `scheme`, this
+#'  single folder path will be followed. However if multiple scenarios are
+#'  available, an error will be thrown. The user may avert this by simply
+#'  supplying an existent scenario name
+#' @param dttm_stamp string. If `NULL` (the default) and only a single model
+#'  run directory is available within the particular combination of `version`
+#'  `scheme` and `scenario`, this folder path will be returned. If `NULL`, and
+#'  multiple model runs are found, an error will be thrown. Alternatively, the
+#'  date-time stamp of the desired model run can be supplied. This is expected
+#'  to be in the format 'YYYYMMDD_HHMMSS', and must of course match a
+#'  subdirectory of the selected 'scenario' folder, else an error will be
+#'  thrown. A third alternative is to supply the string `"max"`, which will
+#'  return the path to the most recent model run, where multiple runs are found
+#' @param root_dir string. The name of the root folder within the container
+#'  where the all desired results data is stored. Uses the value of the
+#'  environment variable "AZ_RESULTS_DIRECTORY" by default
+#' @inheritParams read_results_parquet_files
+#'
+#' @returns A path to an Azure blob storage directory, as a string
+#' @export
+get_results_folder_path <- function(
+  version,
+  scheme,
+  scenario = NULL,
+  dttm_stamp = NULL,
+  container = NULL,
+  root_dir = NULL
+) {
+  container <- container %||% get_results_container()
+  root_dir <- root_dir %||% Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
+  check_grfp_inputs(container, root_dir, version, scheme, scenario, dttm_stamp)
+
+  # if 'scenario' is NULL then we try to return a single scenario subdir if poss
+  get_scenario <- function() {
+    file.path(root_dir, version, scheme) |>
+      check_single_subdir("scenario", dttm_stamp, container)
+  }
+  scenario <- scenario %||% basename(get_scenario())
+
+  # create new path including 'scenario' and pull out a model run subdir if poss
+  file.path(root_dir, version, scheme, scenario) |>
+    check_single_subdir("dttm_stamp", dttm_stamp, container)
+}
+
+
 #' Aims to return one (1) sub-directory from the given path.
 #'
 #' Conducts various checks and logic to assist the user. Can either return a
