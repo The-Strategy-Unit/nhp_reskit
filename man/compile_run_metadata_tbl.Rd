@@ -4,11 +4,15 @@
 \alias{compile_run_metadata_tbl}
 \title{Compiles a table of metadata parameters for each model run for each scheme}
 \usage{
-compile_run_metadata_tbl(groups = NULL)
+compile_run_metadata_tbl(groups = NULL, root_dir = NULL)
 }
 \arguments{
 \item{groups}{Used to pass through any specification to the \code{groups}
 argument to \link{get_nhp_user_allowed_datasets}}
+
+\item{root_dir}{string. The name of the root folder within the results
+container where the all desired results data is stored. Uses the value of
+the environment variable "AZ_RESULTS_DIRECTORY" by default}
 }
 \value{
 A tibble
