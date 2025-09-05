@@ -1,10 +1,11 @@
 #' Return a vector of results datasets that the user is allowed to access
 #'
 #' @param groups A vector of groups that the user belongs to. `NULL` by default.
+#' @returns A character vector
 #' @export
 get_nhp_user_allowed_datasets <- function(groups = NULL) {
   providers_vec <- get_providers()
-  filter_groups <- \(x) grep("^nhp_provider_", x, value = TRUE)
+  filter_groups <- \(x) grepv("^nhp_provider_", x)
   trim_group_names <- \(x) sub("^nhp_provider_", "", x)
 
   if (is.null(groups) || any(c("nhp_devs", "nhp_power_users") %in% groups)) {
@@ -15,7 +16,7 @@ get_nhp_user_allowed_datasets <- function(groups = NULL) {
   }
 }
 
-#' Return a list of provider codes from the supporting data container
+#' Return a vector of provider codes from the supporting data container
 #' @returns A character vector
 #' @export
 get_providers <- function() {
