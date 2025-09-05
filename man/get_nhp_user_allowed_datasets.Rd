@@ -9,6 +9,9 @@ get_nhp_user_allowed_datasets(groups = NULL)
 \arguments{
 \item{groups}{A vector of groups that the user belongs to. \code{NULL} by default.}
 }
+\value{
+A character vector
+}
 \description{
 Return a vector of results datasets that the user is allowed to access
 }

@@ -2,11 +2,11 @@
 % Please edit documentation in R/get_nhp_result_sets.R
 \name{run_stages}
 \alias{run_stages}
-\title{run stage labels, in order of preference}
+\title{run stages, in order of preference}
 \usage{
 run_stages()
 }
 \description{
-run stage labels, in order of preference
+run stages, in order of preference
 }
 \keyword{internal}
