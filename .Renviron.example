@@ -1,4 +1,8 @@
-# Contact a member of the Data Science team to get the required values for these
+# This file needs to be saved as just `.Renviron` within the project folder you
+# are working on (not kept in the folder where {reskit} is installed!)
+# (You can alternatively add these values to your global `.Renviron` but they
+# might be more appropriately kept as project-specific values.)
+# Contact a member of SU Data Science to get the required values for these.
 AZ_STORAGE_EP =
 AZ_STORAGE_CONTAINER =
 AZ_SUPPORT_CONTAINER =
