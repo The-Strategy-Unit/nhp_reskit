@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_nhp_user_allowed_datasets.R
 \name{get_providers}
 \alias{get_providers}
-\title{Return a list of provider codes from the supporting data container}
+\title{Return a vector of provider codes from the supporting data container}
 \usage{
 get_providers()
 }
@@ -10,5 +10,5 @@ get_providers()
 A character vector
 }
 \description{
-Return a list of provider codes from the supporting data container
+Return a vector of provider codes from the supporting data container
 }
