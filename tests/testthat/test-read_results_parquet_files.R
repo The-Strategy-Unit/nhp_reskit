@@ -103,3 +103,41 @@ test_that("table selection works", {
   test_named <- purrr::map(test_vec, toupper) # map retains names
   expect_named(test_named)
 })
+
+
+test_that("bughunting", {
+  skip_on_ci()
+  # https://github.com/The-Strategy-Unit/nhp_reskit/pull/24#pullrequestreview-3201907282
+
+  res <- get_results_container()
+  expect_s3_class(res, "blob_container")
+  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
+  expect_false(is.na(root_dir))
+
+  version <- "v4.1"
+  expect_true(rlang::is_string(version))
+  scheme <- "RD8"
+  expect_true(rlang::is_string(scheme))
+
+  check_grfp_inputs(res, root_dir, version, scheme, NULL, NULL) |>
+    expect_true()
+
+  orig_path <- file.path(root_dir, version, scheme)
+  folder_name <- AzureStor::list_blobs(res, orig_path, recursive = FALSE) |>
+    dplyr::filter(dplyr::if_any("isdir")) |>
+    dplyr::pull("name")
+  expect_true(rlang::is_scalar_character(folder_name))
+  azkit:::check_scalar_type(folder_name, "character", "fail") |>
+    expect_no_error()
+  azkit:::check_scalar_type(folder_name, "character", "fail") |>
+    expect_equal(folder_name) # folder_name should be passed through
+
+  exp_path <- file.path(root_dir, version, scheme, "test-v4-1-qa")
+
+  scen_path <- check_single_subdir(orig_path, "scenario", NULL, res)
+  expect_equal(scen_path, paste0(exp_path, "/")) # file.path doesn't add final /
+
+  expect_no_message(check_single_subdir(scen_path, "dttm_stamp", NULL, res))
+  check_single_subdir(scen_path, "dttm_stamp", "max", res) |>
+    expect_message("Using latest model run")
+})
