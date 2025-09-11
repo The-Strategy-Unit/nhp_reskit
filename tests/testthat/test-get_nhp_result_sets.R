@@ -4,7 +4,9 @@ test_that("basic outline", {
   expect_length(allowed_datasets, 139L)
   allowed_folders_rx <- paste0(allowed_datasets, collapse = "|")
   expect_length(allowed_folders_rx, 1L)
-  location <- "aggregated-model-results/v4.0"
+  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY")
+  version <- "v4.0"
+  location <- file.path(root_dir, version)
   allowed_folders_match <- glue::glue("^{location}/({allowed_folders_rx})")
 
   results_container <- expect_no_error(get_results_container())
