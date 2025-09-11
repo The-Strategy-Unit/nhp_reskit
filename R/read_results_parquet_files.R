@@ -112,10 +112,10 @@ get_results_folder_path <- function(
 #' @keywords internal
 check_single_subdir <- function(path, level, dttm_stamp, container) {
   # error message if `path` not found
-  msg1 <- azkit:::cv_error_msg("{.path {path}} not found")
+  msg1 <- azkit:::cv_error_msg("{.path {path}} not found.")
   azkit:::check_vec(path, \(x) AzureStor::blob_dir_exists(container, x), msg1)
   # error message if length(folder_name) == 0
-  msg2 <- azkit:::cv_error_msg("No sub-folders found at {.path {path}}")
+  msg2 <- azkit:::cv_error_msg("No sub-folders found at {.path {path}}.")
 
   folder_name <- AzureStor::list_blobs(container, path, recursive = FALSE) |>
     dplyr::filter(dplyr::if_any("isdir")) |>
@@ -126,23 +126,22 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
 
   # construct error messages if length(folder_name) > 1
   folder_names <- cli::cli_vec(basename(folder_name), list(`vec-trunc` = 2))
-  msg3 <- "The folder {.val {cur_dir}} contains more than 1 sub-folder.\n"
-  msg4 <- c(msg3, "The sub-folders are: {folder_names}...\n")
-  msg5 <- cli::cli_text(msg4, "You will need to specify the {.arg {level}}")
+  msg3 <- "The folder {.val {cur_dir}} contains more than 1 sub-folder. "
+  msg4 <- c(msg3, "The sub-folders are: {.val {folder_names}}. ")
+  msg5 <- azkit:::cst_error_msg(c(msg4, "You need to specify {.arg {level}}."))
 
   if (level == "scenario" || is.null(dttm_stamp)) {
     # if length(folder_name) == 1 then return it, otherwise throw an error
     azkit:::check_scalar_type(folder_name, "character", msg5)
   } else if (dttm_stamp == "max") {
     # if we find multiple model runs, "max" means return the dir of most recent
-    msg6 <- cli::cli_text(msg4, "Using the most recent model run '{max_dttm}'")
-    cli::cli_alert_info(msg6)
+    cli::cli_alert_info("Using latest model run {.val {max_dttm}}.")
     max_dttm
   } else {
     # the user has supplied a particular dttm_stamp so we try to return that one
     folder_name <- gregv(folder_name, "{dttm_stamp}(/)?$")
-    msg7 <- azkit:::cst_error_msg("No {.val {dttm_stamp}} folder found")
-    azkit:::check_scalar_type(folder_name, "string", msg7)
+    msg6 <- azkit:::cst_error_msg("No {.val {dttm_stamp}} folder found.")
+    azkit:::check_scalar_type(folder_name, "string", msg6)
   }
 }
 
