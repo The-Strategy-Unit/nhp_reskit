@@ -1,24 +1,21 @@
 test_that("basic outline", {
-  allowed_datasets <- get_nhp_user_allowed_datasets() |>
-    withr::with_envvar(new = c(AZ_SUPPORT_CONTAINER = "supporting-data")) |>
-    expect_no_error()
+  skip_on_ci()
+  allowed_datasets <- expect_no_error(get_nhp_user_allowed_datasets())
   expect_length(allowed_datasets, 139L)
   allowed_folders_rx <- paste0(allowed_datasets, collapse = "|")
   expect_length(allowed_folders_rx, 1L)
   location <- "aggregated-model-results/v4.0"
   allowed_folders_match <- glue::glue("^{location}/({allowed_folders_rx})")
 
-  results_container <- get_results_container() |>
-    withr::with_envvar(new = c(AZ_RESULTS_CONTAINER = "results")) |>
-    expect_no_error()
+  results_container <- expect_no_error(get_results_container())
   all_json_files <- azkit::list_files(results_container, location, "json")
-  # expect_length(all_json_files, 74L)
+  # expect_length(all_json_files, 80L)
 
   all_params_files <- all_json_files |>
     purrr::keep(\(x) grepl(allowed_folders_match, x)) |>
     # probably all the files listed are `params.json` but let's make sure
     purrr::keep(\(x) grepl("params.json$", x))
-  # expect_length(all_params_files, 74L)
+  # expect_length(all_params_files, 79L)
 
   metadata_to_tibble <- function(x, container = results_container) {
     tibble::as_tibble_row(AzureStor::get_storage_metadata(container, x))
@@ -34,7 +31,7 @@ test_that("basic outline", {
     ) |>
     expect_no_warning()
 
-  # expect_length(combined_metadata_df, 11L) # ncol
+  expect_length(combined_metadata_df, 13L) # ncol
   expect_equal(nrow(combined_metadata_df), length(all_params_files))
 
   combined_metadata_df1 <- all_params_files |>
