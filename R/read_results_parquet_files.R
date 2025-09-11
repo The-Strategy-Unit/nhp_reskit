@@ -19,7 +19,7 @@
 read_results_parquet_files <- function(path, tables = NULL, container = NULL) {
   stopifnot("`path` must be a single string" = rlang::is_string(path))
   container <- container %||% get_results_container()
-  stopifnot("container not found" = inherits(container, "container"))
+  stopifnot("container not found" = inherits(container, "blob_container"))
   tables <- tables %||% all_parquet_names()
   tables <- rlang::arg_match(tables, all_parquet_names(), multiple = TRUE)
 
@@ -151,11 +151,11 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
 #' Pulled out to a discrete function, just for neatness' sake
 #' @keywords internal
 check_grfp_inputs <- function(cn, root_dir, version, scheme, scenario, stamp) {
-  stopifnot("container not found" = inherits(cn, "container"))
+  stopifnot("container not found" = inherits(cn, "blob_container"))
   stopifnot("`root_dir` must be a single string" = rlang::is_string(root_dir))
   stopifnot("`version` must be a single string" = rlang::is_string(version))
   stopifnot("`scheme` must be a single string" = rlang::is_string(scheme))
   stopifnot(rlang::is_scalar_character(scenario) || is.null(scenario))
   stopifnot(rlang::is_scalar_character(stamp) || is.null(stamp))
-  return(NULL)
+  return(TRUE)
 }
