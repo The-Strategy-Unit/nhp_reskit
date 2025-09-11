@@ -29,4 +29,5 @@ Remotes:
     The-Strategy-Unit/azkit
 Suggests:
     testthat (>= 3.0.0),
+    tibble,
     withr
