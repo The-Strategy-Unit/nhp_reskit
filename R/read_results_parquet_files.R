@@ -42,7 +42,8 @@ read_results_parquet_files <- function(path, tables = NULL, container = NULL) {
 all_parquet_names <- function() {
   c(
     "acuity", "age", "attendance_category", "avoided_activity", "default",
-    "sex+age_group", "sex+tretspef", "step_counts", "tretspef_raw+los_group", "tretspef_raw"
+    "delivery_episode_in_spell", "sex+age_group", "sex+tretspef_grouped",
+    "step_counts", "tretspef+los_group", "tretspef"
   )
 }
 
