@@ -23,9 +23,44 @@ This is just a framework repository at present, while the package scope and
 design are being explored.
 This README will be fleshed out as the package is developed.
 
+## Installation
+
+```r
+# install.packages("pak") # if not already installed
+pak::pak("The-Strategy-Unit/nhp_reskit")
+```
+
 ## Usage
 
-_To be added._
+You will need certain environment variables to be available (see section below).
+
+Some key functions and workflows you might want to use include:
+
+```r
+# Compiles a table of metadata for each model run for each scheme
+compile_run_metadata_tbl()
+
+# Get the Azure storage container for results data
+get_results_container() # uses the environment variable "AZ_RESULTS_CONTAINER"
+
+# Return a vector of provider codes from the supporting data container
+get_providers() # requires the environment variable "AZ_SUPPORT_CONTAINER"
+
+# Get the path to a folder of results data
+# (the below example will succeed only if there is a single scenario and a
+# single model run within the particular version and scheme combination below)
+get_results_folder_path(version = "v4.0", scheme = "national")
+
+# Read all parquet data files from a location
+results_dir <- get_results_folder_path(version = "v4.0", scheme = "national")
+read_results_parquet_files(results_dir)
+
+# Read only selected results files from multiple scenarios
+c("scenario1", "scenario2") |>
+  purrr::map(\(x) get_results_folder_path("v3.6", "RZZ", scenario = x)) |>
+  purrr::map(\(x) read_results_parquet_files(x, files = c("default", "age")))
+```
+
 
 ## Environment variables
 
@@ -41,11 +76,15 @@ Your `.Renviron` file should contain the variables below.
 Ask a member of [the Data Science team][suds] for the necessary values.
 
 ```
-AZ_STORAGE_EP=
-AZ_STORAGE_CONTAINER=
+AZ_STORAGE_EP =
+AZ_SUPPORT_CONTAINER =
+AZ_RESULTS_CONTAINER =
+AZ_RESULTS_DIRECTORY =
 ```
 
-These may vary depending on the specific container you’re connecting to.
+An example `.Renviron.example` file is provided in this repository.
+Copy it, renamed as just `.Renviron`, into the root of any project folder where
+you are using {reskit}.
 
 ## Getting help
 
