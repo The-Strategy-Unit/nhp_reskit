@@ -124,20 +124,15 @@ principal_los_pods <- function() {
 }
 
 
-get_principal_high_level <- function(r, measures, sites) {
-  r$results$default |>
-    dplyr::filter(.data$measure %in% measures) |>
-    dplyr::select("pod", "sitetret", "baseline", "principal") |>
-    dplyr::mutate(dplyr::across(
-      "pod",
-      ~ ifelse(
-        stringr::str_starts(.x, "aae"),
-        "aae",
-        .x
-      )
-    )) |>
-    dplyr::group_by(.data$pod, .data$sitetret) |>
-    dplyr::summarise(dplyr::across(where(is.numeric), sum), .groups = "drop") |>
+get_principal_high_level_summary <- function(results, measures, sites) {
+  results |>
+    purrr::pluck("default") |>
+    dplyr::filter(dplyr::if_any("measure", \(x) x %in% {{ measures }})) |>
+    dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
+    dplyr::summarise(
+      dplyr::across(c("baseline", "principal"), sum),
+      .by = c("pod", "sitetret")
+    ) |>
     trust_site_aggregation(sites)
 }
 
