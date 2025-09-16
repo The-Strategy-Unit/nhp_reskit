@@ -23,12 +23,8 @@ compile_principal_summary_data <- function(results, sites) {
     dplyr::select(c("pod_name", "activity_type", "baseline", "principal")) |>
     dplyr::mutate(
       dplyr::across("activity_type", \(x) {
-        dplyr::case_match(
-          x,
-          "ip" ~ "Inpatient",
-          "op" ~ "Outpatient",
-          "aae" ~ "A&E"
-        )
+        dplyr::case_match(x, "ip" ~ "Inp", "op" ~ "Outp", "aae" ~ "A&E") |>
+          sub("p$", "patient", x = _)
       }),
       dplyr::across("activity_type", \(x) {
         factor(x, levels = c("Inpatient", "Outpatient", "A&E"))
