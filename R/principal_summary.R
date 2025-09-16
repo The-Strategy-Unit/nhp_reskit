@@ -1,69 +1,42 @@
-principal_summary_data <- function(r, sites) {
-  pods <- principal_los_pods() # uses same POD lookup as LoS summary
+compile_principal_summary_data <- function(results, sites) {
+  main_measures <- c("admissions", "attendances", "walk-in", "ambulance")
+  main_summary <- results |>
+    get_principal_high_level_summary(main_measures, sites)
 
-  main_summary <- get_principal_high_level(
-    r,
-    c("admissions", "attendances", "walk-in", "ambulance"),
-    sites
-  ) |>
-    dplyr::inner_join(pods, by = "pod")
-
-  tele_attendances <- get_principal_high_level(r, "tele_attendances", sites) |>
-    dplyr::inner_join(pods, by = "pod") |>
-    dplyr::filter(.data$pod_name != "Outpatient Procedure") |>
+  teleattendance_summary <- results |>
+    get_principal_high_level_summary("tele_attendances", sites) |>
     dplyr::mutate(
-      "pod_name" = stringr::str_replace(
-        .data$pod_name,
-        "Attendance",
-        "Tele-attendance"
-      )
+      dplyr::across("pod_name", \(x) sub("Attendance", "Tele-attendance", x))
+    ) |>
+    dplyr::filter(!dplyr::if_any("pod_name", \(x) x == "Outpatient Procedure"))
+
+  beddays_summary <- results |>
+    get_principal_high_level_summary("beddays", sites) |>
+    dplyr::mutate(
+      dplyr::across("pod_name", \(x) sub("Admission", "Bed Days", x))
     )
 
-  bed_days <- get_principal_high_level(r, "beddays", sites) |>
-    dplyr::inner_join(pods, by = "pod") |>
+  list(main_summary, teleattendance_summary, beddays_summary) |>
+    dplyr::bind_rows() |>
+    # uses same POD lookup as LoS summary
+    dplyr::inner_join(principal_los_pods(), "pod") |>
+    dplyr::select(c("pod_name", "activity_type", "baseline", "principal")) |>
     dplyr::mutate(
-      "pod_name" = stringr::str_replace(.data$pod_name, "Admission", "Bed Days")
-    )
-
-  dplyr::bind_rows(
-    main_summary,
-    tele_attendances,
-    bed_days
-  ) |>
-    dplyr::mutate(
-      dplyr::across(
-        "activity_type",
-        ~ dplyr::case_match(
-          .data$activity_type,
+      dplyr::across("activity_type", \(x) {
+        dplyr::case_match(
+          x,
           "ip" ~ "Inpatient",
           "op" ~ "Outpatient",
           "aae" ~ "A&E"
         )
-      ),
-      dplyr::across(
-        "activity_type",
-        ~ factor(.x, levels = c("Inpatient", "Outpatient", "A&E"))
-      ),
-      measure = dplyr::case_when(
-        stringr::str_detect(.data$pod_name, "Admission$") ~ "admission",
-        stringr::str_detect(.data$pod_name, "Attendance$") ~ "attendance",
-        stringr::str_detect(.data$pod_name, "Tele-attendance$") ~
-          "tele_attendance",
-        stringr::str_detect(.data$pod_name, "Procedure$") ~ "procedure",
-        stringr::str_detect(.data$pod_name, "Bed Days$") ~ "bed_days"
-      ),
-      change = .data$principal - .data$baseline,
-      change_pcnt = .data$change / .data$baseline
+      }),
+      dplyr::across("activity_type", \(x) {
+        factor(x, levels = c("Inpatient", "Outpatient", "A&E"))
+      }),
+      change = .data[["principal"]] - .data[["baseline"]],
+      change_pcnt = .data[["change"]] / .data[["baseline"]]
     ) |>
-    dplyr::arrange(.data$activity_type, .data$measure, .data$pod_name) |>
-    dplyr::select(
-      "pod_name",
-      "activity_type",
-      "baseline",
-      "principal",
-      "change",
-      "change_pcnt"
-    )
+    dplyr::arrange(dplyr::pick(c("activity_type", "pod_name")))
 }
 
 
