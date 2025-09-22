@@ -1,4 +1,30 @@
-compile_principal_summary_data <- function(results, sites) {
+make_principal_summary_table <- function(principal_summary_data, site = NULL) {
+  principal_summary_data |>
+    filter_to_site(site) |>
+    dplyr::mutate(
+      dplyr::across("activity_type_label", \(x) {
+        dplyr::case_when(
+          grepl("Admission", .data[["pod_name"]]) ~ paste0(x, " Admissions"),
+          grepl("Bed Days", .data[["pod_name"]]) ~ paste0(x, " Bed Days"),
+          .default = x
+        )
+      })
+    ) |>
+    gt::gt(groupname_col = "activity_type_label") |>
+    gt::fmt_integer(c(baseline, principal, change)) |>
+    gt::fmt_percent(c(change_pct), decimals = 0) |>
+    gt::cols_width(c(principal, change, change_pct) ~ gt::px(150)) |>
+    gt::cols_align("left", c(baseline, principal, change, change_pct)) |>
+    gt::cols_label(
+      pod_name = "Point of Delivery",
+      change_pct = "Percent Change"
+    ) |>
+    gt::cols_label_with(fn = to_sentence) |>
+    gt_theme()
+}
+
+
+compile_principal_summary_data <- function(results) {
   main_measures <- c("admissions", "attendances", "walk-in", "ambulance")
   main_summary <- results |>
     get_principal_high_level_summary(main_measures, sites)
