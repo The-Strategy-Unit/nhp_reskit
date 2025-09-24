@@ -1,3 +1,78 @@
+make_principal_summary_table <- function(data, site = NULL) {
+  data |>
+    filter_to_site(site) |>
+    format_bar_cols() |>
+    dplyr::mutate(
+      dplyr::across("activity_type_label", \(x) {
+        dplyr::case_when(
+          grepl("Admission", .data[["pod_name"]]) ~ paste0(x, " Admissions"),
+          grepl("Bed Days", .data[["pod_name"]]) ~ paste0(x, " Bed Days"),
+          .default = x
+        )
+      })
+    ) |>
+    gt::gt(groupname_col = "activity_type_label") |>
+    format_gt_core(pod_name) |>
+    gt::cols_label(pod_name = "Point of Delivery") |>
+    gt_theme()
+}
+
+
+make_principal_summary_los_table <- function(data, site = NULL) {
+  data |>
+    filter_to_site(site) |>
+    format_bar_cols() |>
+    gt::gt(groupname_col = "pod_name") |>
+    format_gt_core(los_group) |>
+    gt::cols_label(los_group = "Length of Stay") |>
+    gt_theme()
+}
+
+
+make_principal_detailed_table <- function(data, site, aggregation, final_year) {
+  agg_label <- dplyr::case_match(
+    aggregation,
+    "age_group" ~ "Age Group",
+    "tretspef" ~ "Treatment Specialty",
+    .default = uppercase_init(aggregation)
+  )
+  data |>
+    filter_to_site(site) |>
+    format_bar_cols() |>
+    dplyr::mutate(
+      dplyr::across("sex", \(x) dplyr::if_else(x == 1, "Male", "Female"))
+    ) |>
+    gt::gt(groupname_col = "sex") |>
+    format_gt_core(agg) |>
+    gt::cols_label(
+      agg = agg_label,
+      principal = glue::glue("Final ({final_year})")
+    ) |>
+    gt_theme()
+}
+
+
+format_bar_cols <- function(tbl, p_col = "principal", p_clr = "#686f73") {
+  tbl |>
+    dplyr::mutate(
+      dplyr::across({{ p_col }}, \(x) gt_bar(x, scales::label_comma(1), p_clr)),
+      dplyr::across("change", \(x) gt_bar(x, scales::label_comma(1))),
+      dplyr::across("change_pct", \(x) gt_bar(x, scales::label_percent(1)))
+    )
+}
+
+
+format_gt_core <- function(gt_table, extra_col = NULL) {
+  gt_table |>
+    gt::fmt_integer(c(baseline, principal, change)) |>
+    gt::fmt_percent(c(change_pct), decimals = 0) |>
+    gt::cols_width(c(principal, change, change_pct) ~ gt::px(150)) |>
+    gt::cols_align("left", c({{ extra_col }}, principal, change, change_pct)) |>
+    gt::cols_label_with(fn = uppercase_init) |>
+    gt::cols_label(change_pct = "Percent Change")
+}
+
+
 gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
   format_fn <- format_fn %||% identity
   if (length(colours) == 1) {
