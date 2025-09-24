@@ -22,4 +22,4 @@ filter_to_site <- function(dat, site, site_col = "sitetret") {
 get_trust_sites <- \(res_tbl, col = "sitetret") sort(unique(res_tbl[[col]]))
 
 
-to_sentence <- \(x) sub("^([a-z])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
+uppercase_init <- \(x) sub("^([a-z])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
