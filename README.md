@@ -9,7 +9,7 @@ has not yet been a stable release][repostatus_svg]][repostatus_info]
 
 [gh_licence]: https://img.shields.io/github/license/The-Strategy-Unit/nhp_reskit
 [gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/nhp_reskit
-[repostatus_info]: https://www.repostatus.org/#project-statuses
+[repostatus_info]: https://www.repostatus.org/#wip
 [repostatus_svg]: https://www.repostatus.org/badges/latest/wip.svg
 [lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
 [lifecycle_svg]: https://img.shields.io/badge/lifecycle-experimental-orange.svg
@@ -49,7 +49,7 @@ get_providers() # requires the environment variable "AZ_SUPPORT_CONTAINER"
 # Get the path to a folder of results data
 # (the below example will succeed only if there is a single scenario and a
 # single model run within the particular version and scheme combination below)
-get_results_folder_path(version = "v4.0", scheme = "national")
+get_results_folder_path(version = "v4.0", scheme = "national", scenario = "test)
 
 # Read all parquet data files from a location
 results_dir <- get_results_folder_path(version = "v4.0", scheme = "national")
