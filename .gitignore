@@ -90,3 +90,5 @@ venv.bak/
 
 # VSCode extensions/settings
 /.vscode/
+
+inst/a_sort*
