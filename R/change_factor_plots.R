@@ -1,5 +1,4 @@
-# aka waterfall
-make_principal_change_factor_plot <- function(pcf_data) {
+make_overall_cf_plot <- function(pcf_data) {
   pcf_data |>
     dplyr::mutate(
       colour = dplyr::case_when(
@@ -37,7 +36,7 @@ make_principal_change_factor_plot <- function(pcf_data) {
 }
 
 
-make_individual_change_factor_plot <- function(
+make_individual_cf_plot <- function(
   data,
   measure,
   title,
