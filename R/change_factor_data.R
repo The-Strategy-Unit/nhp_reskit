@@ -1,10 +1,10 @@
-compile_principal_change_factor_data <- function(
+compile_overall_cf_data <- function(
   dat,
   measure,
   include_baseline
 ) {
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
-  dat_prepared <- if (include_baseline) dat else bsline_filtered
+  dat_prepared <- ifelse(include_baseline, dat, bsline_filtered)
 
   measure_data <- dat_prepared |>
     dplyr::filter(
