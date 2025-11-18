@@ -1,4 +1,4 @@
-make_principal_summary_table <- function(data, sites = NULL) {
+make_main_summary_table <- function(data) {
   data |>
     format_bar_cols() |>
     dplyr::mutate(
@@ -17,7 +17,7 @@ make_principal_summary_table <- function(data, sites = NULL) {
 }
 
 
-make_principal_summary_los_table <- function(data, sites = NULL) {
+make_los_summary_table <- function(data) {
   data |>
     format_bar_cols() |>
     gt::gt(groupname_col = "pod_name") |>
@@ -27,7 +27,7 @@ make_principal_summary_los_table <- function(data, sites = NULL) {
 }
 
 
-make_principal_detailed_table <- function(data, sites, agg_by, final_year) {
+make_detailed_activity_table <- function(data, agg_by, final_year) {
   agg_label <- dplyr::case_match(
     agg_by,
     "age_group" ~ "Age Group",
@@ -35,13 +35,12 @@ make_principal_detailed_table <- function(data, sites, agg_by, final_year) {
     .default = uppercase_init(agg_by)
   )
   data |>
-    summarise_to_selected_sites(sites) |>
     format_bar_cols() |>
     dplyr::mutate(dplyr::across("sex", convert_sex_codes)) |>
     gt::gt(groupname_col = "sex") |>
     format_gt_core("agg") |>
     gt::cols_label(
-      agg = agg_label,
+      agg = {{ agg_label }},
       principal = glue::glue("Final ({final_year})")
     ) |>
     gt_theme()
