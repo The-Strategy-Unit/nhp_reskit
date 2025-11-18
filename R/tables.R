@@ -1,6 +1,5 @@
-make_principal_summary_table <- function(data, site = NULL) {
+make_principal_summary_table <- function(data, sites = NULL) {
   data |>
-    filter_to_site(site) |>
     format_bar_cols() |>
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) {
@@ -12,38 +11,35 @@ make_principal_summary_table <- function(data, site = NULL) {
       })
     ) |>
     gt::gt(groupname_col = "activity_type_label") |>
-    format_gt_core(pod_name) |>
+    format_gt_core("pod_name") |>
     gt::cols_label(pod_name = "Point of Delivery") |>
     gt_theme()
 }
 
 
-make_principal_summary_los_table <- function(data, site = NULL) {
+make_principal_summary_los_table <- function(data, sites = NULL) {
   data |>
-    filter_to_site(site) |>
     format_bar_cols() |>
     gt::gt(groupname_col = "pod_name") |>
-    format_gt_core(los_group) |>
+    format_gt_core("los_group") |>
     gt::cols_label(los_group = "Length of Stay") |>
     gt_theme()
 }
 
 
-make_principal_detailed_table <- function(data, site, aggregation, final_year) {
+make_principal_detailed_table <- function(data, sites, agg_by, final_year) {
   agg_label <- dplyr::case_match(
-    aggregation,
+    agg_by,
     "age_group" ~ "Age Group",
     "tretspef" ~ "Treatment Specialty",
-    .default = uppercase_init(aggregation)
+    .default = uppercase_init(agg_by)
   )
   data |>
-    filter_to_site(site) |>
+    summarise_to_selected_sites(sites) |>
     format_bar_cols() |>
-    dplyr::mutate(
-      dplyr::across("sex", \(x) dplyr::if_else(x == 1, "Male", "Female"))
-    ) |>
+    dplyr::mutate(dplyr::across("sex", convert_sex_codes)) |>
     gt::gt(groupname_col = "sex") |>
-    format_gt_core(agg) |>
+    format_gt_core("agg") |>
     gt::cols_label(
       agg = agg_label,
       principal = glue::glue("Final ({final_year})")
@@ -63,11 +59,14 @@ format_bar_cols <- function(tbl, p_col = "principal", p_clr = "#686f73") {
 
 
 format_gt_core <- function(gt_table, extra_col = NULL) {
+  int_cols <- c("baseline", "principal", "change")
+  bar_cols <- c("principal", "change", "change_pct")
+  left_cols <- c({{ extra_col }}, bar_cols)
   gt_table |>
-    gt::fmt_integer(c(baseline, principal, change)) |>
-    gt::fmt_percent(c(change_pct), decimals = 0) |>
-    gt::cols_width(c(principal, change, change_pct) ~ gt::px(150)) |>
-    gt::cols_align("left", c({{ extra_col }}, principal, change, change_pct)) |>
+    gt::fmt_integer(tidyselect::all_of(int_cols)) |>
+    gt::fmt_percent("change_pct", decimals = 0) |>
+    gt::cols_width(c("principal", "change", "change_pct") ~ gt::px(150)) |>
+    gt::cols_align("left", tidyselect::all_of(left_cols)) |>
     gt::cols_label_with(fn = uppercase_init) |>
     gt::cols_label(change_pct = "Percent Change")
 }
@@ -75,9 +74,7 @@ format_gt_core <- function(gt_table, extra_col = NULL) {
 
 gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
   format_fn <- format_fn %||% identity
-  if (length(colours) == 1) {
-    colours <- rep(colours, 2)
-  }
+  colours <- if (length(colours) == 1) rep(colours, 2) else colours
   stopifnot(length(colours) == 2)
   neg_colour <- colours[[1]]
   pos_colour <- colours[[2]]
@@ -87,13 +84,13 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
   x_pmin <- pmin(x, 0)
   max_bar_wd <- 50 # max width (as %) of table col that a bar can take up (50%)
 
-  create_bar_span <- function(...) {
+  create_bar_span <- function(bar_colour, bar_width) {
     glue::glue(
       "<span style='display: inline-block; direction: ltr; border: 0; ",
       "background-color: {bar_colour}; width: {bar_width}%;'>&nbsp;</span>\n"
     )
   }
-  glue_val_span <- function(value) {
+  create_val_span <- function(value) {
     glue::glue("<span style='width: 50%;' align=right>{value}</span>")
   }
 
