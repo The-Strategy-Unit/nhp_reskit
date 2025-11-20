@@ -14,7 +14,7 @@ Description: 'Wafer' goodbye to crumbly code, and dunk a sturdy reskit
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Depends: R (>= 4.4)
 Imports:
@@ -25,10 +25,12 @@ Imports:
     glue,
     purrr,
     rlang,
-    snakecase
+    snakecase,
+    yyjsonr
 Remotes:
     The-Strategy-Unit/azkit
 Suggests:
+    readr,
     testthat (>= 3.0.0),
     tibble,
     withr
