@@ -5,7 +5,7 @@ get_principal_pods <- function() {
     pod = "aae",
     pod_name = "A&E Attendance"
   )
-  get_pod_measures_list() |>
+  get_pod_measures_lst() |>
     purrr::pluck("pod_measures") |> # with current structure of pod_measures.yml
     purrr::discard_at("aae") |> # excluded here and replaced w/ custom row below
     purrr::map(list_to_tbl) |>
@@ -28,4 +28,4 @@ list_to_tbl <- function(lst) {
 }
 
 
-get_pod_measures_list <- \() yaml::read_yaml(here::here("pod_measures.yml"))
+get_pod_measures_lst <- \() yaml::read_yaml(here::here("inst/pod_measures.yml"))
