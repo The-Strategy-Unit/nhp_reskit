@@ -8,3 +8,5 @@
 ^[.]vscode$
 ^air[.]toml$
 ^[.]Renviron[.]example$
+^inst/a_.*$
+^test_results[.]rds$

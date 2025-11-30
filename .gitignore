@@ -92,3 +92,6 @@ venv.bak/
 /.vscode/
 
 inst/a_sort*
+!inst/a_sort*.qmd
+
+*.rds
