@@ -2,20 +2,35 @@
 % Please edit documentation in R/get_nhp_result_sets.R, R/reskit-package.R
 \name{gregg}
 \alias{gregg}
+\alias{gregv}
 \title{grepl a glued regex}
 \usage{
 gregg(x, rx, g = parent.frame())
 
 gregg(x, rx, g = parent.frame())
+
+gregv(x, rx, g = parent.frame())
+}
+\arguments{
+\item{x}{The character vector to search within}
+
+\item{rx}{A regular expression (pattern) to search for}
+
+\item{g}{The environment within which \code{rx} is evaluated}
 }
 \value{
-A logical value
+A logical vector
+
+A character vector: all values of x that match the regex in rx
 }
 \description{
 Facilitates using regex in search/filter patterns, and puts the
 arguments "the right way round" (x first, then pattern), unlike \code{grepl()}
 
 Facilitates using regex in search/filter patterns, and puts the
-arguments "the right way round" (x first, then pattern), unlike \code{\link[=grepl]{grepl()}}
+arguments "the right way round" (x first, then pattern), unlike \link{grepl}
+
+Facilitates using regex in search/filter patterns, and puts the
+arguments "the right way round" (x first, then pattern), unlike \link{grepv}
 }
 \keyword{internal}
