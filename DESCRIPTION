@@ -1,6 +1,6 @@
 Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
-Version: 0.1.0
+Version: 0.1.99
 Authors@R:
     person(
         "Fran", "Barton",
@@ -16,16 +16,25 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
-Depends: R (>= 4.4)
+Depends: R (>= 4.5.0)
 Imports:
     azkit (>= 0.1.1),
     AzureStor,
     cli,
     dplyr,
+    forcats,
+    ggbeeswarm,
+    ggplot2,
     glue,
+    gt,
+    here,
     purrr,
     rlang,
+    scales,
     snakecase,
+    tidyr,
+    tidyselect,
+    yaml,
     yyjsonr
 Remotes:
     The-Strategy-Unit/azkit
