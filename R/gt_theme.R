@@ -1,3 +1,5 @@
+#' Function to style gt tables
+#' @keywords internal
 gt_theme <- function(data) {
   data |>
     gt::tab_options(
