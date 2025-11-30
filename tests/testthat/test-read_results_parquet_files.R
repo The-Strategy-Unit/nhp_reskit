@@ -114,9 +114,9 @@ test_that("bughunting", {
   root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
   expect_false(is.na(root_dir))
 
-  version <- "v4.1"
+  version <- "v4.0"
   expect_true(rlang::is_string(version))
-  scheme <- "RD8"
+  scheme <- "RRK"
   expect_true(rlang::is_string(scheme))
 
   check_grfp_inputs(res, root_dir, version, scheme, NULL, NULL) |>
@@ -132,7 +132,7 @@ test_that("bughunting", {
   azkit:::check_scalar_type(folder_name, "character", "fail") |>
     expect_equal(folder_name) # folder_name should be passed through
 
-  exp_path <- file.path(root_dir, version, scheme, "test-v4-1-qa")
+  exp_path <- file.path(root_dir, version, scheme, "test-2324-2")
 
   scen_path <- check_single_subdir(orig_path, "scenario", NULL, res)
   expect_equal(scen_path, paste0(exp_path, "/")) # file.path doesn't add final /

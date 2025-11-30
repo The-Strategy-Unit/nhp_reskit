@@ -1,7 +1,7 @@
 #' @keywords internal
 "_PACKAGE"
 
-#' @importFrom rlang .data
+#' @importFrom rlang .data .env
 NULL
 
 #' grepl a glued regex
