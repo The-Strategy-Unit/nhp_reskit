@@ -1,40 +1,46 @@
-make_main_summary_table <- function(data) {
-  data |>
+#' Create a gt table with data from [compile_principal_pod_data]
+#'
+#' @param principal_pod_data A suitable tibble
+#' @returns A gt table
+#' @export
+make_principal_pod_table <- function(principal_pod_data) {
+  principal_pod_data |>
     format_bar_cols() |>
-    dplyr::mutate(
-      dplyr::across("activity_type_label", \(x) {
-        dplyr::case_when(
-          grepl("Admission", .data[["pod_name"]]) ~ paste0(x, " Admissions"),
-          grepl("Bed Days", .data[["pod_name"]]) ~ paste0(x, " Bed Days"),
-          .default = x
-        )
-      })
-    ) |>
     gt::gt(groupname_col = "activity_type_label") |>
-    format_gt_core("pod_name") |>
-    gt::cols_label(pod_name = "Point of Delivery") |>
+    format_gt_core("pod_label") |>
+    gt::cols_label(pod_label = "Point of Delivery") |>
     gt_theme()
 }
 
 
-make_los_summary_table <- function(data) {
-  data |>
+#' Create a gt table with data from [compile_principal_los_data]
+#'
+#' @param principal_los_data A suitable tibble
+#' @returns A gt table
+#' @export
+make_principal_los_table <- function(principal_los_data) {
+  principal_los_data |>
     format_bar_cols() |>
-    gt::gt(groupname_col = "pod_name") |>
+    gt::gt(groupname_col = "pod_label") |>
     format_gt_core("los_group") |>
     gt::cols_label(los_group = "Length of Stay") |>
     gt_theme()
 }
 
 
-make_detailed_activity_table <- function(data, agg_by, final_year) {
+#' Create a gt table with data from compile_detailed_activity_data()
+#'
+#' @param activity_data A suitable tibble
+#' @returns A gt table
+#' @export
+make_detailed_activity_table <- function(activity_data, agg_by, final_year) {
   agg_label <- dplyr::case_match(
     agg_by,
     "age_group" ~ "Age Group",
     "tretspef" ~ "Treatment Specialty",
     .default = uppercase_init(agg_by)
   )
-  data |>
+  activity_data |>
     format_bar_cols() |>
     dplyr::mutate(dplyr::across("sex", convert_sex_codes)) |>
     gt::gt(groupname_col = "sex") |>
@@ -46,7 +52,8 @@ make_detailed_activity_table <- function(data, agg_by, final_year) {
     gt_theme()
 }
 
-
+#' Format horizontal `gt_bar`s within tables
+#' @keywords internal
 format_bar_cols <- function(tbl, p_col = "principal", p_clr = "#686f73") {
   tbl |>
     dplyr::mutate(
@@ -57,6 +64,8 @@ format_bar_cols <- function(tbl, p_col = "principal", p_clr = "#686f73") {
 }
 
 
+#' Common helper function to handle standar formatting of gt tables
+#' @keywords internal
 format_gt_core <- function(gt_table, extra_col = NULL) {
   int_cols <- c("baseline", "principal", "change")
   bar_cols <- c("principal", "change", "change_pct")
@@ -71,6 +80,8 @@ format_gt_core <- function(gt_table, extra_col = NULL) {
 }
 
 
+#' Function to handle the size and formatting of gt_bar elements in tables
+#' @keywords internal
 gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
   format_fn <- format_fn %||% identity
   colours <- if (length(colours) == 1) rep(colours, 2) else colours
