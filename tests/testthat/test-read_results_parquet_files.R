@@ -107,7 +107,6 @@ test_that("table selection works", {
 
 test_that("bughunting", {
   skip_on_ci()
-  # https://github.com/The-Strategy-Unit/nhp_reskit/pull/24#pullrequestreview-3201907282
 
   res <- get_results_container()
   expect_s3_class(res, "blob_container")

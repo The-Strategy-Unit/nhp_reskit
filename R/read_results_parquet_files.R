@@ -28,7 +28,7 @@ read_results_parquet_files <- function(path, tables = NULL, container = NULL) {
     gregv("\\.parquet$")
   parquet_names <- sub("^(.*/)([[:graph:]]+)(\\.parquet)$", "\\2", file_paths)
 
-  absent <- setdiff(tables, parquet_names)
+  absent <- setdiff(tables, parquet_names) # nolint
   msg <- azkit:::cv_error_msg("Table{?s} {.val {absent}} {?is/are} not present")
   azkit:::check_vec(tables, \(x) x %in% parquet_names, msg)
 
@@ -122,7 +122,7 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
     dplyr::filter(dplyr::if_any("isdir")) |>
     dplyr::pull("name") |>
     azkit:::check_vec(rlang::is_character, msg2)
-  cur_dir <- basename(path)
+  cur_dir <- basename(path) # nolint
   max_dttm <- max(folder_name)
 
   # construct error messages if length(folder_name) > 1
@@ -158,5 +158,5 @@ check_grfp_inputs <- function(cn, root_dir, version, scheme, scenario, stamp) {
   stopifnot("`scheme` must be a single string" = rlang::is_string(scheme))
   stopifnot(rlang::is_scalar_character(scenario) || is.null(scenario))
   stopifnot(rlang::is_scalar_character(stamp) || is.null(stamp))
-  return(TRUE)
+  TRUE
 }
