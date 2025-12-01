@@ -13,7 +13,7 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     "Outpatient",
     "A&E"
   )
-  prepare_site_level_principal_pod_data(default_tbl) |>
+  prepare_sites_principal_pod_data(default_tbl) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     add_change_cols() |>
@@ -27,12 +27,12 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }
 
-#' Initial preparation of data for the main summary table
+#' Initial preparation of site-level data for the main summary table
 #'
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @keywords internal
-prepare_site_level_principal_pod_data <- function(default_tbl) {
+prepare_sites_principal_pod_data <- function(default_tbl) {
   # only "procedures" excluded from full list of measures, but we will do a
   # "positive" filter in rather than a filter out
   keep_measures <- c(
@@ -62,8 +62,8 @@ prepare_site_level_principal_pod_data <- function(default_tbl) {
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @export
-export_site_level_principal_pod_data <- function(default_tbl, sites = NULL) {
-  prepare_site_level_principal_pod_data(default_tbl) |>
+export_sites_principal_pod_data <- function(default_tbl, sites = NULL) {
+  prepare_sites_principal_pod_data(default_tbl) |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
@@ -99,15 +99,4 @@ inner_join_for_labels <- function(tbl, lookup) {
     dplyr::relocate("pod_label") |>
     # we don't need to keep "pod" (we will use "pod_label" in the final tables)
     dplyr::select(!"pod")
-}
-
-#' Add `change` and `change_pct` columns to a prepared results table
-#' @keywords internal
-add_change_cols <- function(tbl) {
-  stopifnot(all(c("baseline", "principal") %in% colnames(tbl)))
-  tbl |>
-    dplyr::mutate(
-      change = .data[["principal"]] - .data[["baseline"]],
-      change_pct = .data[["change"]] / .data[["baseline"]]
-    )
 }
