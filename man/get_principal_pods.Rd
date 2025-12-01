@@ -4,7 +4,10 @@
 \alias{get_principal_pods}
 \title{Prepare a lookup table with activity type labels and PoD labels for each PoD}
 \usage{
-get_principal_pods()
+get_principal_pods(file = NULL)
+}
+\arguments{
+\item{file}{Path to a YAML file containing the pod lookup data}
 }
 \value{
 A tibble
@@ -12,4 +15,3 @@ A tibble
 \description{
 Prepare a lookup table with activity type labels and PoD labels for each PoD
 }
-\keyword{internal}

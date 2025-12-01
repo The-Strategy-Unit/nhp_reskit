@@ -49,8 +49,9 @@ convert_sex_codes <- \(x) dplyr::if_else(x == 1L, "Male", "Female")
 uppercase_init <- \(x) sub("^([[:alpha:]])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
 
 
-get_tretspef_lookup <- function() {
-  yyjsonr::read_json_file(here::here("inst/tx-lookup.json")) |>
+get_tretspef_lookup <- function(file = NULL) {
+  file <- file %||% system.file("tx-lookup.json", package = "reskit")
+  yyjsonr::read_json_file(file) |>
     tibble::as_tibble() |>
     dplyr::rename_with(tolower) |>
     dplyr::select(c("code", tretspef = "description")) |>
