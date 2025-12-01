@@ -37,8 +37,13 @@ get_tretspef_lookup <- function() {
 }
 
 
-get_cpma_label_lookup <- function() {
-  yyjsonr::read_json_file(here::here("inst/mitigators.json")) |>
-    purrr::imap(\(x, nm) tibble::tibble(strategy = nm, cpma_label = x)) |>
+#' Get a lookup of TPMA labels from a 'strategy' variable
+#'
+#' @param file Path to JSON source file
+#' @returns A 2-column tibble
+#' @export
+get_tpma_label_lookup <- function(file = here::here("inst/mitigators.json")) {
+  yyjsonr::read_json_file(file) |>
+    purrr::imap(\(x, nm) tibble::tibble(strategy = nm, tpma_label = x)) |>
     purrr::list_rbind()
 }
