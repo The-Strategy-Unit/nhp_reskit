@@ -8,7 +8,7 @@
 #'  by point of delivery and grouped length of stay
 #' @export
 compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
-  summary_los_data <- prepare_site_level_principal_los_data(los_tbl, measure) |>
+  summary_los_data <- prepare_sites_principal_los_data(los_tbl, measure) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     add_change_cols()
@@ -30,12 +30,12 @@ compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
 }
 
 
-#' Initial preparation of data for the main LoS summary table
+#' Initial preparation of site-level data for the main LoS summary table
 #'
 #' @inheritParams compile_principal_los_data
 #' @returns A tibble
 #' @keywords internal
-prepare_site_level_principal_los_data <- function(los_tbl, selected_measure) {
+prepare_sites_principal_los_data <- function(los_tbl, selected_measure) {
   los_tbl |>
     dplyr::filter(
       dplyr::if_any("measure", \(x) x == .env[["selected_measure"]])
@@ -55,8 +55,8 @@ prepare_site_level_principal_los_data <- function(los_tbl, selected_measure) {
 #' @inheritParams compile_principal_los_data
 #' @returns A tibble
 #' @export
-export_site_level_principal_los_data <- function(los_tbl, sites = NULL) {
-  prepare_site_level_principal_los_data(los_tbl) |>
+export_sites_principal_los_data <- function(los_tbl, sites = NULL) {
+  prepare_sites_principal_los_data(los_tbl) |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
