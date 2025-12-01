@@ -1,37 +1,31 @@
-make_overall_cf_plot <- function(pcf_data) {
-  pcf_data |>
+make_overall_cf_plot <- function(principal_change_factor_data) {
+  principal_change_factor_data |>
     dplyr::mutate(
       colour = dplyr::case_when(
         .data[["change_factor"]] == "baseline" ~ "#686f73",
-        .data[["change_factor"]] == "Estimate" ~ "#ec6555",
+        .data[["change_factor"]] == "estimate" ~ "#ec6555",
         .data[["value"]] >= 0 ~ "#f9bf07",
         .default = "#2c2825"
-      ),
-      dplyr::across("value", abs), # ?
-      # dplyr::across("name", \(x) forcats::fct(x, c("hidden", "value"))),
-      dplyr::across("change_factor", forcats::fct_rev),
-      dplyr::across("change_factor", \(x) forcats::fct_relevel(x, "Estimate")),
-      dplyr::across("total", \(x) x + .data[["hidden"]])
+      )
     ) |>
-    ggplot2::ggplot(
+    ggplot2::ggplot() +
+    ggplot2::geom_segment(
       ggplot2::aes(
         x = .data[["hidden"]],
         xend = .data[["total"]],
         y = .data[["change_factor"]],
         yend = .data[["change_factor"]],
         colour = .data[["colour"]]
-      )
-    ) +
-    ggplot2::geom_segment(
+      ),
       # dynamic: bigger if fewer bars (130 is relative to 600px plot height)
-      lwd = 130 / nrow(pcfe_data)
+      lwd = 130 / nrow(principal_change_factor_data)
     ) +
     ggplot2::scale_colour_identity() +
     ggplot2::scale_x_continuous(
       breaks = scales::pretty_breaks(5),
       labels = scales::label_comma()
     ) +
-    ggplot2::scale_y_discrete(labels = snakecase::to_title_case) +
+    ggplot2::scale_y_discrete(limits = rev, labels = snakecase::to_title_case) +
     ggplot2::labs(x = NULL, y = NULL)
 }
 
@@ -43,7 +37,7 @@ make_individual_cf_plot <- function(
   x_axis_label
 ) {
   data |>
-    dplyr::filter(dplyr::if_any("change_factor", \(x) x == {{ measure }})) |>
+    dplyr::filter(.data[["change_factor"]] == .env[["measure"]]) |>
     dplyr::mutate(
       tooltip = scales::label_comma(1)(.data[["value"]]),
       dplyr::across("tooltip", \(x) paste0(.data[["mitigator_name"]], ": ", x))
