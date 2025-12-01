@@ -195,15 +195,14 @@ test_that("see why numbers don't look right", {
       .by = "change_factor"
     ) |>
     dplyr::arrange(dplyr::desc(dplyr::pick("value"))) |>
-    move_baseline_row("top") |>
+    move_baseline_row_to_top() |>
     dplyr::mutate(
       cmvalue = cumsum(.data[["value"]]),
       hidden = dplyr::lag(.data[["cmvalue"]], 1, 0) + pmin(.data[["value"]], 0),
       total = abs(.data[["value"]]) + .data[["hidden"]]
     ) |>
     dplyr::select(!"cmvalue") |>
-    dplyr::arrange(dplyr::pick("value")) |>
-    move_baseline_row("bottom")
+    dplyr::arrange(dplyr::pick("value"))
 
   expect_shape(sct_data_final, dim = c(8, 4))
 

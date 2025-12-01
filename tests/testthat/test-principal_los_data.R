@@ -54,7 +54,7 @@ test_that("compile_main_data does what we need", {
     "principal"
   )
   expect_named(out3, col_names3)
-  expect_shape(out2, nrow = 29)
+  expect_shape(out3, nrow = 29)
 
   out4 <- out3 |>
     filter_to_selected_sites(sites = NULL) |>
@@ -70,5 +70,5 @@ test_that("compile_main_data does what we need", {
     "change_pct"
   )
   expect_named(out4, col_names4)
-  expect_shape(out3, dim = c(26, 6))
+  expect_shape(out4, dim = c(26, 6))
 })

@@ -3,7 +3,7 @@ test_that("compile_principal_pod_data does what we need", {
   results <- readr::read_rds(here::here("test_results.rds"))
   default_tbl <- results[["default"]] |>
     dplyr::select(1:5)
-  expect_shape(los_tbl, nrow = 10794L)
+  expect_shape(default_tbl, nrow = 10794L)
   col_names <- c("pod", "sitetret", "measure", "model_run", "value")
   expect_named(default_tbl, col_names)
 
@@ -37,7 +37,15 @@ test_that("compile_principal_pod_data does what we need", {
 
   expect_named(out1, col_names1)
 
-  final_activity_types <- c("A&E", "Inpatient", "Outpatient")
+  final_activity_types <- c(
+    "A&E",
+    # was previously just "Inpatient" but now we are adding "Admissions" /
+    # "Bed Days" in `relabel_pods()` as this seems OK and useful.
+    # But if not a good idea then can be reverted.
+    "Inpatient Admissions",
+    "Inpatient Bed Days",
+    "Outpatient"
+  )
   expect_identical(
     sort(unique(as.character(out1[["activity_type_label"]]))),
     final_activity_types
@@ -65,7 +73,6 @@ test_that("compile_principal_pod_data does what we need", {
 
   col_names3 <- c(
     "pod_label",
-    "sitetret",
     "activity_type_label",
     "baseline",
     "principal",
