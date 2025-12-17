@@ -44,9 +44,11 @@ prepare_sites_principal_pod_data <- function(default_tbl) {
     "walk-in"
   )
   default_tbl |>
+    dplyr::filter(dplyr::if_any("measure", \(x) x %in% {{ keep_measures }})) |>
     dplyr::filter(
-      dplyr::if_any("measure", \(x) x %in% {{ keep_measures }}) &
-        dplyr::if_any("pod", \(x) x != "op_procedure") # check why
+      # exclude outpatient procedures from tele-attendances count only
+      dplyr::if_any("measure", \(x) x != "tele_attendances") |
+        dplyr::if_any("pod", \(x) x != "op_procedure")
     ) |>
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
