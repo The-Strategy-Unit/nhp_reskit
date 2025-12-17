@@ -30,23 +30,17 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
 }
 
 
-make_individual_cf_plot <- function(
-  data,
-  measure,
-  title,
-  x_axis_label
-) {
-  data |>
-    dplyr::filter(.data[["change_factor"]] == .env[["measure"]]) |>
+make_individual_cf_plot <- function(indiv_change_factor_data, x_axis_label) {
+  indiv_change_factor_data |>
     dplyr::mutate(
+      dplyr::across("change_factor", \(x) uppercase_init(sub("_", " ", x))),
       tooltip = scales::label_comma(1)(.data[["value"]]),
-      dplyr::across("tooltip", \(x) paste0(.data[["mitigator_name"]], ": ", x))
+      dplyr::across("tooltip", \(x) paste0(.data[["tpma_label"]], ": ", x))
     ) |>
-    # require_rows() |> # Shiny only
     ggplot2::ggplot(
       ggplot2::aes(
         .data[["value"]],
-        .data[["mitigator_name"]],
+        .data[["tpma_label"]],
         text = .data[["tooltip"]]
       )
     ) +
@@ -55,5 +49,12 @@ make_individual_cf_plot <- function(
       breaks = scales::pretty_breaks(5),
       labels = scales::label_comma()
     ) +
-    ggplot2::labs(title = title, x = x_axis_label, y = NULL)
+    ggplot2::labs(x = x_axis_label, y = NULL) +
+    ggplot2::facet_wrap(
+      dplyr::vars(.data[["change_factor"]]),
+      scales = "free_y",
+      axes = "all_x",
+      axis.labels = "all_x",
+      ncol = 1
+    )
 }

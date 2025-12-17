@@ -167,54 +167,71 @@ results |>
 
 ### Impact of changes charts
 
+#### Overall ("waterfall") 1
+
 ```{r change factors plot 1}
-step_counts_tbl <- results[["step_counts"]]
-
-prepared_data <- prepare_principal_cf_data(step_counts_tbl, TRUE)
-
-activity_types <- unique(prepared_data[["activity_type_label"]])
-pods <- unique(prepared_data[["pod_label"]])
-measures <- unique(prepared_data[["measure"]])
-
-set.seed(21879)
-activity_type <- sample(activity_types, 1)
-measure <- sample(measures, 1)
-
-interim_data <- prepared_data |>
-  filter_to_selected_sites(sites = NULL) |>
-  summarise_for_all_sites() |>
-  filter_principal_cf_data(activity_type, pods, measure) |>
-  dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
-  # Here we need to sort by decreasing value (biggest increases in activity
-  # (positive 'value's) at the top), and we need to ensure that the 'baseline'
-  # row is at the top so that the cumsum() step works correctly.
-  dplyr::arrange(dplyr::desc(dplyr::pick("value"))) |>
-  move_baseline_row_to_top() |>
-  dplyr::mutate(
-    cmvalue = cumsum(.data[["value"]]),
-    hidden = dplyr::lag(.data[["cmvalue"]], 1, 0) + pmin(.data[["value"]], 0),
-    total = abs(.data[["value"]]) + .data[["hidden"]]
+results |>
+  purrr::pluck("step_counts") |>
+  compile_change_factor_data(
+    activity_type = "Inpatient",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    measure = "Admissions"
   ) |>
-  dplyr::select(!"cmvalue")
-
-estimate_row <- tibble::tibble_row(
-  change_factor = "estimate",
-  value = sum(interim_data[["value"]]),
-  hidden = 0,
-  total = .data[["value"]]
-)
-
-interim_data |>
-  dplyr::bind_rows(estimate_row) |>
-  dplyr::mutate(dplyr::across("change_factor", forcats::fct_inorder)) |>
   make_overall_cf_plot()
 
 ```
 
 
-## Activity in detail table
+#### Overall 2 (no baseline)
+
+```{r change factors plot 2}
+results |>
+  purrr::pluck("step_counts") |>
+  compile_change_factor_data(
+    activity_type = "Inpatient",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    measure = "Admissions",
+    include_baseline = FALSE
+  ) |>
+  make_overall_cf_plot()
+
+```
+
+
+#### Individual
+
+```{r change factors plot 3}
+
+measure <- "Admissions"
+
+results |>
+  purrr::pluck("step_counts") |>
+  compile_indiv_change_factor_data(
+    activity_type = "Inpatient",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    measure = measure
+  ) |>
+  make_individual_cf_plot(x_axis_label = measure)
+
+```
+
+
+<!-- ## Activity in detail table -->
 
 ```{r activity in detail table}
+#| include: false
 #| eval: false
 results |>
   compile_detailed_activity_data() |>
