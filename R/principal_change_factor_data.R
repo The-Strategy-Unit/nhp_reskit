@@ -34,8 +34,7 @@ compile_change_factor_data <- function(
   )
   interim_data |>
     dplyr::bind_rows(estimate_row) |>
-    dplyr::mutate(dplyr::across("change_factor", forcats::fct_inorder)) |>
-    make_overall_cf_plot()
+    dplyr::mutate(dplyr::across("change_factor", forcats::fct_inorder))
 }
 
 
@@ -60,7 +59,10 @@ compile_indiv_change_factor_data <- function(
     NULL
   } else {
     table_data <- table_data |>
-      dplyr::summarise(dplyr::across("value", sum), .by = "tpma_label") |>
+      dplyr::summarise(
+        dplyr::across("value", sum),
+        .by = c("change_factor", "tpma_label")
+      ) |>
       dplyr::filter(
         dplyr::if_any("tpma_label", \(x) x != "-") &
           # we only want to include TPMAs that _reduce_ the measure
