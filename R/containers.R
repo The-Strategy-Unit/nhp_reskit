@@ -9,7 +9,8 @@ get_support_container <- function(scv_name = "AZ_SUPPORT_CONTAINER") {
   not_found_msg <- "variable {.envvar {scv_name}} not found"
   Sys.getenv(scv_name, NA) |>
     azkit:::check_scalar_type("string", not_found_msg) |>
-    azkit::get_container()
+    azkit::get_container() |>
+    azkit::check_container_class()
 }
 
 
@@ -24,5 +25,6 @@ get_results_container <- function(rcv_name = "AZ_RESULTS_CONTAINER") {
   not_found_msg <- "variable {.envvar {rcv_name}} not found"
   Sys.getenv(rcv_name, NA) |>
     azkit:::check_scalar_type("string", not_found_msg) |>
-    azkit::get_container()
+    azkit::get_container() |>
+    azkit::check_container_class()
 }
