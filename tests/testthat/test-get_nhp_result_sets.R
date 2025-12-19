@@ -33,7 +33,7 @@ test_that("basic outline", {
     ) |>
     expect_no_warning()
 
-  expect_length(combined_metadata_df, 13L) # ncol
+  expect_length(combined_metadata_df, 14L) # ncol
   expect_equal(nrow(combined_metadata_df), length(all_params_files))
 
   combined_metadata_df1 <- all_params_files |>

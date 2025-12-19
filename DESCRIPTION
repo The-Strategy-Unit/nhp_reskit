@@ -1,6 +1,6 @@
 Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
-Version: 0.0.3
+Version: 0.1.99
 Authors@R:
     person(
         "Fran", "Barton",
@@ -14,20 +14,32 @@ Description: 'Wafer' goodbye to crumbly code, and dunk a sturdy reskit
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Config/testthat/edition: 3
-Depends: R (>= 4.4)
+Depends: R (>= 4.5.0)
 Imports:
-    azkit (== 0.1.1),
+    azkit (>= 0.1.1),
     AzureStor,
     cli,
     dplyr,
+    forcats,
+    ggbeeswarm,
+    ggplot2,
     glue,
+    gt,
+    here,
     purrr,
-    rlang
+    rlang,
+    scales,
+    snakecase,
+    tidyr,
+    tidyselect,
+    yaml,
+    yyjsonr
 Remotes:
     The-Strategy-Unit/azkit
 Suggests:
+    readr,
     testthat (>= 3.0.0),
     tibble,
     withr
