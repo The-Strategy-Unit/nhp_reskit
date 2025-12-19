@@ -90,3 +90,8 @@ venv.bak/
 
 # VSCode extensions/settings
 /.vscode/
+
+inst/a_sort*
+!inst/a_sort*.qmd
+
+*.rds

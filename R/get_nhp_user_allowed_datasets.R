@@ -5,8 +5,8 @@
 #' @export
 get_nhp_user_allowed_datasets <- function(groups = NULL) {
   providers_vec <- get_providers()
-  filter_groups <- \(x) grepv("^nhp_provider_", x)
-  trim_group_names <- \(x) sub("^nhp_provider_", "", x)
+  filter_groups <- \(x) grepv("^nhp_(national|icb|provider)_", x)
+  trim_group_names <- \(x) sub("^nhp_(national|icb|provider)_", "", x)
 
   if (is.null(groups) || any(c("nhp_devs", "nhp_power_users") %in% groups)) {
     c("synthetic", providers_vec)

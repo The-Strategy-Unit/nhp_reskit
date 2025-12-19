@@ -67,8 +67,8 @@ compile_run_metadata_tbl <- function(groups = NULL, root_dir = NULL) {
   root_dir <- root_dir %||% Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
   stopifnot("`root_dir` must be a single string" = rlang::is_string(root_dir))
   allowed_datasets <- get_nhp_user_allowed_datasets(groups)
-  allowed_dirs_rx <- paste0(allowed_datasets, collapse = "|")
-  version_rx <- "/(dev|v\\d+\\.\\d+)/"
+  allowed_dirs_rx <- paste0(allowed_datasets, collapse = "|") # nolint
+  version_rx <- "/(dev|v\\d+\\.\\d+)/" # nolint
 
   results_container <- get_results_container()
   # recursive listing
