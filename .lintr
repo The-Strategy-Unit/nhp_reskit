@@ -1,0 +1,9 @@
+linters: linters_with_defaults( # see vignette("lintr")
+  commented_code_linter = NULL,
+  object_length_linter(32)
+  )
+exclusions: list(
+  "R/distribution_plots.R",
+  "R/read_results_parquet_files.R" = 129
+  )
+encoding: "UTF-8"
