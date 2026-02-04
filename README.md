@@ -58,7 +58,7 @@ read_results_parquet_files(results_dir)
 # Read only selected results files from multiple scenarios
 c("scenario1", "scenario2") |>
   purrr::map(\(x) get_results_folder_path("v3.6", "RZZ", scenario = x)) |>
-  purrr::map(\(x) read_results_parquet_files(x, files = c("default", "age")))
+  purrr::map(\(x) read_results_parquet_files(x, tables = c("default", "age")))
 ```
 
 
