@@ -1,4 +1,4 @@
-test_that("compile_principal_change_factor_data does what we need", {
+test_that("compile_change_factor_data does what we need", {
   skip_on_ci()
   results <- readr::read_rds(here::here("test_results.rds"))
   step_counts_tbl <- results[["step_counts"]] |>
