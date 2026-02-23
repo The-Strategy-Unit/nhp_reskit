@@ -118,7 +118,7 @@ test_that("bughunting", {
   scheme <- "RRK"
   expect_true(rlang::is_string(scheme))
 
-  check_grfp_inputs(res, root_dir, version, scheme, NULL, NULL) |>
+  check_grdp_inputs(res, root_dir, version, scheme, NULL, NULL) |>
     expect_true()
 
   orig_path <- file.path(root_dir, version, scheme)

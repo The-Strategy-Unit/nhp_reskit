@@ -49,15 +49,15 @@ get_providers() # requires the environment variable "AZ_SUPPORT_CONTAINER"
 # Get the path to a folder of results data
 # (the below example will succeed only if there is a single scenario and a
 # single model run within the particular version and scheme combination below)
-get_results_folder_path(version = "v4.0", scheme = "national", scenario = "test)
+get_results_dir_path(version = "v4.0", scheme = "national", scenario = "test)
 
 # Read all parquet data files from a location
-results_dir <- get_results_folder_path(version = "v4.0", scheme = "national")
+results_dir <- get_results_dir_path(version = "v4.0", scheme = "national")
 read_results_parquet_files(results_dir)
 
 # Read only selected results files from multiple scenarios
 c("scenario1", "scenario2") |>
-  purrr::map(\(x) get_results_folder_path("v3.6", "RZZ", scenario = x)) |>
+  purrr::map(\(x) get_results_dir_path("v3.6", "RZZ", scenario = x)) |>
   purrr::map(\(x) read_results_parquet_files(x, files = c("default", "age")))
 ```
 
