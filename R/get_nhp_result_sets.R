@@ -81,7 +81,8 @@ compile_run_metadata_tbl <- function(groups = NULL, root_dir = NULL) {
     dplyr::bind_cols(list(AzureStor::get_storage_metadata(contnr, x), file = x))
   }
   all_params_files |>
-    purrr::map_dfr(metadata_to_tibble) |>
+    purrr::map(metadata_to_tibble) |>
+    purrr::list_rbind() |>
     dplyr::mutate(
       dplyr::across(c("seed", "model_runs"), as.integer),
       dplyr::across(c("start_year", "end_year"), as.integer),

@@ -37,6 +37,7 @@ compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
 #' @keywords internal
 prepare_sites_principal_los_data <- function(los_tbl, selected_measure) {
   los_tbl |>
+    dplyr::mutate(dplyr::across("measure", uppercase_init)) |>
     dplyr::filter(
       dplyr::if_any("measure", \(x) x == .env[["selected_measure"]])
     ) |>
