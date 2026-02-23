@@ -49,12 +49,16 @@ convert_sex_codes <- \(x) dplyr::if_else(x == 1L, "Male", "Female")
 uppercase_init <- \(x) sub("^([[:alpha:]])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
 
 
-get_tretspef_lookup <- function(file = NULL) {
-  file <- file %||% system.file("tx-lookup.json", package = "reskit")
-  yyjsonr::read_json_file(file) |>
+#' Get a lookup of tretspef codes to descriptions
+#'
+#' Currently reads from a fixed location within the package.
+#' @returns A 2-column tibble with columns `code` and `tretspef`
+#' @export
+get_tretspef_lookup <- function() {
+  system.file("tx-lookup.json", package = "reskit") |>
+    yyjsonr::read_json_file() |>
     tibble::as_tibble() |>
-    dplyr::rename_with(tolower) |>
-    dplyr::select(c("code", tretspef = "description")) |>
+    dplyr::select(c(code = "Code", tretspef = "Description")) |>
     dplyr::mutate(
       dplyr::across("tretspef", \(x) sub(" Service$", "", x)),
       dplyr::across("tretspef", \(x) paste0(.data[["code"]], ": ", x))
@@ -64,13 +68,14 @@ get_tretspef_lookup <- function(file = NULL) {
 }
 
 
-#' Get a lookup of TPMA labels from a 'strategy' variable
+#' Get a lookup of TPMA labels
 #'
-#' @param file Path to JSON source file
-#' @returns A 2-column tibble
+#' Currently reads from a fixed location within the package.
+#' @returns A 2-column tibble, with columns `strategy` and `tpma_label`
 #' @export
-get_tpma_label_lookup <- function(file = here::here("inst/mitigators.json")) {
-  yyjsonr::read_json_file(file) |>
+get_tpma_label_lookup <- function() {
+  system.file("mitigators.json", package = "reskit") |>
+    yyjsonr::read_json_file() |>
     purrr::imap(\(x, nm) tibble::tibble(strategy = nm, tpma_label = x)) |>
     purrr::list_rbind()
 }
