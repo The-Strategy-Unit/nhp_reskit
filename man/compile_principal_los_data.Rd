@@ -9,8 +9,8 @@ compile_principal_los_data(los_tbl, measure, sites = NULL)
 \arguments{
 \item{los_tbl}{the "tretspef+los_group" table from NHP results}
 
-\item{measure}{Either "admissions" or "beddays". The measure to focus on for
-the output table}
+\item{measure}{Either "Admissions" or "Beddays" (note initial capital
+letters). The measure to focus on for the output table}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data.}

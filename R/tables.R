@@ -52,6 +52,7 @@ make_detailed_activity_table <- function(activity_data, agg_by, final_year) {
     gt_theme()
 }
 
+
 #' Format horizontal `gt_bar`s within tables
 #' @keywords internal
 format_bar_cols <- function(tbl, p_col = "principal", p_clr = "#686f73") {
