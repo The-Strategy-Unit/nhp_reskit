@@ -1,6 +1,6 @@
 Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
-Version: 0.1.99
+Version: 0.2.1
 Authors@R:
     person(
         "Fran", "Barton",
@@ -18,7 +18,7 @@ RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Depends: R (>= 4.5.0)
 Imports:
-    azkit (>= 0.1.1),
+    azkit (>= 0.2.3),
     AzureStor,
     cli,
     dplyr,
