@@ -2,16 +2,13 @@
 % Please edit documentation in R/helpers.R
 \name{get_tpma_label_lookup}
 \alias{get_tpma_label_lookup}
-\title{Get a lookup of TPMA labels from a 'strategy' variable}
+\title{Get a lookup of TPMA labels}
 \usage{
-get_tpma_label_lookup(file = here::here("inst/mitigators.json"))
-}
-\arguments{
-\item{file}{Path to JSON source file}
+get_tpma_label_lookup()
 }
 \value{
-A 2-column tibble
+A 2-column tibble, with columns \code{strategy} and \code{tpma_label}
 }
 \description{
-Get a lookup of TPMA labels from a 'strategy' variable
+Currently reads from a fixed location within the package.
 }
