@@ -19,7 +19,7 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     add_change_cols() |>
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) forcats::fct(x, at_levels)),
-      # display pods in desc order of baseline level of admissions/beddays
+      # display pods in descending order of baseline value, by activity type
       dplyr::across("pod_label", \(x) {
         forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
       })
