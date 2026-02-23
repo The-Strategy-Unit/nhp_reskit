@@ -27,7 +27,7 @@ Imports:
     ggplot2,
     glue,
     gt,
-    here,
+    jsonlite,
     purrr,
     rlang,
     scales,
@@ -39,6 +39,7 @@ Imports:
 Remotes:
     The-Strategy-Unit/azkit
 Suggests:
+    here,
     readr,
     testthat (>= 3.0.0),
     tibble,
