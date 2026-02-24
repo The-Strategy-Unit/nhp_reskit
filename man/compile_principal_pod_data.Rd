@@ -10,7 +10,7 @@ compile_principal_pod_data(default_tbl, sites = NULL)
 \item{default_tbl}{the "default" table from NHP results}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
-to. \code{NULL} means don't filter; include all sites present in the data.}
+to. \code{NULL} means don't filter; include all sites present in the data}
 }
 \value{
 A filtered and sorted tibble of principal projections of results,
