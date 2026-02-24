@@ -41,9 +41,9 @@ run_stages <- function() {
 read_all_tagged_runs_params <- function(runs_metadata_tbl = NULL) {
   runs_metadata_tbl <- runs_metadata_tbl %||% compile_tagged_runs_metadata_tbl()
   msg <- "Not every file in {.arg runs_metadata_tbl} is a {.val params.json}" |>
-    azkit:::cv_error_msg()
+    azkit::cv_error_msg()
   runs_metadata_tbl[["file"]] |>
-    azkit:::check_vec(\(x) basename(x) == "params.json", msg)
+    azkit::check_vec(\(x) basename(x) == "params.json", msg)
 
   results_container <- get_results_container()
   read_params_json <- function(dataset, file, container = results_container) {
