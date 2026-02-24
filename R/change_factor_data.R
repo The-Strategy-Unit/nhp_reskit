@@ -5,7 +5,7 @@
 #'  a column named `strategy` (used as a key for joining to the `step_counts`
 #'  table) and a column named `tpma_label` that provides friendly labels for
 #'  all TPMAs/strategies
-#' @param activity_type string. One of "Inpatient", "Outpatient", "A&E"
+#' @param activity_type string. One of "ip", "op", "aae"
 #' @param pods character vector. PoD labels to filter data to. The default
 #'  value of `NULL` means no PoDs will be filtered out
 #' @param include_baseline Boolean. Whether to include baseline data
@@ -16,7 +16,7 @@ compile_change_factor_data <- function(
   dat,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
-  activity_type = c("Inpatient", "Outpatient", "A&E"),
+  activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
   include_baseline = TRUE
@@ -65,11 +65,10 @@ compile_change_factor_data <- function(
 compile_indiv_change_factor_data <- function(
   dat,
   tpma_lookup = get_tpma_label_lookup(),
-  activity_type = c("Inpatient", "Outpatient", "A&E"),
-  pods,
-  measure,
-  sort_by = c("value", "tpma_label"),
-  sites = NULL
+  activity_type = c("ip", "op", "aae"),
+  pods = NULL,
+  sites = NULL,
+  sort_by = c("value", "tpma_label")
 ) {
   activity_type <- convert_activity_type(rlang::arg_match(activity_type))
   sort_by <- rlang::arg_match(sort_by)
