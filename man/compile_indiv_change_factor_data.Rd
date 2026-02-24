@@ -7,11 +7,10 @@
 compile_indiv_change_factor_data(
   dat,
   tpma_lookup = get_tpma_label_lookup(),
-  activity_type = c("Inpatient", "Outpatient", "A&E"),
-  pods,
-  measure,
-  sort_by = c("value", "tpma_label"),
-  sites = NULL
+  activity_type = c("ip", "op", "aae"),
+  pods = NULL,
+  sites = NULL,
+  sort_by = c("value", "tpma_label")
 )
 }
 \arguments{
@@ -22,7 +21,7 @@ a column named \code{strategy} (used as a key for joining to the \code{step_coun
 table) and a column named \code{tpma_label} that provides friendly labels for
 all TPMAs/strategies}
 
-\item{activity_type}{string. One of "Inpatient", "Outpatient", "A&E"}
+\item{activity_type}{string. One of "ip", "op", "aae"}
 
 \item{pods}{character vector. PoD labels to filter data to. The default
 value of \code{NULL} means no PoDs will be filtered out}
