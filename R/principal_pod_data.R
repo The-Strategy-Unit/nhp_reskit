@@ -53,6 +53,7 @@ prepare_principal_pod_data <- function(default_tbl) {
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
+    relabel_ip_activity_types() |>
     calculate_principal_stats(default_group_cols("activity_type_label")) |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
     dplyr::select(!"stat")
@@ -71,7 +72,9 @@ export_principal_pod_data <- function(default_tbl, sites = NULL) {
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }
 
-#' Convert PoDs and activity types to more accurate labels
+
+#' Give PoDs more accurate labels
+#' @param tbl A tibble
 #' @keywords internal
 relabel_pods <- function(tbl) {
   tbl |>
@@ -82,16 +85,28 @@ relabel_pods <- function(tbl) {
           .data[["measure"]] == "beddays" ~ sub("Admission", "Bed Days", x),
           .default = x
         )
-      }),
-      dplyr::across("activity_type_label", \(x) {
-        dplyr::case_when(
-          .data[["measure"]] == "admissions" ~ paste0(x, " Admissions"),
-          .data[["measure"]] == "beddays" ~ paste0(x, " Bed Days"),
-          .default = x
-        )
       })
     )
 }
+
+
+#' Give activity types more accurate labels
+#' @rdname relabel_pods
+#' @keywords internal
+relabel_ip_activity_types <- function(tbl) {
+  tbl |>
+    dplyr::mutate(
+      dplyr::across("activity_type_label", \(x) {
+        dplyr::if_else(
+          x == "Inpatient",
+          paste0(x, " ", uppercase_init(.data[["measure"]])),
+          x
+        )
+      }),
+      dplyr::across("activity_type_label", \(x) sub("Beddays", "Bed Days", x))
+    )
+}
+
 
 #' Use a lookup table to get more readable labels for PoDs
 #' @keywords internal

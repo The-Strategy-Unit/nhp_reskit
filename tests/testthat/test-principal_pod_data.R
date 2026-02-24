@@ -23,7 +23,8 @@ test_that("compile_principal_pod_data does what we need", {
     ) |>
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
-    relabel_pods()
+    relabel_pods() |>
+    relabel_ip_activity_types()
   expect_shape(out1, nrow = nrow(dplyr::distinct(out1)))
 
   col_names1 <- c(
