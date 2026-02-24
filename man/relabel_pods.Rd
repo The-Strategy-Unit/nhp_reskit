@@ -2,11 +2,19 @@
 % Please edit documentation in R/principal_pod_data.R
 \name{relabel_pods}
 \alias{relabel_pods}
-\title{Convert PoDs and activity types to more accurate labels}
+\alias{relabel_ip_activity_types}
+\title{Give PoDs more accurate labels}
 \usage{
 relabel_pods(tbl)
+
+relabel_ip_activity_types(tbl)
+}
+\arguments{
+\item{tbl}{A tibble}
 }
 \description{
-Convert PoDs and activity types to more accurate labels
+Give PoDs more accurate labels
+
+Give activity types more accurate labels
 }
 \keyword{internal}
