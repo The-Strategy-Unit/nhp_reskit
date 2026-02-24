@@ -2,7 +2,7 @@
 #'
 #' @param default_tbl the "default" table from NHP results
 #' @param sites Either `NULL` (the default) or a vector of site codes to filter
-#'  to. `NULL` means don't filter; include all sites present in the data.
+#'  to. `NULL` means don't filter; include all sites present in the data
 #' @returns A filtered and sorted tibble of principal projections of results,
 #'  by activity type and point of delivery (PoD)
 #' @export

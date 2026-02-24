@@ -23,11 +23,10 @@ compile_change_factor_data <- function(
   sites = NULL,
   include_baseline = TRUE
 ) {
-  activity_type <- convert_activity_type(rlang::arg_match(activity_type)
-  prepared_data <- prepare_principal_cf_data(dat, tpma_lookup, include_baseline)
-  pods <- pods %||% unique(prepared_data[["pod_label"]])
+  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
 
-  interim_data <- prepared_data |>
+  interim_data <- dat |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     filter_principal_data(measure, activity_type, pods) |>
@@ -66,6 +65,7 @@ compile_change_factor_data <- function(
 #' @export
 compile_indiv_change_factor_data <- function(
   dat,
+  measure,
   tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
@@ -75,7 +75,9 @@ compile_indiv_change_factor_data <- function(
   activity_type <- convert_activity_type(rlang::arg_match(activity_type))
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
-  table_data <- prepare_principal_cf_data(dat, tpma_lookup, FALSE) |>
+
+  table_data <- dat |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     filter_principal_data(measure, activity_type, pods) |>
@@ -150,7 +152,7 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
     ) |>
     dplyr::summarise(
       dplyr::across("value", mean),
-      .by = change_factor_sort_vars()
+      .by = tidyselect::all_of(change_factor_sort_vars())
     )
 }
 
