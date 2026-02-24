@@ -109,7 +109,13 @@ compile_indiv_change_factor_data <- function(
 }
 
 
-export_sites_principal_cf_data <- function(dat, sites = NULL) {
+#' Prepare a site-level summary table of change_factor results
+#'
+#' Intended to be used to create a table to be exported to .csv/.xlsx
+#' @inheritParams compile_change_factor_data
+#' @returns A tibble
+#' @export
+export_principal_cf_data <- function(dat, sites = NULL) {
   prepare_principal_cf_data(dat, include_baseline = TRUE) |>
     filter_to_selected_sites(sites) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
@@ -125,7 +131,7 @@ filter_principal_data <- function(
   selected_pods <- selected_pods %||% unique(dat[["pod_label"]])
   dat |>
     dplyr::filter(
-        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
+      dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
         dplyr::if_any("pod_label", \(x) x %in% .env[["selected_pods"]]) &
         dplyr::if_any("activity_type_label", \(x) x == .env[["activity_type"]])
     )
