@@ -37,13 +37,11 @@ compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
 #' @keywords internal
 prepare_sites_principal_los_data <- function(los_tbl, selected_measure) {
   los_tbl |>
-    dplyr::mutate(dplyr::across("measure", uppercase_init)) |>
     dplyr::filter(
       dplyr::if_any("measure", \(x) x == .env[["selected_measure"]])
     ) |>
     inner_join_for_labels(get_principal_pods()) |>
-    relabel_pods() |> # expects activity_type_label col to be present
-    dplyr::select(!"activity_type_label") |>
+    relabel_pods() |>
     calculate_principal_stats(default_group_cols("los_group")) |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
     dplyr::select(!"stat")

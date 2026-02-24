@@ -137,16 +137,9 @@ filter_principal_data <- function(
 prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
   dat_prepared <- if (include_baseline) dat else bsline_filtered
-  keep_measures <- c("admissions", "beddays")
   dat_prepared |>
-    dplyr::filter(
-      dplyr::if_any("measure", \(x) x %in% {{ keep_measures }}) &
-        dplyr::if_any("value", \(x) x != 0)
-    ) |>
-    dplyr::mutate(
-      dplyr::across("pod", \(x) sub("^aae.*$", "aae", x)),
-      dplyr::across("measure", uppercase_init)
-    ) |>
+    dplyr::filter(dplyr::if_any("value", \(x) x != 0)) |>
+    dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>

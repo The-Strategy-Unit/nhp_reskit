@@ -29,5 +29,4 @@ calculate_principal_stats <- function(tbl, group_cols) {
 
 
 default_group_cols <- \(x = NULL) c("pod_label", "sitetret", x, "model_run")
-detailed_group_cols <- \(x) c("sitetret", "sex", x, "model_run")
 swap_modelrun_for_stage <- \(x) sub("^model_run$", "stage", x)
