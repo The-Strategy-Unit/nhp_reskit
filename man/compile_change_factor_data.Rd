@@ -17,8 +17,8 @@ compile_change_factor_data(
 \arguments{
 \item{dat}{The "step_counts" table from NHP results}
 
-\item{measure}{Either "Admissions" or "Beddays" (note initial capital
-letters). The measure to focus on for the output table}
+\item{measure}{The measure to focus on for the output table. Valid values
+depend on which activity_type is selected}
 
 \item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
 a column named \code{strategy} (used as a key for joining to the \code{step_counts}

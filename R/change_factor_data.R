@@ -1,6 +1,8 @@
 #' Prepare data from the `step_counts` results table for display as charts
 #'
 #' @param dat The "step_counts" table from NHP results
+#' @param measure The measure to focus on for the output table. Valid values
+#'  depend on which activity_type is selected
 #' @param tpma_lookup A tibble, or a function that returns a tibble, containing
 #'  a column named `strategy` (used as a key for joining to the `step_counts`
 #'  table) and a column named `tpma_label` that provides friendly labels for
