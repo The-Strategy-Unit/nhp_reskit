@@ -13,7 +13,7 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     "Outpatient",
     "A&E"
   )
-  prepare_sites_principal_pod_data(default_tbl) |>
+  prepare_principal_pod_data(default_tbl) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     add_change_cols() |>
@@ -32,9 +32,9 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @keywords internal
-prepare_sites_principal_pod_data <- function(default_tbl) {
-  # only "procedures" excluded from full list of measures, but we will do a
-  # "positive" filter in rather than a filter out
+prepare_principal_pod_data <- function(default_tbl) {
+  # only "procedures" excluded from full list of measures, but for clarity we
+  #  will do a declarative filter in rather than a filter out
   keep_measures <- c(
     "admissions",
     "ambulance",
@@ -64,8 +64,8 @@ prepare_sites_principal_pod_data <- function(default_tbl) {
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @export
-export_sites_principal_pod_data <- function(default_tbl, sites = NULL) {
-  prepare_sites_principal_pod_data(default_tbl) |>
+export_principal_pod_data <- function(default_tbl, sites = NULL) {
+  prepare_principal_pod_data(default_tbl) |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
