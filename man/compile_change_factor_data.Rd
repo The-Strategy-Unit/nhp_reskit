@@ -31,7 +31,7 @@ all TPMAs/strategies}
 value of \code{NULL} means no PoDs will be filtered out}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
-to. \code{NULL} means don't filter; include all sites present in the data.}
+to. \code{NULL} means don't filter; include all sites present in the data}
 
 \item{include_baseline}{Boolean. Whether to include baseline data}
 }
