@@ -2,6 +2,7 @@
 
 export(add_change_cols)
 export(compile_change_factor_data)
+export(compile_detailed_activity_data)
 export(compile_indiv_change_factor_data)
 export(compile_principal_los_data)
 export(compile_principal_pod_data)
