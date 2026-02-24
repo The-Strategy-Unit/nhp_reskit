@@ -1,6 +1,6 @@
 Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
-Version: 0.2.1
+Version: 0.2.2
 Authors@R:
     person(
         "Fran", "Barton",
@@ -27,7 +27,6 @@ Imports:
     ggplot2,
     glue,
     gt,
-    here,
     purrr,
     rlang,
     scales,
@@ -39,6 +38,7 @@ Imports:
 Remotes:
     The-Strategy-Unit/azkit
 Suggests:
+    here,
     readr,
     testthat (>= 3.0.0),
     tibble,
