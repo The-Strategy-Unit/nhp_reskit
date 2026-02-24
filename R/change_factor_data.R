@@ -28,7 +28,7 @@ compile_change_factor_data <- function(
   interim_data <- prepared_data |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
-    filter_principal_cf_data(activity_type, pods, measure) |>
+    filter_principal_data(measure, activity_type, pods) |>
     dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
     # Here we need to sort by decreasing value (biggest increases in activity
     # (positive 'value's) at the top), and we need to ensure that the 'baseline'
@@ -77,7 +77,7 @@ compile_indiv_change_factor_data <- function(
   table_data <- prepare_principal_cf_data(dat, tpma_lookup, FALSE) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
-    filter_principal_cf_data(activity_type, pods, measure) |>
+    filter_principal_data(measure, activity_type, pods) |>
     dplyr::filter(
       dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
     )
@@ -113,17 +113,18 @@ export_sites_principal_cf_data <- function(dat, sites = NULL) {
 }
 
 
-filter_principal_cf_data <- function(
+filter_principal_data <- function(
   dat,
+  selected_measure,
   activity_type,
-  selected_pods,
-  selected_measure
+  selected_pods = NULL
 ) {
+  selected_pods <- selected_pods %||% unique(dat[["pod_label"]])
   dat |>
     dplyr::filter(
-      dplyr::if_any("activity_type_label", \(x) x == .env[["activity_type"]]) &
+        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
         dplyr::if_any("pod_label", \(x) x %in% .env[["selected_pods"]]) &
-        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]])
+        dplyr::if_any("activity_type_label", \(x) x == .env[["activity_type"]])
     )
 }
 
