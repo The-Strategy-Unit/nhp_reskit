@@ -7,7 +7,7 @@ test_that("compile_principal_pod_data does what we need", {
   col_names <- c("pod", "sitetret", "measure", "model_run", "value")
   expect_named(default_tbl, col_names)
 
-  measures <- c(
+  keep_measures <- c(
     "admissions",
     "ambulance",
     "attendances",
@@ -18,7 +18,11 @@ test_that("compile_principal_pod_data does what we need", {
 
   out1 <- default_tbl |>
     dplyr::filter(
-      dplyr::if_any("measure", \(x) x %in% {{ measures }}) &
+      dplyr::if_any("measure", \(x) x %in% {{ keep_measures }})
+    ) |>
+    dplyr::filter(
+      # exclude outpatient procedures from tele-attendances count only
+      dplyr::if_any("measure", \(x) x != "tele_attendances") |
         dplyr::if_any("pod", \(x) x != "op_procedure")
     ) |>
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
@@ -65,7 +69,7 @@ test_that("compile_principal_pod_data does what we need", {
     "principal"
   )
   expect_named(out2, col_names2)
-  expect_shape(out2, nrow = 29)
+  expect_shape(out2, nrow = 31)
 
   out3 <- out2 |>
     filter_to_selected_sites(sites = NULL) |>
@@ -81,5 +85,5 @@ test_that("compile_principal_pod_data does what we need", {
     "change_pct"
   )
   expect_named(out3, col_names3)
-  expect_shape(out3, dim = c(15, 6))
+  expect_shape(out3, dim = c(16, 6))
 })
