@@ -8,7 +8,7 @@ compile_change_factor_data(
   dat,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
-  activity_type = c("Inpatient", "Outpatient", "A&E"),
+  activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
   include_baseline = TRUE
@@ -17,21 +17,21 @@ compile_change_factor_data(
 \arguments{
 \item{dat}{The "step_counts" table from NHP results}
 
-\item{measure}{Either "Admissions" or "Beddays" (note initial capital
-letters). The measure to focus on for the output table}
+\item{measure}{The measure to focus on for the output table. Valid values
+depend on which activity_type is selected}
 
 \item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
 a column named \code{strategy} (used as a key for joining to the \code{step_counts}
 table) and a column named \code{tpma_label} that provides friendly labels for
 all TPMAs/strategies}
 
-\item{activity_type}{string. One of "Inpatient", "Outpatient", "A&E"}
+\item{activity_type}{string. One of "ip", "op", "aae"}
 
 \item{pods}{character vector. PoD labels to filter data to. The default
 value of \code{NULL} means no PoDs will be filtered out}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
-to. \code{NULL} means don't filter; include all sites present in the data.}
+to. \code{NULL} means don't filter; include all sites present in the data}
 
 \item{include_baseline}{Boolean. Whether to include baseline data}
 }

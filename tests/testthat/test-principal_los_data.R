@@ -40,7 +40,7 @@ test_that("compile_main_data does what we need", {
   expect_named(out2, col_names2)
 
   out3 <- out2 |>
-    relabel_pods() |> # expects activity_type_label col to be present
+    relabel_pods() |>
     dplyr::select(!"activity_type_label") |>
     calculate_principal_stats(default_group_cols("los_group")) |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>

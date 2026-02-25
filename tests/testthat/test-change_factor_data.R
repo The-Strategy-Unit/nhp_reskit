@@ -115,28 +115,24 @@ test_that("main compile function does what is expected", {
   skip_on_ci()
   results <- readr::read_rds(here::here("test_results.rds"))
   step_counts_tbl <- results[["step_counts"]] |>
-    dplyr::select(1:8)
-  prepared_data <- prepare_principal_cf_data(step_counts_tbl, TRUE)
+    dplyr::select(seq(8))
+  prepared_data <- step_counts_tbl |>
+    prepare_principal_cf_data(get_tpma_label_lookup(), TRUE)
 
-  activity_types <- unique(prepared_data[["activity_type_label"]])
+  activity_types <- as.character(unique(prepared_data[["activity_type_label"]]))
   pods <- unique(prepared_data[["pod_label"]])
   measures <- unique(prepared_data[["measure"]])
 
   set.seed(21879)
   activity_type <- sample(activity_types, 1)
-  pods <- sort(sample(pods, 3))
   measure <- sample(measures, 1)
   expect_identical(activity_type, "Inpatient")
-  expect_identical(
-    pods,
-    c("Daycase Admission", "Maternity Admission", "Non-Elective Admission")
-  )
-  expect_identical(measure, "Beddays")
+  expect_identical(measure, "admissions")
 
   table_data <- prepared_data |>
     filter_to_selected_sites(sites = NULL) |>
     summarise_for_all_sites() |>
-    filter_principal_cf_data(activity_type, pods, measure) |>
+    filter_principal_data(measure, activity_type) |>
     dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
     expect_no_error()
   expect_shape(table_data, dim = c(8, 2))
@@ -163,50 +159,4 @@ test_that("main compile function does what is expected", {
     levels(table_data_as_factor[["change_factor"]])[[8]],
     "health_status_adjustment"
   )
-})
-
-
-test_that("see why numbers don't look right", {
-  skip_on_ci()
-  results <- readr::read_rds(here::here("test_results.rds"))
-  step_counts_tbl <- results[["step_counts"]] |>
-    dplyr::select(1:8)
-  sct <- dplyr::filter(step_counts_tbl, activity_type == "ip")
-
-  exp_pods <- c(
-    "ip_elective_admission",
-    "ip_elective_daycase",
-    "ip_maternity_admission",
-    "ip_non-elective_admission",
-    "ip_regular_day_attender"
-  )
-  expect_identical(sort(unique(sct[["pod"]])), exp_pods)
-  sct <- dplyr::filter(sct, measure == "beddays")
-
-  sct_data <- sct |>
-    dplyr::summarise(
-      dplyr::across("value", mean),
-      .by = c("change_factor", "pod", "strategy", "sitetret")
-    )
-  expect_shape(sct_data, dim = c(69, 5))
-  sct_data_final <- sct_data |>
-    dplyr::summarise(
-      dplyr::across("value", sum),
-      .by = "change_factor"
-    ) |>
-    dplyr::arrange(dplyr::desc(dplyr::pick("value"))) |>
-    move_baseline_row_to_top() |>
-    dplyr::mutate(
-      cmvalue = cumsum(.data[["value"]]),
-      hidden = dplyr::lag(.data[["cmvalue"]], 1, 0) + pmin(.data[["value"]], 0),
-      total = abs(.data[["value"]]) + .data[["hidden"]]
-    ) |>
-    dplyr::select(!"cmvalue") |>
-    dplyr::arrange(dplyr::pick("value"))
-
-  expect_shape(sct_data_final, dim = c(8, 4))
-
-  b_val <- dplyr::filter(sct_data_final, change_factor == "baseline")[["value"]]
-  expect_lt(b_val, 3e5)
-  expect_gt(b_val, 2e5)
 })

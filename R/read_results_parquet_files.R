@@ -29,8 +29,8 @@ read_results_parquet_files <- function(path, tables = NULL, container = NULL) {
   parquet_names <- sub("^(.*/)([[:graph:]]+)(\\.parquet)$", "\\2", file_paths)
 
   absent <- setdiff(tables, parquet_names) # nolint
-  msg <- azkit:::cv_error_msg("Table{?s} {.val {absent}} {?is/are} not present")
-  azkit:::check_vec(tables, \(x) x %in% parquet_names, msg)
+  msg <- azkit::cv_error_msg("Table{?s} {.val {absent}} {?is/are} not present")
+  azkit::check_vec(tables, \(x) x %in% parquet_names, msg)
 
   named_paths <- rlang::set_names(file_paths, parquet_names)
   named_paths[tables] |>
@@ -113,8 +113,8 @@ get_results_dir_path <- function(
 #' @keywords internal
 check_single_subdir <- function(path, level, dttm_stamp, container) {
   # error message if `path` not found
-  msg1 <- azkit:::cv_error_msg("{.path {path}} not found.")
-  azkit:::check_vec(path, \(x) AzureStor::blob_dir_exists(container, x), msg1)
+  msg1 <- azkit::cv_error_msg("{.path {path}} not found.")
+  azkit::check_vec(path, \(x) AzureStor::blob_dir_exists(container, x), msg1)
 
   dir_name <- AzureStor::list_blobs(container, path, recursive = FALSE) |>
     dplyr::filter(dplyr::if_any("isdir")) |>
@@ -129,11 +129,11 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
   dir_names <- cli::cli_vec(basename(dir_name), list(`vec-trunc` = 2))
   msg3 <- "The folder {.val {cur_dir}} contains more than 1 sub-folder. "
   msg4 <- c(msg3, "The sub-folders are: {.val {dir_names}}. ")
-  msg5 <- azkit:::cst_error_msg(c(msg4, "You need to specify {.arg {level}}."))
+  msg5 <- azkit::cst_error_msg(c(msg4, "You need to specify {.arg {level}}."))
 
   if (level == "scenario" || is.null(dttm_stamp)) {
     # if length(folder_name) == 1 then return it, otherwise throw an error
-    azkit:::check_scalar_type(dir_name, "character", msg5)
+    azkit::check_scalar_type(dir_name, "character", msg5)
   } else if (dttm_stamp == "max") {
     # if we find multiple model runs, "max" means return the dir of most recent
     cli::cli_alert_info("Using latest model run {.val {max_dttm}}.")
@@ -141,8 +141,8 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
   } else {
     # the user has supplied a particular dttm_stamp so we try to return that one
     dir_name <- gregv(dir_name, "{dttm_stamp}(/)?$")
-    msg6 <- azkit:::cst_error_msg("No {.val {dttm_stamp}} directory found.")
-    azkit:::check_scalar_type(dir_name, "string", msg6)
+    msg6 <- azkit::cst_error_msg("No {.val {dttm_stamp}} directory found.")
+    azkit::check_scalar_type(dir_name, "string", msg6)
   }
 }
 
