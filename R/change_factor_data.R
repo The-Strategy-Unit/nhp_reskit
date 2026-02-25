@@ -1,11 +1,13 @@
 #' Prepare data from the `step_counts` results table for display as charts
 #'
 #' @param dat The "step_counts" table from NHP results
+#' @param measure The measure to focus on for the output table. Valid values
+#'  depend on which activity_type is selected
 #' @param tpma_lookup A tibble, or a function that returns a tibble, containing
 #'  a column named `strategy` (used as a key for joining to the `step_counts`
 #'  table) and a column named `tpma_label` that provides friendly labels for
 #'  all TPMAs/strategies
-#' @param activity_type string. One of "Inpatient", "Outpatient", "A&E"
+#' @param activity_type string. One of "ip", "op", "aae"
 #' @param pods character vector. PoD labels to filter data to. The default
 #'  value of `NULL` means no PoDs will be filtered out
 #' @param include_baseline Boolean. Whether to include baseline data
@@ -16,19 +18,18 @@ compile_change_factor_data <- function(
   dat,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
-  activity_type = c("Inpatient", "Outpatient", "A&E"),
+  activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
   include_baseline = TRUE
 ) {
-  activity_type <- rlang::arg_match(activity_type)
-  prepared_data <- prepare_principal_cf_data(dat, tpma_lookup, include_baseline)
-  pods <- pods %||% unique(prepared_data[["pod_label"]])
+  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
 
-  interim_data <- prepared_data |>
+  interim_data <- dat |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
-    filter_principal_cf_data(activity_type, pods, measure) |>
+    filter_principal_data(measure, activity_type, pods) |>
     dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
     # Here we need to sort by decreasing value (biggest increases in activity
     # (positive 'value's) at the top), and we need to ensure that the 'baseline'
@@ -64,20 +65,22 @@ compile_change_factor_data <- function(
 #' @export
 compile_indiv_change_factor_data <- function(
   dat,
-  tpma_lookup = get_tpma_label_lookup(),
-  activity_type = c("Inpatient", "Outpatient", "A&E"),
-  pods,
   measure,
-  sort_by = c("value", "tpma_label"),
-  sites = NULL
+  tpma_lookup = get_tpma_label_lookup(),
+  activity_type = c("ip", "op", "aae"),
+  pods = NULL,
+  sites = NULL,
+  sort_by = c("value", "tpma_label")
 ) {
-  activity_type <- rlang::arg_match(activity_type)
+  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
-  table_data <- prepare_principal_cf_data(dat, tpma_lookup, FALSE) |>
+
+  table_data <- dat |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
-    filter_principal_cf_data(activity_type, pods, measure) |>
+    filter_principal_data(measure, activity_type, pods) |>
     dplyr::filter(
       dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
     )
@@ -106,24 +109,31 @@ compile_indiv_change_factor_data <- function(
 }
 
 
-export_sites_principal_cf_data <- function(dat, sites = NULL) {
+#' Prepare a site-level summary table of change_factor results
+#'
+#' Intended to be used to create a table to be exported to .csv/.xlsx
+#' @inheritParams compile_change_factor_data
+#' @returns A tibble
+#' @export
+export_principal_cf_data <- function(dat, sites = NULL) {
   prepare_principal_cf_data(dat, include_baseline = TRUE) |>
     filter_to_selected_sites(sites) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
 }
 
 
-filter_principal_cf_data <- function(
+filter_principal_data <- function(
   dat,
+  selected_measure,
   activity_type,
-  selected_pods,
-  selected_measure
+  selected_pods = NULL
 ) {
+  selected_pods <- selected_pods %||% unique(dat[["pod_label"]])
   dat |>
     dplyr::filter(
-      dplyr::if_any("activity_type_label", \(x) x == .env[["activity_type"]]) &
+      dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
         dplyr::if_any("pod_label", \(x) x %in% .env[["selected_pods"]]) &
-        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]])
+        dplyr::if_any("activity_type_label", \(x) x == .env[["activity_type"]])
     )
 }
 
@@ -136,16 +146,9 @@ filter_principal_cf_data <- function(
 prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
   dat_prepared <- if (include_baseline) dat else bsline_filtered
-  keep_measures <- c("admissions", "beddays")
   dat_prepared |>
-    dplyr::filter(
-      dplyr::if_any("measure", \(x) x %in% {{ keep_measures }}) &
-        dplyr::if_any("value", \(x) x != 0)
-    ) |>
-    dplyr::mutate(
-      dplyr::across("pod", \(x) sub("^aae.*$", "aae", x)),
-      dplyr::across("measure", uppercase_init)
-    ) |>
+    dplyr::filter(dplyr::if_any("value", \(x) x != 0)) |>
+    dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>
@@ -155,7 +158,7 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
     ) |>
     dplyr::summarise(
       dplyr::across("value", mean),
-      .by = change_factor_sort_vars()
+      .by = tidyselect::all_of(change_factor_sort_vars())
     )
 }
 
@@ -176,4 +179,9 @@ move_baseline_row_to_top <- function(dat, var = "change_factor") {
   baseline_row <- dplyr::filter(dat, .data[[var]] == "baseline")
   dplyr::bind_rows(baseline_row, dplyr::setdiff(dat, baseline_row)) |>
     dplyr::select(!"rn")
+}
+
+
+convert_activity_type <- function(x) {
+  dplyr::case_match(x, "ip" ~ "Inpatient", "op" ~ "Outpatient", "aae" ~ "A&E")
 }
