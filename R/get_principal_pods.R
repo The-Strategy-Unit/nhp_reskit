@@ -1,22 +1,20 @@
 #' Prepare a lookup table with activity type labels and PoD labels for each PoD
 #'
-#' @param file Path to a YAML file containing the pod lookup data
 #' @returns A tibble
 #' @export
-get_principal_pods <- function(file = NULL) {
-  file <- file %||% system.file("pod_measures.yml", package = "reskit")
+get_principal_pods <- function() {
   aae_row <- tibble::tibble_row(
     activity_type_label = "A&E",
     pod = "aae",
-    pod_label = "A&E Attendance"
+    pod_label = "A&E Arrivals"
   )
-  yaml::read_yaml(file) |>
+  system.file("pod_measures.yml", package = "reskit") |>
+    yaml::read_yaml() |>
     purrr::pluck("pod_measures") |> # with current structure of pod_measures.yml
     purrr::discard_at("aae") |> # excluded here and replaced below w/ custom row
     purrr::map(list_to_tbl) |>
     purrr::list_rbind() |>
     dplyr::bind_rows(aae_row) |>
-    # check this is correct (effectively this is a check on the yaml structure):
     dplyr::distinct() |>
     dplyr::mutate(
       dplyr::across("pod_label", forcats::fct_inorder),
@@ -25,6 +23,7 @@ get_principal_pods <- function(file = NULL) {
       })
     )
 }
+
 
 #' Helper function to extract the reuiqred data fields from a list (from YAML)
 #' @keywords internal

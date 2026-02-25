@@ -13,15 +13,15 @@ check_single_subdir(path, level, dttm_stamp, container)
 
 \item{dttm_stamp}{string. If \code{NULL} (the default) and only a single model
 run directory is available within the particular combination of \code{version}
-\code{scheme} and \code{scenario}, this folder path will be returned. If \code{NULL}, and
+\code{scheme} and \code{scenario}, this path will be returned. If \code{NULL}, and
 multiple model runs are found, an error will be thrown. Alternatively, the
 date-time stamp of the desired model run can be supplied. This is expected
 to be in the format 'YYYYMMDD_HHMMSS', and must of course match a
-subdirectory of the selected 'scenario' folder, else an error will be
+subdirectory of the selected 'scenario' directory, else an error will be
 thrown. A third alternative is to supply the string \code{"max"}, which will
 return the path to the most recent model run, where multiple runs are found}
 
-\item{container}{Azure container. Uses \code{\link[=get_results_container]{get_results_container()}} by default}
+\item{container}{Azure container. Uses \link{get_results_container} by default}
 }
 \value{
 A path to an Azure blob storage directory

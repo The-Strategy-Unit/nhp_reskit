@@ -90,8 +90,8 @@ test_that("table selection works", {
 
   tables_wrong <- c("acuity", "default", "random")
   absent <- setdiff(tables_wrong, tbl_names)
-  msg <- azkit:::cv_error_msg("Table{?s} {absent} {?is/are} not present")
-  azkit:::check_vec(tables_wrong, \(x) x %in% tbl_names, msg) |>
+  msg <- azkit::cv_error_msg("Table{?s} {absent} {?is/are} not present")
+  azkit::check_vec(tables_wrong, \(x) x %in% tbl_names, msg) |>
     expect_error("random is not present")
 
   test_vec <- rlang::set_names(letters[seq(3)], tables_wrong)
@@ -118,7 +118,7 @@ test_that("bughunting", {
   scheme <- "RRK"
   expect_true(rlang::is_string(scheme))
 
-  check_grfp_inputs(res, root_dir, version, scheme, NULL, NULL) |>
+  check_grdp_inputs(res, root_dir, version, scheme, NULL, NULL) |>
     expect_true()
 
   orig_path <- file.path(root_dir, version, scheme)
@@ -126,9 +126,9 @@ test_that("bughunting", {
     dplyr::filter(dplyr::if_any("isdir")) |>
     dplyr::pull("name")
   expect_true(rlang::is_scalar_character(folder_name))
-  azkit:::check_scalar_type(folder_name, "character", "fail") |>
+  azkit::check_scalar_type(folder_name, "character", "fail") |>
     expect_no_error()
-  azkit:::check_scalar_type(folder_name, "character", "fail") |>
+  azkit::check_scalar_type(folder_name, "character", "fail") |>
     expect_equal(folder_name) # folder_name should be passed through
 
   exp_path <- file.path(root_dir, version, scheme, "test-2324-2")

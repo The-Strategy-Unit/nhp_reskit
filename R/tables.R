@@ -30,27 +30,25 @@ make_principal_los_table <- function(principal_los_data) {
 
 #' Create a gt table with data from compile_detailed_activity_data()
 #'
-#' @param activity_data A suitable tibble
+#' @param detailed_activity_data A suitable tibble
+#' @param final_year string. The horizon year eg "2042/43"
 #' @returns A gt table
 #' @export
-make_detailed_activity_table <- function(activity_data, agg_by, final_year) {
-  agg_label <- dplyr::case_match(
-    agg_by,
-    "age_group" ~ "Age Group",
-    "tretspef" ~ "Treatment Specialty",
-    .default = uppercase_init(agg_by)
-  )
-  activity_data |>
+make_detailed_activity_table <- function(detailed_activity_data, final_year) {
+  dat_cols <- colnames(detailed_activity_data)
+  agg <- intersect(dat_cols, c("age_group", "tretspef"))
+  agg_label <- ifelse(agg == "age_group", "Age Group", "Treatment Specialty")
+  detailed_activity_data |>
     format_bar_cols() |>
-    dplyr::mutate(dplyr::across("sex", convert_sex_codes)) |>
     gt::gt(groupname_col = "sex") |>
-    format_gt_core("agg") |>
+    format_gt_core(agg) |>
     gt::cols_label(
-      agg = {{ agg_label }},
+      !!agg := agg_label,
       principal = glue::glue("Final ({final_year})")
     ) |>
     gt_theme()
 }
+
 
 #' Format horizontal `gt_bar`s within tables
 #' @keywords internal

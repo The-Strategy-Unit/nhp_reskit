@@ -2,7 +2,7 @@
 #'
 #' @param default_tbl the "default" table from NHP results
 #' @param sites Either `NULL` (the default) or a vector of site codes to filter
-#'  to. `NULL` means don't filter; include all sites present in the data.
+#'  to. `NULL` means don't filter; include all sites present in the data
 #' @returns A filtered and sorted tibble of principal projections of results,
 #'  by activity type and point of delivery (PoD)
 #' @export
@@ -13,13 +13,13 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     "Outpatient",
     "A&E"
   )
-  prepare_sites_principal_pod_data(default_tbl) |>
+  prepare_principal_pod_data(default_tbl) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     add_change_cols() |>
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) forcats::fct(x, at_levels)),
-      # display pods in desc order of baseline level of admissions/beddays
+      # display pods in descending order of baseline value, by activity type
       dplyr::across("pod_label", \(x) {
         forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
       })
@@ -32,9 +32,9 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @keywords internal
-prepare_sites_principal_pod_data <- function(default_tbl) {
-  # only "procedures" excluded from full list of measures, but we will do a
-  # "positive" filter in rather than a filter out
+prepare_principal_pod_data <- function(default_tbl) {
+  # only "procedures" excluded from full list of measures, but for clarity we
+  #  will do a declarative filter in rather than a filter out
   keep_measures <- c(
     "admissions",
     "ambulance",
@@ -53,6 +53,7 @@ prepare_sites_principal_pod_data <- function(default_tbl) {
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
+    relabel_ip_activity_types() |>
     calculate_principal_stats(default_group_cols("activity_type_label")) |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
     dplyr::select(!"stat")
@@ -64,14 +65,16 @@ prepare_sites_principal_pod_data <- function(default_tbl) {
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @export
-export_sites_principal_pod_data <- function(default_tbl, sites = NULL) {
-  prepare_sites_principal_pod_data(default_tbl) |>
+export_principal_pod_data <- function(default_tbl, sites = NULL) {
+  prepare_principal_pod_data(default_tbl) |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }
 
-#' Convert PoDs and activity types to more accurate labels
+
+#' Give PoDs more accurate labels
+#' @param tbl A tibble
 #' @keywords internal
 relabel_pods <- function(tbl) {
   tbl |>
@@ -82,16 +85,28 @@ relabel_pods <- function(tbl) {
           .data[["measure"]] == "beddays" ~ sub("Admission", "Bed Days", x),
           .default = x
         )
-      }),
-      dplyr::across("activity_type_label", \(x) {
-        dplyr::case_when(
-          .data[["measure"]] == "admissions" ~ paste0(x, " Admissions"),
-          .data[["measure"]] == "beddays" ~ paste0(x, " Bed Days"),
-          .default = x
-        )
       })
     )
 }
+
+
+#' Give activity types more accurate labels
+#' @rdname relabel_pods
+#' @keywords internal
+relabel_ip_activity_types <- function(tbl) {
+  tbl |>
+    dplyr::mutate(
+      dplyr::across("activity_type_label", \(x) {
+        dplyr::if_else(
+          x == "Inpatient",
+          paste0(x, " ", uppercase_init(.data[["measure"]])),
+          x
+        )
+      }),
+      dplyr::across("activity_type_label", \(x) sub("Beddays", "Bed Days", x))
+    )
+}
+
 
 #' Use a lookup table to get more readable labels for PoDs
 #' @keywords internal
