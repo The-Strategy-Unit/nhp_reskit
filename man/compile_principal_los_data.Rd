@@ -13,7 +13,7 @@ compile_principal_los_data(los_tbl, measure, sites = NULL)
 the output table}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
-to. \code{NULL} means don't filter; include all sites present in the data.}
+to. \code{NULL} means don't filter; include all sites present in the data}
 }
 \value{
 A filtered and sorted tibble of principal projections of results,

@@ -170,16 +170,17 @@ results |>
 #### Overall ("waterfall") 1
 
 ```{r change factors plot 1}
+
 results |>
   purrr::pluck("step_counts") |>
   compile_change_factor_data(
-    activity_type = "Inpatient",
+    measure = "admissions",
+    activity_type = "ip",
     pods = c(
       "Daycase Admission",
       "Maternity Admission",
       "Non-Elective Admission"
-    ),
-    measure = "Admissions"
+    )
   ) |>
   make_overall_cf_plot()
 
@@ -192,13 +193,13 @@ results |>
 results |>
   purrr::pluck("step_counts") |>
   compile_change_factor_data(
-    activity_type = "Inpatient",
+    measure = "admissions",
+    activity_type = "ip",
     pods = c(
       "Daycase Admission",
       "Maternity Admission",
       "Non-Elective Admission"
     ),
-    measure = "Admissions",
     include_baseline = FALSE
   ) |>
   make_overall_cf_plot()
@@ -210,36 +211,75 @@ results |>
 
 ```{r change factors plot 3}
 
-measure <- "Admissions"
+measure <- "arrivals"
 
 results |>
   purrr::pluck("step_counts") |>
   compile_indiv_change_factor_data(
-    activity_type = "Inpatient",
-    pods = c(
-      "Daycase Admission",
-      "Maternity Admission",
-      "Non-Elective Admission"
-    ),
-    measure = measure
+    measure = measure,
+    activity_type = "aae"
   ) |>
   make_individual_cf_plot(x_axis_label = measure)
 
 ```
 
 
-<!-- ## Activity in detail table -->
+## Activity in detail table
 
-```{r activity in detail table}
-#| include: false
-#| eval: false
+```{r activity in detail table 1}
+
+aggregation <- "age_group"
+
 results |>
-  compile_detailed_activity_data() |>
-  # summarise_to_selected_sites(NULL) |>
-  filter_detailed_activity_data(
-    "age_group",
-    "ip",
-    "ip_elective_admission",
-    "admissions"
-  )
+  compile_detailed_activity_data(
+    measure = "beddays",
+    activity_type = "ip",
+    aggregation = aggregation
+) |>
+  make_detailed_activity_table("2041/42")
+
+```
+
+```{r activity in detail table 2}
+
+aggregation <- "tretspef"
+
+results |>
+  compile_detailed_activity_data(
+    measure = "beddays",
+    activity_type = "ip",
+    aggregation = aggregation
+) |>
+  make_detailed_activity_table("2041/42")
+
+```
+
+
+```{r activity in detail table 3}
+
+aggregation <- "tretspef"
+
+results |>
+  compile_detailed_activity_data(
+    measure = "admissions",
+    activity_type = "ip",
+    aggregation = aggregation
+) |>
+  make_detailed_activity_table("2041/42")
+
+```
+
+
+```{r activity in detail table 4}
+
+aggregation <- "tretspef"
+
+results |>
+  compile_detailed_activity_data(
+    measure = "attendances",
+    activity_type = "op",
+    aggregation = aggregation
+) |>
+  make_detailed_activity_table("2041/42")
+
 ```
