@@ -1,7 +1,7 @@
 #' Prepare a lookup table with activity type labels and PoD labels for each PoD
 #'
 #' This function returns a single category for all A&E activity - compare
-#'  [get_detailed_pods] which keeps all A&E categories
+#'  `get_detailed_pods()` which keeps all A&E categories
 #' @returns A tibble
 #' @export
 get_principal_pods <- function() {

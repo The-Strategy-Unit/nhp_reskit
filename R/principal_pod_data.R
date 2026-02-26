@@ -13,7 +13,9 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     "Outpatient",
     "A&E"
   )
-  prepare_principal_pod_data(default_tbl) |>
+
+  default_tbl |>
+    prepare_principal_pod_data() |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     add_change_cols() |>
