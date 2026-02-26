@@ -11,6 +11,14 @@ compile_distribution_summary_data <- function(
 ) {
   value_type <- rlang::arg_match(value_type)
   remove_col <- setdiff(c("median", "principal"), value_type)
+  arr_levels <- c(
+    "Admissions",
+    "Bed days",
+    "Attendances",
+    "Tele-attendances",
+    "Ambulance",
+    "Walk-in"
+  )
 
   default_tbl |>
     prepare_distribution_summary_data() |>
@@ -26,7 +34,10 @@ compile_distribution_summary_data <- function(
       change = .data[[value_type]] - .data[["baseline"]],
       change_pct = .data[["change"]] / .data[["baseline"]]
     ) |>
-    dplyr::relocate(tidyselect::starts_with("change"), .before = "lower")
+    dplyr::relocate(tidyselect::starts_with("change"), .before = "lower") |>
+    dplyr::mutate(dplyr::across("measure", \(x) forcats::fct(x, arr_levels))) |>
+    dplyr::arrange(dplyr::across("baseline", dplyr::desc)) |>
+    dplyr::arrange(dplyr::pick("measure"))
 }
 
 
