@@ -10,7 +10,5 @@
 ^[.]Renviron[.]example$
 ^inst/a_.*$
 ^test_results[.]rds$
-^vignettes/.*_cache/.*$
-^vignettes/.*_files/.*$
 ^[.]lintr$
 ^jarl[.]toml$
