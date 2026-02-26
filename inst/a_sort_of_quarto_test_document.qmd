@@ -235,7 +235,7 @@ results |>
     measure = "beddays",
     activity_type = "ip",
     aggregation = aggregation
-) |>
+  ) |>
   make_detailed_activity_table("2041/42")
 
 ```
@@ -249,7 +249,7 @@ results |>
     measure = "beddays",
     activity_type = "ip",
     aggregation = aggregation
-) |>
+  ) |>
   make_detailed_activity_table("2041/42")
 
 ```
@@ -264,7 +264,7 @@ results |>
     measure = "admissions",
     activity_type = "ip",
     aggregation = aggregation
-) |>
+  ) |>
   make_detailed_activity_table("2041/42")
 
 ```
@@ -279,7 +279,70 @@ results |>
     measure = "attendances",
     activity_type = "op",
     aggregation = aggregation
-) |>
+  ) |>
   make_detailed_activity_table("2041/42")
 
+```
+
+
+### Distribution of projections: activity distribution summary table
+
+Median
+
+```{r distrib_tbl median}
+results |>
+  purrr::pluck("default") |>
+  compile_distribution_summary_data() |>
+  make_distribution_summary_table()
+
+```
+
+Principal (aka mean)
+
+```{r distrib_tbl principal}
+
+results |>
+  purrr::pluck("default") |>
+  compile_distribution_summary_data("principal") |>
+  make_distribution_summary_table()
+
+```
+
+
+### Distribution plots: beeswarm
+
+
+```{r beeswarm1}
+results |>
+  purrr::pluck("default") |>
+  compile_distribution_plot_data(measure = "beddays", activity_type = "ip") |>
+  make_beeswarm_distrib_plot()
+```
+
+show zero
+
+```{r beeswarm2}
+results |>
+  purrr::pluck("default") |>
+  compile_distribution_plot_data(measure = "beddays", activity_type = "ip") |>
+  make_beeswarm_distrib_plot(TRUE)
+```
+
+
+### Distribution plots: cumulative
+
+```{r ecdf1}
+results |>
+  purrr::pluck("default") |>
+  compile_distribution_plot_data(measure = "beddays", activity_type = "ip") |>
+  make_cumulative_distrib_plot()
+```
+
+show zero
+
+```{r ecdf2}
+results |>
+  purrr::pluck("default") |>
+  compile_distribution_plot_data(measure = "beddays", activity_type = "ip") |>
+  make_cumulative_distrib_plot(TRUE)
 ```
