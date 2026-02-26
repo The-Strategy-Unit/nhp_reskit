@@ -1,3 +1,8 @@
+#' Generate overall change factor ("waterfall") chart
+#'
+#' @param principal_change_factor_data data frame. As produced by
+#'  [compile_change_factor_data]
+#' @export
 make_overall_cf_plot <- function(principal_change_factor_data) {
   principal_change_factor_data |>
     dplyr::mutate(
@@ -30,6 +35,12 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
 }
 
 
+#' Generate bar charts by change factor at individual TPMA level
+#'
+#' @param indiv_change_factor_data data frame. As produced by
+#'  [compile_indiv_change_factor_data]
+#' @param x_axis_label string. A label for the charts' x-axis.
+#' @export
 make_individual_cf_plot <- function(indiv_change_factor_data, x_axis_label) {
   indiv_change_factor_data |>
     dplyr::mutate(
