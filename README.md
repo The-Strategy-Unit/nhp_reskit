@@ -25,10 +25,15 @@ This README will be fleshed out as the package is developed.
 
 ## Installation
 
+You should be able to run the following R command to install {reskit}:
+
 ```r
 # install.packages("pak") # if not already installed
 pak::pak("The-Strategy-Unit/nhp_reskit")
 ```
+
+On Windows, you may need to have [RTools](https://cloud.r-project.org/)
+already installed in order to install reskit.
 
 ## Usage
 
