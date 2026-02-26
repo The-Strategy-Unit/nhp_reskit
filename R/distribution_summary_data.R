@@ -43,21 +43,7 @@ prepare_distribution_summary_data <- function(default_tbl) {
       dplyr::if_any("measure", \(x) x != "tele_attendances") |
         dplyr::if_any("pod", \(x) x != "op_procedure")
     ) |>
-    dplyr::mutate(
-      pod2 = convert_aae_label(.data[["pod"]]),
-      dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))
-    ) |>
-    inner_join_for_labels(get_principal_pods()) |>
-    dplyr::mutate(
-      dplyr::across("pod_label", \(x) {
-        dplyr::if_else(
-          grepl("^A&E", x),
-          paste0("A&E ", .data[["pod2"]]),
-          paste0(.data[["activity_type_label"]], " ", x)
-        )
-      }),
-      .keep = "unused"
-    ) |>
+    inner_join_for_labels(get_detailed_pods()) |>
     calculate_principal_stats(default_group_cols("measure")) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {

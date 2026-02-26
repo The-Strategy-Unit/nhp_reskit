@@ -1,5 +1,7 @@
 #' Prepare a lookup table with activity type labels and PoD labels for each PoD
 #'
+#' This function returns a single category for all A&E activity - compare
+#'  [get_detailed_pods] which keeps all A&E categories
 #' @returns A tibble
 #' @export
 get_principal_pods <- function() {
@@ -15,7 +17,26 @@ get_principal_pods <- function() {
     purrr::map(list_to_tbl) |>
     purrr::list_rbind() |>
     dplyr::bind_rows(aae_row) |>
-    dplyr::distinct() |>
+    dplyr::mutate(
+      dplyr::across("pod_label", forcats::fct_inorder),
+      dplyr::across("activity_type_label", \(x) {
+        forcats::fct(x, levels = c("Inpatient", "Outpatient", "A&E"))
+      })
+    )
+}
+
+
+#' Prepare a lookup table with activity type labels and PoD labels for each PoD
+#'
+#' @rdname get_principal_pods
+#' @returns A tibble
+#' @export
+get_detailed_pods <- function() {
+  system.file("pod_measures.yml", package = "reskit") |>
+    yaml::read_yaml() |>
+    purrr::pluck("pod_measures") |>
+    purrr::map(list_to_tbl) |>
+    purrr::list_rbind() |>
     dplyr::mutate(
       dplyr::across("pod_label", forcats::fct_inorder),
       dplyr::across("activity_type_label", \(x) {
