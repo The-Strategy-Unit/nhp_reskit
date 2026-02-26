@@ -11,5 +11,11 @@
 \author{
 \strong{Maintainer}: Fran Barton \email{francis.barton@nhs.net} (\href{https://orcid.org/0000-0002-5650-1176}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Matt Dray \email{matt.dray@nhs.net} [contributor]
+  \item Rhian Davies \email{rhian.davies25@nhs.net} [contributor]
+}
+
 }
 \keyword{internal}

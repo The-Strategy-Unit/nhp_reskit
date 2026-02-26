@@ -2,12 +2,22 @@ Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
 Version: 0.2.2
 Authors@R:
-    person(
+    c(person(
         "Fran", "Barton",
         email = "francis.barton@nhs.net",
         role = c("aut", "cre"),
         comment = c(ORCID = "0000-0002-5650-1176")
-    )
+    ),
+    person(
+        "Matt", "Dray",
+        email = "matt.dray@nhs.net",
+        role = "ctb"
+    ),
+    person(
+        "Rhian", "Davies",
+        email = "rhian.davies25@nhs.net",
+        role = "ctb"
+    ))
 Description: 'Wafer' goodbye to crumbly code, and dunk a sturdy reskit
     function in your data cuppa instead. We've clustered the cream of our
     results code here - it's a cracker!
