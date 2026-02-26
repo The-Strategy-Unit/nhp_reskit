@@ -1,8 +1,8 @@
 #' Prepare data from tretspef+los_group results for displaying as summary table
 #'
 #' @param los_tbl the "tretspef+los_group" table from NHP results
-#' @param measure Either "Admissions" or "Beddays" (note initial capital
-#'  letters). The measure to focus on for the output table
+#' @param measure Either "admissions" or "beddays". The measure to focus on for
+#'  the output table
 #' @inheritParams compile_principal_pod_data
 #' @returns A filtered and sorted tibble of principal projections of results,
 #'  by point of delivery and grouped length of stay
@@ -37,7 +37,6 @@ compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
 #' @keywords internal
 prepare_principal_los_data <- function(los_tbl, selected_measure) {
   los_tbl |>
-    dplyr::mutate(dplyr::across("measure", uppercase_init)) |>
     dplyr::filter(
       dplyr::if_any("measure", \(x) x == .env[["selected_measure"]])
     ) |>
