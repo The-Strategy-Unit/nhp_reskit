@@ -44,6 +44,10 @@ prepare_principal_pod_data <- function(default_tbl) {
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     relabel_ip_activity_types() |>
+    dplyr::summarise(
+      dplyr::across("value", sum),
+      .by = tidyselect::all_of(default_group_cols("activity_type_label"))
+    ) |>
     calculate_principal_stats(default_group_cols("activity_type_label")) |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
     dplyr::select(!"stat")
