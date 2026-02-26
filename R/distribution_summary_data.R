@@ -55,6 +55,12 @@ prepare_distribution_summary_data <- function(default_tbl) {
         dplyr::if_any("pod", \(x) x != "op_procedure")
     ) |>
     inner_join_for_labels(get_detailed_pods()) |>
+    dplyr::mutate(
+      dplyr::across("pod_label", \(x) {
+        paste0(.data[["activity_type_label"]], " ", x)
+      }),
+      .keep = "unused"
+    ) |>
     calculate_principal_stats(default_group_cols("measure")) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {
