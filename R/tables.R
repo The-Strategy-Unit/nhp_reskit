@@ -36,7 +36,7 @@ make_principal_los_table <- function(principal_los_data) {
 #' @export
 make_detailed_activity_table <- function(detailed_activity_data, final_year) {
   dat_cols <- colnames(detailed_activity_data)
-  agg <- intersect(dat_cols, c("age_group", "tretspef"))
+  agg <- intersect(c("age_group", "tretspef"), dat_cols)
   agg_label <- ifelse(agg == "age_group", "Age Group", "Treatment Specialty")
   detailed_activity_data |>
     format_bar_cols() |>
@@ -46,6 +46,26 @@ make_detailed_activity_table <- function(detailed_activity_data, final_year) {
       !!agg := agg_label,
       principal = glue::glue("Final ({final_year})")
     ) |>
+    gt_theme()
+}
+
+
+#' Create a gt table with data from compile_distribution_summary_data()
+#'
+#' @param distr_summary_data A suitable tibble
+#' @returns A gt table
+#' @export
+make_distribution_summary_table <- function(distr_summary_data) {
+  value_col <- intersect(c("median", "principal"), colnames(distr_summary_data))
+  int_cols <- c("baseline", value_col, "change", "lower", "upper")
+  distr_summary_data |>
+    gt::gt(groupname_col = "pod_label") |>
+    gt::fmt_integer(tidyselect::all_of(int_cols)) |>
+    gt::fmt_percent("change_pct", decimals = 0) |>
+    gt::cols_align("left", "measure") |>
+    gt::tab_spanner("80% prediction interval", c("lower", "upper")) |>
+    gt::cols_label_with(fn = uppercase_init) |>
+    gt::cols_label(change_pct = gt::html("Percent<br />Change")) |>
     gt_theme()
 }
 

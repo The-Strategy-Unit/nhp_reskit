@@ -2,13 +2,19 @@
 % Please edit documentation in R/get_principal_pods.R
 \name{get_principal_pods}
 \alias{get_principal_pods}
+\alias{get_detailed_pods}
 \title{Prepare a lookup table with activity type labels and PoD labels for each PoD}
 \usage{
 get_principal_pods()
+
+get_detailed_pods()
 }
 \value{
 A tibble
+
+A tibble
 }
 \description{
-Prepare a lookup table with activity type labels and PoD labels for each PoD
+This function returns a single category for all A&E activity - compare
+\code{get_detailed_pods()} which keeps all A&E categories
 }

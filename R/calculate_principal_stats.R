@@ -8,11 +8,7 @@
 calculate_principal_stats <- function(tbl, group_cols) {
   summary_cols <- c("mean", "median", "p10", "p90")
   tbl |>
-    # probably unneeded step as should already be just a single row for each
-    dplyr::summarise(
-      dplyr::across("value", sum),
-      .by = tidyselect::all_of(group_cols)
-    ) |>
+    check_single_row_groups(group_cols) |>
     dplyr::mutate(
       stage = dplyr::if_else(.data[["model_run"]] == 0, "baseline", "principal")
     ) |>
@@ -30,3 +26,13 @@ calculate_principal_stats <- function(tbl, group_cols) {
 
 default_group_cols <- \(x = NULL) c("pod_label", "sitetret", x, "model_run")
 swap_modelrun_for_stage <- \(x) sub("^model_run$", "stage", x)
+
+
+check_single_row_groups <- function(tbl, group_cols) {
+  out <- tbl |>
+    dplyr::summarise(n = dplyr::n(), .by = tidyselect::all_of(group_cols))
+  csrg <- "check_single_row_groups"
+  msg <- "{.fn {csrg}}: The grouping columns do not group to single rows"
+  azkit::check_that(out, \(x) all(x[["n"]] == 1L), msg)
+  tbl
+}

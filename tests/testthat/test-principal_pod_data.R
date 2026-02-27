@@ -7,18 +7,9 @@ test_that("compile_principal_pod_data does what we need", {
   col_names <- c("pod", "sitetret", "measure", "model_run", "value")
   expect_named(default_tbl, col_names)
 
-  keep_measures <- c(
-    "admissions",
-    "ambulance",
-    "attendances",
-    "beddays",
-    "tele_attendances",
-    "walk-in"
-  )
-
   out1 <- default_tbl |>
     dplyr::filter(
-      dplyr::if_any("measure", \(x) x %in% {{ keep_measures }})
+      dplyr::if_any("measure", \(x) x %in% keep_measures())
     ) |>
     dplyr::filter(
       # exclude outpatient procedures from tele-attendances count only
