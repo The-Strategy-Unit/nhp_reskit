@@ -1,3 +1,8 @@
+#' Generate overall change factor ("waterfall") chart
+#'
+#' @param principal_change_factor_data data frame. As produced by
+#'  [compile_change_factor_data]
+#' @export
 make_overall_cf_plot <- function(principal_change_factor_data) {
   principal_change_factor_data |>
     dplyr::mutate(
@@ -30,20 +35,18 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
 }
 
 
+#' Generate bar charts by change factor at individual TPMA level
+#'
+#' @param indiv_change_factor_data data frame. As produced by
+#'  [compile_indiv_change_factor_data]
+#' @param x_axis_label string. A label for the charts' x-axis.
+#' @export
 make_individual_cf_plot <- function(indiv_change_factor_data, x_axis_label) {
   indiv_change_factor_data |>
     dplyr::mutate(
-      dplyr::across("change_factor", \(x) uppercase_init(sub("_", " ", x))),
-      tooltip = scales::label_comma(1)(.data[["value"]]),
-      dplyr::across("tooltip", \(x) paste0(.data[["tpma_label"]], ": ", x))
+      dplyr::across("change_factor", \(x) uppercase_init(sub("_", " ", x)))
     ) |>
-    ggplot2::ggplot(
-      ggplot2::aes(
-        .data[["value"]],
-        .data[["tpma_label"]],
-        text = .data[["tooltip"]]
-      )
-    ) +
+    ggplot2::ggplot(ggplot2::aes(.data[["value"]], .data[["tpma_label"]])) +
     ggplot2::geom_col(fill = "#2c2825") +
     ggplot2::scale_x_continuous(
       breaks = scales::pretty_breaks(5),
