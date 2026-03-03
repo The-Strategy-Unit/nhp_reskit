@@ -2,7 +2,7 @@
 % Please edit documentation in R/distribution_plot_data.R
 \name{prepare_distribution_plot_data}
 \alias{prepare_distribution_plot_data}
-\title{Initial preparation of site-level data for the main summary table}
+\title{Preparation of site-level data for the main summary table}
 \usage{
 prepare_distribution_plot_data(default_tbl)
 }
@@ -10,6 +10,6 @@ prepare_distribution_plot_data(default_tbl)
 A tibble
 }
 \description{
-Initial preparation of site-level data for the main summary table
+Preparation of site-level data for the main summary table
 }
 \keyword{internal}

@@ -2,14 +2,14 @@
 % Please edit documentation in R/detailed_activity_data.R
 \name{prepare_detailed_activity_data}
 \alias{prepare_detailed_activity_data}
-\title{Initial data preparation step for 'activity in detail' table}
+\title{Data preparation step for 'activity in detail' table}
 \usage{
 prepare_detailed_activity_data(init_data, aggregation)
 }
 \value{
-A tibble ready to be filtered by activity_type, pod, measure, sites
+A tibble
 }
 \description{
-Initial data preparation step for 'activity in detail' table
+Data preparation step for 'activity in detail' table
 }
 \keyword{internal}

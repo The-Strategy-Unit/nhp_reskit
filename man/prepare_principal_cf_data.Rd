@@ -2,13 +2,11 @@
 % Please edit documentation in R/change_factor_data.R
 \name{prepare_principal_cf_data}
 \alias{prepare_principal_cf_data}
-\title{Initial data preparation step for \code{change_factor} data}
+\title{Data preparation step for \code{change_factor} data}
 \usage{
 prepare_principal_cf_data(dat, tpma_lookup, include_baseline)
 }
 \arguments{
-\item{dat}{The "step_counts" table from NHP results}
-
 \item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
 a column named \code{strategy} (used as a key for joining to the \code{step_counts}
 table) and a column named \code{tpma_label} that provides friendly labels for
@@ -17,9 +15,9 @@ all TPMAs/strategies}
 \item{include_baseline}{Boolean. Whether to include baseline data}
 }
 \value{
-A tibble ready to be filtered by activity_type, pod, measure, sites
+A tibble
 }
 \description{
-Initial data preparation step for \code{change_factor} data
+Data preparation step for \code{change_factor} data
 }
 \keyword{internal}
