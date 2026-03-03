@@ -10,8 +10,7 @@ compile_distribution_plot_data <- function(
   pods = NULL,
   sites = NULL
 ) {
-  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
-
+  activity_type <- rlang::arg_match(activity_type)
   default_tbl |>
     dplyr::mutate(activity_type = sub("^([a-z]*).*", "\\1", .data[["pod"]])) |>
     filter_principal_data(measure, activity_type, pods) |>

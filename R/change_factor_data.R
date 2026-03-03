@@ -23,6 +23,7 @@ compile_change_factor_data <- function(
   sites = NULL,
   include_baseline = TRUE
 ) {
+  activity_type <- rlang::arg_match(activity_type)
   interim_data <- stepcounts_tbl |>
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites) |>
@@ -70,7 +71,7 @@ compile_indiv_change_factor_data <- function(
   sites = NULL,
   sort_by = c("value", "tpma_label")
 ) {
-  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
+  activity_type <- rlang::arg_match(activity_type)
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
 
@@ -178,9 +179,4 @@ move_baseline_row_to_top <- function(dat, var = "change_factor") {
   baseline_row <- dplyr::filter(dat, .data[[var]] == "baseline")
   dplyr::bind_rows(baseline_row, dplyr::setdiff(dat, baseline_row)) |>
     dplyr::select(!"rn")
-}
-
-
-convert_activity_type <- function(x) {
-  dplyr::case_match(x, "ip" ~ "Inpatient", "op" ~ "Outpatient", "aae" ~ "A&E")
 }
