@@ -20,7 +20,8 @@ compile_detailed_activity_data <- function(
   aggregation <- rlang::arg_match(aggregation)
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
-  } else { # aggregation == "tretspef"
+  } else {
+    # aggregation == "tretspef"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
   }
 
@@ -119,7 +120,8 @@ export_detailed_activity_data <- function(
   aggregation <- rlang::arg_match(aggregation)
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
-  } else { # aggregation == "tretspef"
+  } else {
+    # aggregation == "tretspef"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
   }
   sort_cols <- c("sex", "activity_type_label", "pod_label", aggregation)

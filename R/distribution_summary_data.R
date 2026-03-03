@@ -64,7 +64,7 @@ prepare_distribution_summary_data <- function(default_tbl) {
     calculate_principal_stats(default_group_cols("measure")) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {
-        sub("_", "-", sub("Bedda", "Bed da", uppercase_init(x)))
+        sub("_", "-", sub("Beddays", "Bed days", uppercase_init(x)))
       })
     )
 }
