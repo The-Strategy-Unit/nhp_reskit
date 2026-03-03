@@ -16,7 +16,7 @@ compile_detailed_activity_data <- function(
   pods = NULL,
   sites = NULL
 ) {
-  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
+  activity_type <- rlang::arg_match(activity_type)
   aggregation <- rlang::arg_match(aggregation)
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
