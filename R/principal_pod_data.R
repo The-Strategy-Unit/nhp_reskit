@@ -109,9 +109,7 @@ relabel_ip_activity_types <- function(tbl) {
 inner_join_for_labels <- function(tbl, lookup) {
   tbl |>
     dplyr::inner_join(lookup, "pod") |>
-    dplyr::relocate("pod_label") |>
-    # we don't need to keep "pod" (we will use "pod_label" in the final tables)
-    dplyr::select(!"pod")
+    dplyr::relocate("pod_label", .after = "pod")
 }
 
 
