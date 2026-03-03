@@ -13,16 +13,17 @@ compile_distribution_plot_data <- function(
   activity_type <- convert_activity_type(rlang::arg_match(activity_type))
 
   default_tbl |>
+    dplyr::mutate(activity_type = sub("^([a-z]*).*", "\\1", .data[["pod"]])) |>
+    filter_principal_data(measure, activity_type, pods) |>
     prepare_distribution_plot_data() |>
     filter_to_selected_sites(sites) |>
-    filter_principal_data(measure, activity_type, pods) |>
     dplyr::summarise(
       dplyr::across(c("value", "baseline", "principal"), sum),
       .by = "model_run"
     )
 }
 
-#' Initial preparation of site-level data for the main summary table
+#' Preparation of site-level data for the main summary table
 #'
 #' @inheritParams compile_distribution_plot_data
 #' @returns A tibble

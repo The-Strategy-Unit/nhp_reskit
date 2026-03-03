@@ -26,9 +26,10 @@ compile_detailed_activity_data <- function(
 
   init_data |>
     prepare_detailed_activity_data(aggregation) |>
+    dplyr::mutate(activity_type = sub("^([a-z]*).*", "\\1", .data[["pod"]])) |>
+    filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
-    filter_principal_data(measure, activity_type, pods) |>
     summarise_for_all_pods(aggregation) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
@@ -66,9 +67,9 @@ prepare_tretspef_data <- function(results, tretspef_lookup) {
 }
 
 
-#' Initial data preparation step for 'activity in detail' table
+#' Data preparation step for 'activity in detail' table
 #'
-#' @returns A tibble ready to be filtered by activity_type, pod, measure, sites
+#' @returns A tibble
 #' @keywords internal
 prepare_detailed_activity_data <- function(init_data, aggregation) {
   init_data |>
@@ -123,8 +124,8 @@ export_detailed_activity_data <- function(
   }
   sort_cols <- c("sex", "activity_type_label", "pod_label", aggregation)
   init_data |>
-    prepare_detailed_activity_data(aggregation) |>
     filter_to_selected_sites(sites) |>
+    prepare_detailed_activity_data(aggregation) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
 }

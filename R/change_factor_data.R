@@ -1,6 +1,6 @@
 #' Prepare data from the `step_counts` results table for display as charts
 #'
-#' @param dat The "step_counts" table from NHP results
+#' @param stepcounts_tbl The "step_counts" table from NHP results
 #' @param measure The measure to focus on for the output table. Valid values
 #'  depend on which activity_type is selected
 #' @param tpma_lookup A tibble, or a function that returns a tibble, containing
@@ -15,7 +15,7 @@
 #' @returns A prepared tibble of step count changes for each included TPMA
 #' @export
 compile_change_factor_data <- function(
-  dat,
+  stepcounts_tbl,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
@@ -23,13 +23,11 @@ compile_change_factor_data <- function(
   sites = NULL,
   include_baseline = TRUE
 ) {
-  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
-
-  interim_data <- dat |>
-    prepare_principal_cf_data(tpma_lookup, include_baseline) |>
-    filter_to_selected_sites(sites) |>
-    summarise_for_all_sites() |>
+  interim_data <- stepcounts_tbl |>
     filter_principal_data(measure, activity_type, pods) |>
+    filter_to_selected_sites(sites) |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline) |>
+    summarise_for_all_sites() |>
     dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
     # Here we need to sort by decreasing value (biggest increases in activity
     # (positive 'value's) at the top), and we need to ensure that the 'baseline'
@@ -64,7 +62,7 @@ compile_change_factor_data <- function(
 #' @returns A prepared tibble of projected negative changes in activity, by TPMA
 #' @export
 compile_indiv_change_factor_data <- function(
-  dat,
+  stepcounts_tbl,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
@@ -76,11 +74,11 @@ compile_indiv_change_factor_data <- function(
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
 
-  table_data <- dat |>
-    prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
-    filter_to_selected_sites(sites) |>
-    summarise_for_all_sites() |>
+  table_data <- stepcounts_tbl |>
     filter_principal_data(measure, activity_type, pods) |>
+    filter_to_selected_sites(sites) |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
+    summarise_for_all_sites() |>
     dplyr::filter(
       dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
     )
@@ -115,9 +113,10 @@ compile_indiv_change_factor_data <- function(
 #' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @export
-export_principal_cf_data <- function(dat, sites = NULL) {
-  prepare_principal_cf_data(dat, include_baseline = TRUE) |>
+export_principal_cf_data <- function(stepcounts_tbl, sites = NULL) {
+  stepcounts_tbl |>
     filter_to_selected_sites(sites) |>
+    prepare_principal_cf_data(include_baseline = TRUE) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
 }
 
@@ -138,10 +137,10 @@ filter_principal_data <- function(
 }
 
 
-#' Initial data preparation step for `change_factor` data
+#' Data preparation step for `change_factor` data
 #'
 #' @inheritParams compile_change_factor_data
-#' @returns A tibble ready to be filtered by activity_type, pod, measure, sites
+#' @returns A tibble
 #' @keywords internal
 prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
