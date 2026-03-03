@@ -128,12 +128,12 @@ filter_principal_data <- function(
   activity_type,
   selected_pods = NULL
 ) {
-  selected_pods <- selected_pods %||% unique(dat[["pod_label"]])
+  selected_pods <- selected_pods %||% unique(dat[["pod"]])
   dat |>
     dplyr::filter(
-      dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
-        dplyr::if_any("pod_label", \(x) x %in% .env[["selected_pods"]]) &
-        dplyr::if_any("activity_type_label", \(x) x == .env[["activity_type"]])
+      dplyr::if_any("pod", \(x) x %in% .env[["selected_pods"]]) &
+        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
+        dplyr::if_any("activity_type", \(x) x == .env[["activity_type"]])
     )
 }
 
