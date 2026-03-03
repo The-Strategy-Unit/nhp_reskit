@@ -170,20 +170,20 @@ results |>
 #### Overall ("waterfall") 1
 
 ```{r change factors plot 1}
+selected_pods <- c(
+  "ip_elective_daycase",
+  "ip_maternity_admission",
+  "ip_non-elective_admission"
+)
 
 results |>
   purrr::pluck("step_counts") |>
   compile_change_factor_data(
     measure = "admissions",
     activity_type = "ip",
-    pods = c(
-      "Daycase Admission",
-      "Maternity Admission",
-      "Non-Elective Admission"
-    )
+    pods = selected_pods
   ) |>
   make_overall_cf_plot()
-
 ```
 
 
@@ -195,15 +195,10 @@ results |>
   compile_change_factor_data(
     measure = "admissions",
     activity_type = "ip",
-    pods = c(
-      "Daycase Admission",
-      "Maternity Admission",
-      "Non-Elective Admission"
-    ),
+    pods = selected_pods,
     include_baseline = FALSE
   ) |>
   make_overall_cf_plot()
-
 ```
 
 
