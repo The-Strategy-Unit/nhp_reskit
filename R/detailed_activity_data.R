@@ -89,7 +89,7 @@ prepare_detailed_activity_data <- function(init_data, aggregation) {
 detailed_activity_sort_vars <- function(aggregation) {
   # fmt: skip
   c(
-    "activity_type_label", "pod_label", "measure", "sitetret", "sex",
+    "activity_type_label", "pod", "pod_label", "measure", "sitetret", "sex",
     aggregation, "model_run"
   )
 }
@@ -123,7 +123,7 @@ export_detailed_activity_data <- function(
     # aggregation == "tretspef"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
   }
-  sort_cols <- c("sex", "activity_type_label", "pod_label", aggregation)
+  sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
   init_data |>
     filter_to_selected_sites(sites) |>
     prepare_detailed_activity_data(aggregation) |>
