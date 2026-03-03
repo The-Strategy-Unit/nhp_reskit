@@ -49,8 +49,14 @@ test_that("compile_change_factor_data does what we need", {
   expect_named(
     out2,
     c(
+      "activity_type",
+      "sitetret",
+      "pod",
       "pod_label",
-      setdiff(col_names, c("pod", "strategy")),
+      "change_factor",
+      "measure",
+      "model_run",
+      "value",
       "activity_type_label",
       "tpma_label"
     )
@@ -93,8 +99,14 @@ test_that("compile_change_factor_data does what we need", {
   expect_named(
     out2,
     c(
+      "activity_type",
+      "sitetret",
+      "pod",
       "pod_label",
-      setdiff(col_names, c("pod", "strategy")),
+      "change_factor",
+      "measure",
+      "model_run",
+      "value",
       "activity_type_label",
       "tpma_label"
     )
@@ -116,23 +128,21 @@ test_that("main compile function does what is expected", {
   results <- readr::read_rds(here::here("test_results.rds"))
   step_counts_tbl <- results[["step_counts"]] |>
     dplyr::select(seq(8))
-  prepared_data <- step_counts_tbl |>
-    prepare_principal_cf_data(get_tpma_label_lookup(), TRUE)
 
-  activity_types <- as.character(unique(prepared_data[["activity_type_label"]]))
-  pods <- unique(prepared_data[["pod_label"]])
-  measures <- unique(prepared_data[["measure"]])
+  activity_types <- as.character(unique(step_counts_tbl[["activity_type"]]))
+  pods <- unique(step_counts_tbl[["pod"]])
+  measures <- unique(step_counts_tbl[["measure"]])
 
   set.seed(21879)
   activity_type <- sample(activity_types, 1)
   measure <- sample(measures, 1)
-  expect_identical(activity_type, "Inpatient")
+  expect_identical(activity_type, "ip")
   expect_identical(measure, "admissions")
 
-  table_data <- prepared_data |>
+  table_data <- step_counts_tbl |>
+    filter_principal_data(measure, activity_type) |>
     filter_to_selected_sites(sites = NULL) |>
     summarise_for_all_sites() |>
-    filter_principal_data(measure, activity_type) |>
     dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
     expect_no_error()
   expect_shape(table_data, dim = c(8, 2))

@@ -1,5 +1,6 @@
 #' Compile data to support the "activity distribution summary" tables
 #'
+#' @inheritParams compile_principal_pod_data
 #' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @export

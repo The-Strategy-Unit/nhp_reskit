@@ -6,6 +6,9 @@
 \usage{
 prepare_distribution_plot_data(default_tbl)
 }
+\arguments{
+\item{default_tbl}{the "default" table from NHP results}
+}
 \value{
 A tibble
 }
