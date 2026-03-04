@@ -58,7 +58,8 @@ prepare_principal_pod_data <- function(default_tbl) {
 #' @returns A tibble
 #' @export
 export_principal_pod_data <- function(default_tbl, sites = NULL) {
-  prepare_principal_pod_data(default_tbl) |>
+  default_tbl |>
+    prepare_principal_pod_data() |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))

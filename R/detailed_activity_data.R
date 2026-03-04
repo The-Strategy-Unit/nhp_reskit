@@ -26,11 +26,10 @@ compile_detailed_activity_data <- function(
   }
 
   init_data |>
-    prepare_detailed_activity_data(aggregation) |>
-    dplyr::mutate(activity_type = sub("^([a-z]*).*", "\\1", .data[["pod"]])) |>
+    get_activity_type_from_pod() |>
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites) |>
-    summarise_for_all_sites() |>
+    prepare_detailed_activity_data(aggregation) |>
     summarise_for_all_pods(aggregation) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
