@@ -71,21 +71,7 @@ We need to supply a vector of sites to the function, but if we look at
 `trust_site_aggregation()`, which is where the `sites` parameter actually comes
 into play, a NULL sites list will just result in no filtering (all sites).
 
-We now have a `make_main_summary_table()` function that works, generating the
-main summary table as expected:
-
-```{r corrected attempt at compile_main_summary_data}
-#| eval: false
-results |>
-  purrr::pluck("default") |>
-  # summarise_to_selected_sites(NULL) |>
-  compile_main_summary_data() |>
-  make_main_summary_table()
-
-```
-
-
-However, we need to make sure we are not "prematurely optimising" our data
+We need to make sure we are not "prematurely optimising" our data
 pipeline.
 
 There is more than one use case for these reskit functions, not just to generate
