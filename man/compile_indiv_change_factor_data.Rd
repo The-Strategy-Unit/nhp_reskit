@@ -5,7 +5,7 @@
 \title{Prepare data from \code{step_counts} results table for display as charts}
 \usage{
 compile_indiv_change_factor_data(
-  dat,
+  stepcounts_tbl,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
@@ -15,7 +15,7 @@ compile_indiv_change_factor_data(
 )
 }
 \arguments{
-\item{dat}{The "step_counts" table from NHP results}
+\item{stepcounts_tbl}{The "step_counts" table from NHP results}
 
 \item{measure}{The measure to focus on for the output table. Valid values
 depend on which activity_type is selected}

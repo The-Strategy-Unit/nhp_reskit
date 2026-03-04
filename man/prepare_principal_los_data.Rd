@@ -2,17 +2,14 @@
 % Please edit documentation in R/principal_los_data.R
 \name{prepare_principal_los_data}
 \alias{prepare_principal_los_data}
-\title{Initial preparation of site-level data for the main LoS summary table}
+\title{Preparation of site-level data for the main LoS summary table}
 \usage{
-prepare_principal_los_data(los_tbl, selected_measure)
-}
-\arguments{
-\item{los_tbl}{the "tretspef+los_group" table from NHP results}
+prepare_principal_los_data(dat)
 }
 \value{
 A tibble
 }
 \description{
-Initial preparation of site-level data for the main LoS summary table
+Preparation of site-level data for the main LoS summary table
 }
 \keyword{internal}

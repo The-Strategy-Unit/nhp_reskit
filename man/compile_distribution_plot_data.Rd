@@ -13,6 +13,8 @@ compile_distribution_plot_data(
 )
 }
 \arguments{
+\item{default_tbl}{the "default" table from NHP results}
+
 \item{measure}{The measure to focus on for the output table. Valid values
 depend on which activity_type is selected}
 

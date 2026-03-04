@@ -48,12 +48,8 @@ compile_distribution_summary_data <- function(
 #' @keywords internal
 prepare_distribution_summary_data <- function(default_tbl) {
   default_tbl |>
-    dplyr::filter(dplyr::if_any("measure", \(x) x %in% keep_measures())) |>
-    dplyr::filter(
-      # exclude outpatient procedures from tele-attendances count only
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
-    ) |>
+    filter_to_main_measures() |>
+    exclude_op_teleatt_procedures() |>
     inner_join_for_labels(get_detailed_pods()) |>
     dplyr::mutate(
       dplyr::across("pod_label", \(x) {
@@ -64,15 +60,9 @@ prepare_distribution_summary_data <- function(default_tbl) {
     calculate_principal_stats(default_group_cols("measure")) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {
-        sub("_", "-", sub("Bedda", "Bed da", uppercase_init(x)))
+        sub("_", "-", sub("Beddays", "Bed days", uppercase_init(x)))
       })
     )
-}
-
-
-convert_aae_label <- function(x) {
-  convert_label <- \(x) paste0("Type ", sub(".*(\\d{1})$", "\\1", x))
-  dplyr::if_else(grepl("^aae", x), convert_label(x), "")
 }
 
 

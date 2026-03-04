@@ -36,12 +36,8 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
 #' @keywords internal
 prepare_principal_pod_data <- function(default_tbl) {
   default_tbl |>
-    dplyr::filter(dplyr::if_any("measure", \(x) x %in% keep_measures())) |>
-    dplyr::filter(
-      # exclude outpatient procedures from tele-attendances count only
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
-    ) |>
+    filter_to_main_measures() |>
+    exclude_op_teleatt_procedures() |>
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
@@ -51,9 +47,9 @@ prepare_principal_pod_data <- function(default_tbl) {
       .by = tidyselect::all_of(default_group_cols("activity_type_label"))
     ) |>
     calculate_principal_stats(default_group_cols("activity_type_label")) |>
-    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
-    dplyr::select(!"stat")
+    keep_mean_only()
 }
+
 
 #' Prepare a site-level summary of main projection results
 #'
@@ -62,67 +58,9 @@ prepare_principal_pod_data <- function(default_tbl) {
 #' @returns A tibble
 #' @export
 export_principal_pod_data <- function(default_tbl, sites = NULL) {
-  prepare_principal_pod_data(default_tbl) |>
+  default_tbl |>
+    prepare_principal_pod_data() |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
-}
-
-
-#' Give PoDs more accurate labels
-#' @param tbl A tibble
-#' @keywords internal
-relabel_pods <- function(tbl) {
-  tbl |>
-    dplyr::mutate(
-      dplyr::across("pod_label", \(x) {
-        dplyr::case_when(
-          .data[["measure"]] == "tele_attendances" ~ sub("Att", "Tele-att", x),
-          .data[["measure"]] == "beddays" ~ sub("Admission", "Bed Days", x),
-          .default = x
-        )
-      })
-    )
-}
-
-
-#' Give activity types more accurate labels
-#' @rdname relabel_pods
-#' @keywords internal
-relabel_ip_activity_types <- function(tbl) {
-  tbl |>
-    dplyr::mutate(
-      dplyr::across("activity_type_label", \(x) {
-        dplyr::if_else(
-          x == "Inpatient",
-          paste0(x, " ", uppercase_init(.data[["measure"]])),
-          x
-        )
-      }),
-      dplyr::across("activity_type_label", \(x) sub("Beddays", "Bed Days", x))
-    )
-}
-
-
-#' Use a lookup table to get more readable labels for PoDs
-#' @keywords internal
-inner_join_for_labels <- function(tbl, lookup) {
-  tbl |>
-    dplyr::inner_join(lookup, "pod") |>
-    dplyr::relocate("pod_label") |>
-    # we don't need to keep "pod" (we will use "pod_label" in the final tables)
-    dplyr::select(!"pod")
-}
-
-
-#' A vector of values from the measure column in results tables
-#'
-#' Currently this contains 6 of the 7 possible values; it excludes "procedures".
-#' This vector is used in several places as a filter.
-#' @keywords internal
-keep_measures <- function() {
-  # fmt: skip
-  c(
-    "admissions", "ambulance", "attendances", "beddays", "tele_attendances", "walk-in"
-  )
 }

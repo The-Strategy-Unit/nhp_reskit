@@ -2,7 +2,7 @@ test_that("compile_main_data does what we need", {
   skip_on_ci()
   results <- readr::read_rds(here::here("test_results.rds"))
   los_tbl <- results[["tretspef+los_group"]] |>
-    dplyr::select(1:7)
+    dplyr::select(seq(7))
   expect_shape(los_tbl, nrow = 290667L)
   col_names <- c(
     "pod",
@@ -27,6 +27,7 @@ test_that("compile_main_data does what we need", {
     inner_join_for_labels(get_principal_pods())
 
   col_names2 <- c(
+    "pod",
     "pod_label",
     "sitetret",
     "tretspef",
@@ -41,7 +42,11 @@ test_that("compile_main_data does what we need", {
 
   out3 <- out2 |>
     relabel_pods() |>
-    dplyr::select(!"activity_type_label") |>
+    dplyr::select(!c("activity_type_label", "tretspef")) |>
+    dplyr::summarise(
+      dplyr::across("value", sum),
+      .by = tidyselect::all_of(default_group_cols("los_group"))
+    ) |>
     calculate_principal_stats(default_group_cols("los_group")) |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
     dplyr::select(!"stat")

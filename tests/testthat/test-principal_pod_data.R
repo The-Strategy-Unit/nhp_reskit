@@ -23,6 +23,7 @@ test_that("compile_principal_pod_data does what we need", {
   expect_shape(out1, nrow = nrow(dplyr::distinct(out1)))
 
   col_names1 <- c(
+    "pod",
     "pod_label",
     "sitetret",
     "measure",
@@ -48,6 +49,10 @@ test_that("compile_principal_pod_data does what we need", {
   )
 
   out2 <- out1 |>
+    dplyr::summarise(
+      dplyr::across("value", sum),
+      .by = tidyselect::all_of(default_group_cols("activity_type_label"))
+    ) |>
     calculate_principal_stats(default_group_cols("activity_type_label")) |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
     dplyr::select(!"stat")

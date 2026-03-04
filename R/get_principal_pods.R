@@ -46,7 +46,7 @@ get_detailed_pods <- function() {
 }
 
 
-#' Helper function to extract the reuiqred data fields from a list (from YAML)
+#' Helper function to extract the required data fields from a list (from YAML)
 #' @keywords internal
 list_to_tbl <- function(lst) {
   tibble::tibble(
