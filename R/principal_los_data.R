@@ -22,13 +22,13 @@ compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
   summary_los_data |>
     dplyr::mutate(
       # display pods in desc order of baseline level of admissions/beddays
-      dplyr::across("pod", \(x) {
+      dplyr::across("pod_label", \(x) {
         forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
       }),
       # correctly sort LoS group factor levels numerically
       dplyr::across("los_group", \(x) forcats::fct(x, los_groups_ordered))
     ) |>
-    dplyr::arrange(dplyr::pick(c("pod", "los_group")))
+    dplyr::arrange(dplyr::pick(c("pod_label", "los_group")))
 }
 
 
@@ -61,5 +61,5 @@ export_principal_los_data <- function(los_tbl, sites = NULL) {
   prepare_principal_los_data(los_tbl) |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
-    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod")))
+    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }
