@@ -47,8 +47,7 @@ prepare_principal_los_data <- function(dat) {
       .by = tidyselect::all_of(default_group_cols("los_group"))
     ) |>
     calculate_principal_stats(default_group_cols("los_group")) |>
-    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
-    dplyr::select(!"stat")
+    keep_mean_only()
 }
 
 

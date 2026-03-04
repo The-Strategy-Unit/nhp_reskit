@@ -82,8 +82,7 @@ prepare_detailed_activity_data <- function(init_data, aggregation) {
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     calculate_principal_stats(detailed_activity_sort_vars(aggregation)) |>
-    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
-    dplyr::select(!"stat")
+    keep_mean_only()
 }
 
 
