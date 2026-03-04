@@ -58,7 +58,8 @@ prepare_principal_los_data <- function(dat) {
 #' @returns A tibble
 #' @export
 export_principal_los_data <- function(los_tbl, sites = NULL) {
-  prepare_principal_los_data(los_tbl) |>
+  los_tbl |>
+    prepare_principal_los_data() |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
