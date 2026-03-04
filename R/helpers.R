@@ -17,6 +17,19 @@ filter_to_selected_sites <- function(dat, sites, site_col = "sitetret") {
 }
 
 
+#' Exclude outpatient procedures from tele-attendances count only
+#' @param tbl A tibble
+#' @keywords internal
+exclude_op_teleatt_procedures <- function(tbl) {
+  stopifnot(all(c("measure", "pod") %in% colnames(tbl)))
+  tbl |>
+    dplyr::filter(
+      dplyr::if_any("measure", \(x) x != "tele_attendances") |
+        dplyr::if_any("pod", \(x) x != "op_procedure")
+    )
+}
+
+
 #' Add `change` and `change_pct` columns to a prepared results table
 #'
 #' @param tbl A tibble of appropriately prepared results
@@ -37,6 +50,22 @@ keep_mean_only <- function(tbl) {
   tbl |>
     dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
     dplyr::select(!"stat")
+}
+
+
+#' Filter a table so the `measure` column only contains 6 selected measures
+#'
+#' Currently this contains 6 of the 7 possible values; it excludes "procedures".
+#' This function is used in several places in reskit as a filter.
+#' @param tbl A tibble
+#' @keywords internal
+filter_to_main_measures <- function(tbl) {
+  # fmt: skip
+  keep_measures <- c(
+    "admissions", "ambulance", "attendances",
+    "beddays", "tele_attendances", "walk-in"
+  )
+  dplyr::filter(tbl, dplyr::if_any("measure", \(x) x %in% {{ keep_measures }}))
 }
 
 
