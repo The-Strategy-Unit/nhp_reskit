@@ -32,6 +32,14 @@ add_change_cols <- function(tbl) {
 }
 
 
+keep_mean_only <- function(tbl) {
+  stopifnot("stat" %in% colnames(tbl))
+  tbl |>
+    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
+    dplyr::select(!"stat")
+}
+
+
 #' From any results table, get list of all site codes for this scheme
 #'
 #' The "default" table is recommended

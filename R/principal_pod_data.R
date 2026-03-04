@@ -51,8 +51,7 @@ prepare_principal_pod_data <- function(default_tbl) {
       .by = tidyselect::all_of(default_group_cols("activity_type_label"))
     ) |>
     calculate_principal_stats(default_group_cols("activity_type_label")) |>
-    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
-    dplyr::select(!"stat")
+    keep_mean_only()
 }
 
 #' Prepare a site-level summary of main projection results
