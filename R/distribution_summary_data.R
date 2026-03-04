@@ -66,12 +66,6 @@ prepare_distribution_summary_data <- function(default_tbl) {
 }
 
 
-convert_aae_label <- function(x) {
-  convert_label <- \(x) paste0("Type ", sub(".*(\\d{1})$", "\\1", x))
-  dplyr::if_else(grepl("^aae", x), convert_label(x), "")
-}
-
-
 #' Prepare a site-level summary of activity distribution summary data
 #'
 #' Intended to be used to create a table to be exported to .csv/.xlsx
