@@ -48,12 +48,8 @@ compile_distribution_summary_data <- function(
 #' @keywords internal
 prepare_distribution_summary_data <- function(default_tbl) {
   default_tbl |>
-    dplyr::filter(dplyr::if_any("measure", \(x) x %in% keep_measures())) |>
-    dplyr::filter(
-      # exclude outpatient procedures from tele-attendances count only
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
-    ) |>
+    filter_to_main_measures() |>
+    exclude_op_teleatt_procedures() |>
     inner_join_for_labels(get_detailed_pods()) |>
     dplyr::mutate(
       dplyr::across("pod_label", \(x) {

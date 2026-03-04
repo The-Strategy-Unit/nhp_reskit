@@ -36,12 +36,8 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
 #' @keywords internal
 prepare_principal_pod_data <- function(default_tbl) {
   default_tbl |>
-    dplyr::filter(dplyr::if_any("measure", \(x) x %in% keep_measures())) |>
-    dplyr::filter(
-      # exclude outpatient procedures from tele-attendances count only
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
-    ) |>
+    filter_to_main_measures() |>
+    exclude_op_teleatt_procedures() |>
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
@@ -53,6 +49,7 @@ prepare_principal_pod_data <- function(default_tbl) {
     calculate_principal_stats(default_group_cols("activity_type_label")) |>
     keep_mean_only()
 }
+
 
 #' Prepare a site-level summary of main projection results
 #'

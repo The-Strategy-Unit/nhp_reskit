@@ -13,7 +13,7 @@ compile_distribution_plot_data <- function(
 ) {
   activity_type <- rlang::arg_match(activity_type)
   default_tbl |>
-    dplyr::mutate(activity_type = sub("^([a-z]*).*", "\\1", .data[["pod"]])) |>
+    get_activity_type_from_pod() |>
     filter_principal_data(measure, activity_type, pods) |>
     prepare_distribution_plot_data() |>
     filter_to_selected_sites(sites) |>
@@ -34,12 +34,8 @@ prepare_distribution_plot_data <- function(default_tbl) {
   fill_cols <- c("pod_label", "sitetret", key_cols)
 
   default_tbl |>
-    dplyr::filter(dplyr::if_any("measure", \(x) x %in% keep_measures())) |>
-    dplyr::filter(
-      # exclude outpatient procedures from tele-attendances count only
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
-    ) |>
+    filter_to_main_measures() |>
+    exclude_op_teleatt_procedures() |>
     inner_join_for_labels(get_detailed_pods()) |>
     check_single_row_groups(group_cols) |>
     dplyr::mutate(
