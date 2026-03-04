@@ -8,8 +8,10 @@
 #'  by point of delivery and grouped length of stay
 #' @export
 compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
-  summary_los_data <- prepare_principal_los_data(los_tbl, measure) |>
+  summary_los_data <- los_tbl |>
+    dplyr::filter(dplyr::if_any("measure", \(x) x == .env[["measure"]])) |>
     filter_to_selected_sites(sites) |>
+    prepare_principal_los_data() |>
     summarise_for_all_sites() |>
     add_change_cols()
 
@@ -30,16 +32,14 @@ compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
 }
 
 
-#' Initial preparation of site-level data for the main LoS summary table
+#' Preparation of site-level data for the main LoS summary table
 #'
 #' @inheritParams compile_principal_los_data
+#' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @keywords internal
-prepare_principal_los_data <- function(los_tbl, selected_measure) {
-  los_tbl |>
-    dplyr::filter(
-      dplyr::if_any("measure", \(x) x == .env[["selected_measure"]])
-    ) |>
+prepare_principal_los_data <- function(dat) {
+  dat |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     dplyr::summarise(
@@ -47,8 +47,7 @@ prepare_principal_los_data <- function(los_tbl, selected_measure) {
       .by = tidyselect::all_of(default_group_cols("los_group"))
     ) |>
     calculate_principal_stats(default_group_cols("los_group")) |>
-    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
-    dplyr::select(!"stat")
+    keep_mean_only()
 }
 
 
@@ -59,7 +58,8 @@ prepare_principal_los_data <- function(los_tbl, selected_measure) {
 #' @returns A tibble
 #' @export
 export_principal_los_data <- function(los_tbl, sites = NULL) {
-  prepare_principal_los_data(los_tbl) |>
+  los_tbl |>
+    prepare_principal_los_data() |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))

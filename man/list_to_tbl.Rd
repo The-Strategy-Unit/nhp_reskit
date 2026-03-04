@@ -2,11 +2,11 @@
 % Please edit documentation in R/get_principal_pods.R
 \name{list_to_tbl}
 \alias{list_to_tbl}
-\title{Helper function to extract the reuiqred data fields from a list (from YAML)}
+\title{Helper function to extract the required data fields from a list (from YAML)}
 \usage{
 list_to_tbl(lst)
 }
 \description{
-Helper function to extract the reuiqred data fields from a list (from YAML)
+Helper function to extract the required data fields from a list (from YAML)
 }
 \keyword{internal}

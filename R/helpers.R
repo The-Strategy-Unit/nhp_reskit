@@ -17,6 +17,19 @@ filter_to_selected_sites <- function(dat, sites, site_col = "sitetret") {
 }
 
 
+#' Exclude outpatient procedures from tele-attendances count only
+#' @param tbl A tibble
+#' @keywords internal
+exclude_op_teleatt_procedures <- function(tbl) {
+  stopifnot(all(c("measure", "pod") %in% colnames(tbl)))
+  tbl |>
+    dplyr::filter(
+      dplyr::if_any("measure", \(x) x != "tele_attendances") |
+        dplyr::if_any("pod", \(x) x != "op_procedure")
+    )
+}
+
+
 #' Add `change` and `change_pct` columns to a prepared results table
 #'
 #' @param tbl A tibble of appropriately prepared results
@@ -29,6 +42,84 @@ add_change_cols <- function(tbl) {
       change = .data[["principal"]] - .data[["baseline"]],
       change_pct = .data[["change"]] / .data[["baseline"]]
     )
+}
+
+
+keep_mean_only <- function(tbl) {
+  stopifnot("stat" %in% colnames(tbl))
+  tbl |>
+    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
+    dplyr::select(!"stat")
+}
+
+
+#' Filter a table so the `measure` column only contains 6 selected measures
+#'
+#' Currently this contains 6 of the 7 possible values; it excludes "procedures".
+#' This function is used in several places in reskit as a filter.
+#' @param tbl A tibble
+#' @keywords internal
+filter_to_main_measures <- function(tbl) {
+  # fmt: skip
+  keep_measures <- c(
+    "admissions", "ambulance", "attendances",
+    "beddays", "tele_attendances", "walk-in"
+  )
+  dplyr::filter(tbl, dplyr::if_any("measure", \(x) x %in% {{ keep_measures }}))
+}
+
+
+#' Use a lookup table to get more readable labels for PoDs
+#' @param tbl A tibble
+#' @param lookup A lookup table with pod and pod_label columns
+#' @keywords internal
+inner_join_for_labels <- function(tbl, lookup) {
+  tbl |>
+    dplyr::inner_join(lookup, "pod") |>
+    dplyr::relocate(c("pod_label", "activity_type_label"), .after = "pod")
+}
+
+
+#' Give PoDs more accurate labels
+#' @param tbl A tibble
+#' @keywords internal
+relabel_pods <- function(tbl) {
+  tbl |>
+    dplyr::mutate(
+      dplyr::across("pod_label", \(x) {
+        dplyr::case_when(
+          .data[["measure"]] == "tele_attendances" ~ sub("Att", "Tele-att", x),
+          .data[["measure"]] == "beddays" ~ sub("Admission", "Bed Days", x),
+          .default = x
+        )
+      })
+    )
+}
+
+
+#' Give activity types more accurate labels
+#' @rdname relabel_pods
+#' @keywords internal
+relabel_ip_activity_types <- function(tbl) {
+  tbl |>
+    dplyr::mutate(
+      dplyr::across("activity_type_label", \(x) {
+        dplyr::if_else(
+          x == "Inpatient",
+          paste0(x, " ", uppercase_init(.data[["measure"]])),
+          x
+        )
+      }),
+      dplyr::across("activity_type_label", \(x) sub("Beddays", "Bed Days", x))
+    )
+}
+
+
+#' Create a column called `activity_type` by extracting a substring from `pod`
+#' @param tbl A tibble
+#' @keywords internal
+get_activity_type_from_pod <- function(tbl) {
+  dplyr::mutate(tbl, activity_type = sub("^([a-z]*).*", "\\1", .data[["pod"]]))
 }
 
 

@@ -16,19 +16,20 @@ compile_detailed_activity_data <- function(
   pods = NULL,
   sites = NULL
 ) {
-  activity_type <- convert_activity_type(rlang::arg_match(activity_type))
+  activity_type <- rlang::arg_match(activity_type)
   aggregation <- rlang::arg_match(aggregation)
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
-  } else { # aggregation == "tretspef"
+  } else {
+    # aggregation == "tretspef"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
   }
 
   init_data |>
-    prepare_detailed_activity_data(aggregation) |>
-    filter_to_selected_sites(sites) |>
-    summarise_for_all_sites() |>
+    get_activity_type_from_pod() |>
     filter_principal_data(measure, activity_type, pods) |>
+    filter_to_selected_sites(sites) |>
+    prepare_detailed_activity_data(aggregation) |>
     summarise_for_all_pods(aggregation) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
@@ -66,9 +67,9 @@ prepare_tretspef_data <- function(results, tretspef_lookup) {
 }
 
 
-#' Initial data preparation step for 'activity in detail' table
+#' Data preparation step for 'activity in detail' table
 #'
-#' @returns A tibble ready to be filtered by activity_type, pod, measure, sites
+#' @returns A tibble
 #' @keywords internal
 prepare_detailed_activity_data <- function(init_data, aggregation) {
   init_data |>
@@ -80,15 +81,14 @@ prepare_detailed_activity_data <- function(init_data, aggregation) {
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     calculate_principal_stats(detailed_activity_sort_vars(aggregation)) |>
-    dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
-    dplyr::select(!"stat")
+    keep_mean_only()
 }
 
 
 detailed_activity_sort_vars <- function(aggregation) {
   # fmt: skip
   c(
-    "activity_type_label", "pod_label", "measure", "sitetret", "sex",
+    "activity_type_label", "pod", "pod_label", "measure", "sitetret", "sex",
     aggregation, "model_run"
   )
 }
@@ -118,13 +118,14 @@ export_detailed_activity_data <- function(
   aggregation <- rlang::arg_match(aggregation)
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
-  } else { # aggregation == "tretspef"
+  } else {
+    # aggregation == "tretspef"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
   }
-  sort_cols <- c("sex", "activity_type_label", "pod_label", aggregation)
+  sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
   init_data |>
-    prepare_detailed_activity_data(aggregation) |>
     filter_to_selected_sites(sites) |>
+    prepare_detailed_activity_data(aggregation) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
 }
