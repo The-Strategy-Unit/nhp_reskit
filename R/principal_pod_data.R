@@ -22,11 +22,11 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) forcats::fct(x, at_levels)),
       # display pods in descending order of baseline value, by activity type
-      dplyr::across("pod", \(x) {
+      dplyr::across("pod_label", \(x) {
         forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
       })
     ) |>
-    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod")))
+    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }
 
 #' Initial preparation of site-level data for the main summary table
@@ -61,5 +61,5 @@ export_principal_pod_data <- function(default_tbl, sites = NULL) {
   prepare_principal_pod_data(default_tbl) |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
-    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod")))
+    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }
