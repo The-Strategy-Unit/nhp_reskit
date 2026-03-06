@@ -4,10 +4,10 @@
 \alias{export_principal_cf_data}
 \title{Prepare a site-level summary table of change_factor results}
 \usage{
-export_principal_cf_data(stepcounts_tbl, sites = NULL)
+export_principal_cf_data(results, sites = NULL)
 }
 \arguments{
-\item{stepcounts_tbl}{The "step_counts" table from NHP results}
+\item{results}{A named list containing NHP results tables}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}
