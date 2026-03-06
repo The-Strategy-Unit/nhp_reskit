@@ -4,10 +4,10 @@
 \alias{prepare_distribution_plot_data}
 \title{Preparation of site-level data for the main summary table}
 \usage{
-prepare_distribution_plot_data(default_tbl)
+prepare_distribution_plot_data(dat)
 }
 \arguments{
-\item{default_tbl}{the "default" table from NHP results}
+\item{dat}{A tibble}
 }
 \value{
 A tibble

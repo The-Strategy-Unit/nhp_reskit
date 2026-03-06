@@ -4,10 +4,10 @@
 \alias{compile_principal_pod_data}
 \title{Prepare data from default results table for displaying as summary table}
 \usage{
-compile_principal_pod_data(default_tbl, sites = NULL)
+compile_principal_pod_data(results, sites = NULL)
 }
 \arguments{
-\item{default_tbl}{the "default" table from NHP results}
+\item{results}{A named list containing NHP results tables}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}

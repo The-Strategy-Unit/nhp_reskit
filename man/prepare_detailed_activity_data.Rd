@@ -4,7 +4,10 @@
 \alias{prepare_detailed_activity_data}
 \title{Data preparation step for 'activity in detail' table}
 \usage{
-prepare_detailed_activity_data(init_data, aggregation)
+prepare_detailed_activity_data(dat, aggregation)
+}
+\arguments{
+\item{aggregation}{string. One of "age_group" or "tretspef"}
 }
 \value{
 A tibble
