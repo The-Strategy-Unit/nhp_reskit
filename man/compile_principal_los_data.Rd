@@ -4,10 +4,10 @@
 \alias{compile_principal_los_data}
 \title{Prepare data from tretspef+los_group results for displaying as summary table}
 \usage{
-compile_principal_los_data(los_tbl, measure, sites = NULL)
+compile_principal_los_data(results, measure, sites = NULL)
 }
 \arguments{
-\item{los_tbl}{the "tretspef+los_group" table from NHP results}
+\item{results}{A named list containing NHP results tables}
 
 \item{measure}{Either "admissions" or "beddays". The measure to focus on for
 the output table}

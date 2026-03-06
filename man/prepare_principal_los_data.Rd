@@ -6,6 +6,9 @@
 \usage{
 prepare_principal_los_data(dat)
 }
+\arguments{
+\item{dat}{A tibble}
+}
 \value{
 A tibble
 }
