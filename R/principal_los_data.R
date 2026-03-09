@@ -1,14 +1,13 @@
 #' Prepare data from tretspef+los_group results for displaying as summary table
 #'
-#' @param los_tbl the "tretspef+los_group" table from NHP results
 #' @param measure Either "admissions" or "beddays". The measure to focus on for
 #'  the output table
 #' @inheritParams compile_principal_pod_data
 #' @returns A filtered and sorted tibble of principal projections of results,
 #'  by point of delivery and grouped length of stay
 #' @export
-compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
-  summary_los_data <- los_tbl |>
+compile_principal_los_data <- function(results, measure, sites = NULL) {
+  summary_los_data <- results[["tretspef+los_group"]] |>
     dplyr::filter(dplyr::if_any("measure", \(x) x == .env[["measure"]])) |>
     filter_to_selected_sites(sites) |>
     prepare_principal_los_data() |>
@@ -34,8 +33,7 @@ compile_principal_los_data <- function(los_tbl, measure, sites = NULL) {
 
 #' Preparation of site-level data for the main LoS summary table
 #'
-#' @inheritParams compile_principal_los_data
-#' @inheritParams compile_change_factor_data
+#' @inheritParams prepare_principal_cf_data
 #' @returns A tibble
 #' @keywords internal
 prepare_principal_los_data <- function(dat) {
@@ -57,8 +55,8 @@ prepare_principal_los_data <- function(dat) {
 #' @inheritParams compile_principal_los_data
 #' @returns A tibble
 #' @export
-export_principal_los_data <- function(los_tbl, sites = NULL) {
-  los_tbl |>
+export_principal_los_data <- function(results, sites = NULL) {
+  results[["tretspef+los_group"]] |>
     prepare_principal_los_data() |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>

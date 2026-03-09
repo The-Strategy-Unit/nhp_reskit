@@ -15,7 +15,7 @@ compile_detailed_activity_data(
 )
 }
 \arguments{
-\item{results}{List of NHP results tables}
+\item{results}{A named list containing NHP results tables}
 
 \item{measure}{The measure to focus on for the output table. Valid values
 depend on which activity_type is selected}

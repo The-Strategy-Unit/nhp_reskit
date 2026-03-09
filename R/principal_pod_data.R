@@ -1,12 +1,12 @@
 #' Prepare data from default results table for displaying as summary table
 #'
-#' @param default_tbl the "default" table from NHP results
+#' @param results A named list containing NHP results tables
 #' @param sites Either `NULL` (the default) or a vector of site codes to filter
 #'  to. `NULL` means don't filter; include all sites present in the data
 #' @returns A filtered and sorted tibble of principal projections of results,
 #'  by activity type and point of delivery (PoD)
 #' @export
-compile_principal_pod_data <- function(default_tbl, sites = NULL) {
+compile_principal_pod_data <- function(results, sites = NULL) {
   at_levels <- c(
     "Inpatient Admissions",
     "Inpatient Bed Days",
@@ -14,7 +14,7 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
     "A&E"
   )
 
-  default_tbl |>
+  results[["default"]] |>
     prepare_principal_pod_data() |>
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
@@ -31,7 +31,7 @@ compile_principal_pod_data <- function(default_tbl, sites = NULL) {
 
 #' Initial preparation of site-level data for the main summary table
 #'
-#' @inheritParams compile_principal_pod_data
+#' @param default_tbl the "default" table from NHP results
 #' @returns A tibble
 #' @keywords internal
 prepare_principal_pod_data <- function(default_tbl) {
@@ -57,8 +57,8 @@ prepare_principal_pod_data <- function(default_tbl) {
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @export
-export_principal_pod_data <- function(default_tbl, sites = NULL) {
-  default_tbl |>
+export_principal_pod_data <- function(results, sites = NULL) {
+  results[["default"]] |>
     prepare_principal_pod_data() |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>

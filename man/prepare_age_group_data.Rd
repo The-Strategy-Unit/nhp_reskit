@@ -7,7 +7,7 @@
 prepare_age_group_data(results)
 }
 \arguments{
-\item{results}{List of NHP results tables}
+\item{results}{A named list containing NHP results tables}
 }
 \description{
 Prepare data from the 'sex+age_group' results table

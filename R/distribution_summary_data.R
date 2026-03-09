@@ -5,7 +5,7 @@
 #' @returns A tibble
 #' @export
 compile_distribution_summary_data <- function(
-  default_tbl,
+  results,
   value_type = c("median", "principal"),
   sites = NULL
 ) {
@@ -20,7 +20,7 @@ compile_distribution_summary_data <- function(
     "Walk-in"
   )
 
-  default_tbl |>
+  results[["default"]] |>
     prepare_distribution_summary_data() |>
     # We get tiny discrepancies by doing the summing across sites *after* the
     # calculation of summary stats. It is possible to do the summary stats
@@ -43,7 +43,7 @@ compile_distribution_summary_data <- function(
 
 #' Initial preparation of site-level data for the main summary table
 #'
-#' @inheritParams compile_distribution_summary_data
+#' @inheritParams prepare_principal_pod_data
 #' @returns A tibble
 #' @keywords internal
 prepare_distribution_summary_data <- function(default_tbl) {
@@ -72,8 +72,8 @@ prepare_distribution_summary_data <- function(default_tbl) {
 #' @inheritParams compile_distribution_summary_data
 #' @returns A tibble
 #' @export
-export_distribution_summary_data <- function(default_tbl) {
-  default_tbl |>
+export_distribution_summary_data <- function(results) {
+  results[["default"]] |>
     prepare_distribution_summary_data() |>
     tidyr::pivot_wider(names_from = "stat", values_from = "principal")
 }

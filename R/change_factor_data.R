@@ -1,6 +1,5 @@
 #' Prepare data from the `step_counts` results table for display as charts
 #'
-#' @param stepcounts_tbl The "step_counts" table from NHP results
 #' @param measure The measure to focus on for the output table. Valid values
 #'  depend on which activity_type is selected
 #' @param tpma_lookup A tibble, or a function that returns a tibble, containing
@@ -15,7 +14,7 @@
 #' @returns A prepared tibble of step count changes for each included TPMA
 #' @export
 compile_change_factor_data <- function(
-  stepcounts_tbl,
+  results,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
@@ -24,7 +23,7 @@ compile_change_factor_data <- function(
   include_baseline = TRUE
 ) {
   activity_type <- rlang::arg_match(activity_type)
-  interim_data <- stepcounts_tbl |>
+  interim_data <- results[["step_counts"]] |>
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites) |>
     prepare_principal_cf_data(tpma_lookup, include_baseline) |>
@@ -63,7 +62,7 @@ compile_change_factor_data <- function(
 #' @returns A prepared tibble of projected negative changes in activity, by TPMA
 #' @export
 compile_indiv_change_factor_data <- function(
-  stepcounts_tbl,
+  results,
   measure,
   tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
@@ -75,7 +74,7 @@ compile_indiv_change_factor_data <- function(
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
 
-  table_data <- stepcounts_tbl |>
+  table_data <- results[["step_counts"]] |>
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites) |>
     prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
@@ -114,8 +113,8 @@ compile_indiv_change_factor_data <- function(
 #' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @export
-export_principal_cf_data <- function(stepcounts_tbl, sites = NULL) {
-  stepcounts_tbl |>
+export_principal_cf_data <- function(results, sites = NULL) {
+  results[["step_counts"]] |>
     filter_to_selected_sites(sites) |>
     prepare_principal_cf_data(include_baseline = TRUE) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
@@ -140,6 +139,7 @@ filter_principal_data <- function(
 
 #' Data preparation step for `change_factor` data
 #'
+#' @param dat A tibble
 #' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @keywords internal
