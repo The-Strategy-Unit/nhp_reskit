@@ -7,7 +7,7 @@
 prepare_detailed_activity_data(dat, aggregation)
 }
 \arguments{
-\item{aggregation}{string. One of "age_group" or "tretspef"}
+\item{aggregation}{string. One of "age_group" or "tretspef_grouped"}
 }
 \value{
 A tibble

@@ -9,7 +9,7 @@ compile_detailed_activity_data(
   measure,
   tretspef_lookup = get_tretspef_lookup(),
   activity_type = c("ip", "op", "aae"),
-  aggregation = c("age_group", "tretspef"),
+  aggregation = c("age_group", "tretspef_grouped"),
   pods = NULL,
   sites = NULL
 )
@@ -26,7 +26,7 @@ table) and a \code{tretspef} column that provides friendly labels for specialtie
 
 \item{activity_type}{string. One of "ip", "op", "aae"}
 
-\item{aggregation}{string. One of "age_group" or "tretspef"}
+\item{aggregation}{string. One of "age_group" or "tretspef_grouped"}
 
 \item{pods}{character vector. PoD labels to filter data to. The default
 value of \code{NULL} means no PoDs will be filtered out}
