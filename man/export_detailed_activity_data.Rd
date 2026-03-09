@@ -7,7 +7,7 @@
 export_detailed_activity_data(
   results,
   tretspef_lookup = get_tretspef_lookup(),
-  aggregation = c("age_group", "tretspef"),
+  aggregation = c("age_group", "tretspef_grouped"),
   sites = NULL
 )
 }
@@ -18,7 +18,7 @@ export_detailed_activity_data(
 containing a \code{code} column (used as a key for joining to the tretspef
 table) and a \code{tretspef} column that provides friendly labels for specialties}
 
-\item{aggregation}{string. One of "age_group" or "tretspef"}
+\item{aggregation}{string. One of "age_group" or "tretspef_grouped"}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}
