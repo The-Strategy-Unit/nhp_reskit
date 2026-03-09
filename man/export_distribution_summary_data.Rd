@@ -4,10 +4,10 @@
 \alias{export_distribution_summary_data}
 \title{Prepare a site-level summary of activity distribution summary data}
 \usage{
-export_distribution_summary_data(default_tbl)
+export_distribution_summary_data(results)
 }
 \arguments{
-\item{default_tbl}{the "default" table from NHP results}
+\item{results}{A named list containing NHP results tables}
 }
 \value{
 A tibble

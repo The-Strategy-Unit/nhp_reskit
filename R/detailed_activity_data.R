@@ -1,6 +1,5 @@
 #' Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
 #'
-#' @param results List of NHP results tables
 #' @param tretspef_lookup A tibble, or a function that returns a tibble,
 #'  containing a `code` column (used as a key for joining to the tretspef
 #'  table) and a `tretspef` column that provides friendly labels for specialties
@@ -69,10 +68,11 @@ prepare_tretspef_data <- function(results, tretspef_lookup) {
 
 #' Data preparation step for 'activity in detail' table
 #'
+#' @inheritParams compile_detailed_activity_data
 #' @returns A tibble
 #' @keywords internal
-prepare_detailed_activity_data <- function(init_data, aggregation) {
-  init_data |>
+prepare_detailed_activity_data <- function(dat, aggregation) {
+  dat |>
     dplyr::mutate(
       dplyr::across("sex", convert_sex_codes),
       dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male"))),
@@ -94,8 +94,8 @@ detailed_activity_sort_vars <- function(aggregation) {
 }
 
 
-summarise_for_all_pods <- function(tbl, aggregation) {
-  tbl |>
+summarise_for_all_pods <- function(dat, aggregation) {
+  dat |>
     dplyr::summarise(
       dplyr::across(tidyselect::where(is.numeric), sum),
       .by = tidyselect::all_of(c("sex", aggregation))

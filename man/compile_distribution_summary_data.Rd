@@ -5,13 +5,13 @@
 \title{Compile data to support the "activity distribution summary" tables}
 \usage{
 compile_distribution_summary_data(
-  default_tbl,
+  results,
   value_type = c("median", "principal"),
   sites = NULL
 )
 }
 \arguments{
-\item{default_tbl}{the "default" table from NHP results}
+\item{results}{A named list containing NHP results tables}
 
 \item{value_type}{string Either "median" or "principal"}
 

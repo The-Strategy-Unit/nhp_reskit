@@ -5,14 +5,14 @@
 #' @returns A tibble
 #' @export
 compile_distribution_plot_data <- function(
-  default_tbl,
+  results,
   measure,
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL
 ) {
   activity_type <- rlang::arg_match(activity_type)
-  default_tbl |>
+  results[["default"]] |>
     get_activity_type_from_pod() |>
     filter_principal_data(measure, activity_type, pods) |>
     prepare_distribution_plot_data() |>
@@ -25,15 +25,15 @@ compile_distribution_plot_data <- function(
 
 #' Preparation of site-level data for the main summary table
 #'
-#' @inheritParams compile_distribution_plot_data
+#' @inheritParams prepare_principal_cf_data
 #' @returns A tibble
 #' @keywords internal
-prepare_distribution_plot_data <- function(default_tbl) {
+prepare_distribution_plot_data <- function(dat) {
   key_cols <- c("measure", "activity_type_label")
   group_cols <- default_group_cols(key_cols)
   fill_cols <- c("pod_label", "sitetret", key_cols)
 
-  default_tbl |>
+  dat |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
     inner_join_for_labels(get_detailed_pods()) |>

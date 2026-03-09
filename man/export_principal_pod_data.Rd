@@ -4,10 +4,10 @@
 \alias{export_principal_pod_data}
 \title{Prepare a site-level summary of main projection results}
 \usage{
-export_principal_pod_data(default_tbl, sites = NULL)
+export_principal_pod_data(results, sites = NULL)
 }
 \arguments{
-\item{default_tbl}{the "default" table from NHP results}
+\item{results}{A named list containing NHP results tables}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}
