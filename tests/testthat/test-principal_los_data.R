@@ -29,13 +29,13 @@ test_that("compile_main_data does what we need", {
   col_names2 <- c(
     "pod",
     "pod_label",
+    "activity_type_label",
     "sitetret",
     "tretspef",
     "los_group",
     "measure",
     "model_run",
-    "value",
-    "activity_type_label"
+    "value"
   )
 
   expect_named(out2, col_names2)
