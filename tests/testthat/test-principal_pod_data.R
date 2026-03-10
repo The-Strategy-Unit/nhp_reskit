@@ -8,14 +8,8 @@ test_that("compile_principal_pod_data does what we need", {
   expect_named(default_tbl, col_names)
 
   out1 <- default_tbl |>
-    dplyr::filter(
-      dplyr::if_any("measure", \(x) x %in% keep_measures())
-    ) |>
-    dplyr::filter(
-      # exclude outpatient procedures from tele-attendances count only
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
-    ) |>
+    filter_to_main_measures() |>
+    exclude_op_teleatt_procedures() |>
     dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
@@ -25,11 +19,11 @@ test_that("compile_principal_pod_data does what we need", {
   col_names1 <- c(
     "pod",
     "pod_label",
+    "activity_type_label",
     "sitetret",
     "measure",
     "model_run",
-    "value",
-    "activity_type_label"
+    "value"
   )
 
   expect_named(out1, col_names1)

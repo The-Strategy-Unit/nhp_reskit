@@ -7,7 +7,7 @@
 prepare_tretspef_data(results, tretspef_lookup)
 }
 \arguments{
-\item{results}{List of NHP results tables}
+\item{results}{A named list containing NHP results tables}
 
 \item{tretspef_lookup}{A tibble, or a function that returns a tibble,
 containing a \code{code} column (used as a key for joining to the tretspef

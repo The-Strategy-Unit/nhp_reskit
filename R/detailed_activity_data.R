@@ -1,10 +1,9 @@
 #' Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
 #'
-#' @param results List of NHP results tables
 #' @param tretspef_lookup A tibble, or a function that returns a tibble,
 #'  containing a `code` column (used as a key for joining to the tretspef
 #'  table) and a `tretspef` column that provides friendly labels for specialties
-#' @param aggregation string. One of "age_group" or "tretspef"
+#' @param aggregation string. One of "age_group" or "tretspef_grouped"
 #' @inheritParams compile_change_factor_data
 #' @export
 compile_detailed_activity_data <- function(
@@ -12,7 +11,7 @@ compile_detailed_activity_data <- function(
   measure,
   tretspef_lookup = get_tretspef_lookup(),
   activity_type = c("ip", "op", "aae"),
-  aggregation = c("age_group", "tretspef"),
+  aggregation = c("age_group", "tretspef_grouped"),
   pods = NULL,
   sites = NULL
 ) {
@@ -21,8 +20,9 @@ compile_detailed_activity_data <- function(
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
   } else {
-    # aggregation == "tretspef"
+    # aggregation == "tretspef_grouped"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
+    aggregation <- "tretspef"
   }
 
   init_data |>
@@ -69,10 +69,11 @@ prepare_tretspef_data <- function(results, tretspef_lookup) {
 
 #' Data preparation step for 'activity in detail' table
 #'
+#' @inheritParams compile_detailed_activity_data
 #' @returns A tibble
 #' @keywords internal
-prepare_detailed_activity_data <- function(init_data, aggregation) {
-  init_data |>
+prepare_detailed_activity_data <- function(dat, aggregation) {
+  dat |>
     dplyr::mutate(
       dplyr::across("sex", convert_sex_codes),
       dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male"))),
@@ -94,8 +95,8 @@ detailed_activity_sort_vars <- function(aggregation) {
 }
 
 
-summarise_for_all_pods <- function(tbl, aggregation) {
-  tbl |>
+summarise_for_all_pods <- function(dat, aggregation) {
+  dat |>
     dplyr::summarise(
       dplyr::across(tidyselect::where(is.numeric), sum),
       .by = tidyselect::all_of(c("sex", aggregation))
@@ -112,7 +113,7 @@ summarise_for_all_pods <- function(tbl, aggregation) {
 export_detailed_activity_data <- function(
   results,
   tretspef_lookup = get_tretspef_lookup(),
-  aggregation = c("age_group", "tretspef"),
+  aggregation = c("age_group", "tretspef_grouped"),
   sites = NULL
 ) {
   aggregation <- rlang::arg_match(aggregation)
@@ -121,6 +122,7 @@ export_detailed_activity_data <- function(
   } else {
     # aggregation == "tretspef"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
+    aggregation <- "tretspef"
   }
   sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
   init_data |>
