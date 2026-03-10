@@ -1,6 +1,6 @@
 Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
-Version: 0.4.0
+Version: 0.4.1
 Authors@R:
     c(person(
         "Fran", "Barton",

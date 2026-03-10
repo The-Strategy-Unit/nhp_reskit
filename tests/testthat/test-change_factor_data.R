@@ -53,11 +53,11 @@ test_that("compile_change_factor_data does what we need", {
       "sitetret",
       "pod",
       "pod_label",
+      "activity_type_label",
       "change_factor",
       "measure",
       "model_run",
       "value",
-      "activity_type_label",
       "tpma_label"
     )
   )
@@ -103,11 +103,11 @@ test_that("compile_change_factor_data does what we need", {
       "sitetret",
       "pod",
       "pod_label",
+      "activity_type_label",
       "change_factor",
       "measure",
       "model_run",
       "value",
-      "activity_type_label",
       "tpma_label"
     )
   )
