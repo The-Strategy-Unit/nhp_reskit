@@ -76,10 +76,9 @@ prepare_detailed_activity_data <- function(dat, aggregation) {
   dat |>
     dplyr::mutate(
       dplyr::across("sex", convert_sex_codes),
-      dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male"))),
-      dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))
+      dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male")))
     ) |>
-    inner_join_for_labels(get_principal_pods()) |>
+    inner_join_for_labels(get_detailed_pods()) |>
     relabel_pods() |>
     calculate_principal_stats(detailed_activity_sort_vars(aggregation)) |>
     keep_mean_only()
