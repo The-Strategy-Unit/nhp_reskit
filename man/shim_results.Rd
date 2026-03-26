@@ -2,7 +2,7 @@
 % Please edit documentation in R/shim_results.R
 \name{shim_results}
 \alias{shim_results}
-\title{shim_results}
+\title{Wrangle tables from old-style results to match format of new-style results}
 \usage{
 shim_results(results)
 }
@@ -13,5 +13,5 @@ shim_results(results)
 List of NHP results tables in the "new" format
 }
 \description{
-shim_results
+Wrangle tables from old-style results to match format of new-style results
 }
