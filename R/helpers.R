@@ -1,3 +1,19 @@
+filter_principal_data <- function(
+  dat,
+  selected_measure,
+  activity_type,
+  selected_pods = NULL
+) {
+  selected_pods <- selected_pods %||% unique(dat[["pod"]])
+  dat |>
+    dplyr::filter(
+      dplyr::if_any("pod", \(x) x %in% .env[["selected_pods"]]) &
+        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
+        dplyr::if_any("activity_type", \(x) x == .env[["activity_type"]])
+    )
+}
+
+
 summarise_for_all_sites <- function(dat, site_col = "sitetret") {
   dat |>
     dplyr::select(!tidyselect::all_of({{ site_col }})) |>

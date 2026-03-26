@@ -30,9 +30,6 @@ test_that("compile_principal_pod_data does what we need", {
 
   final_activity_types <- c(
     "A&E",
-    # was previously just "Inpatient" but now we are adding "Admissions" /
-    # "Bed Days" in `relabel_pods()` as this seems OK and useful.
-    # But if not a good idea then can be reverted.
     "Inpatient Admissions",
     "Inpatient Bed Days",
     "Outpatient"
