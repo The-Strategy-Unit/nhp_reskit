@@ -6,7 +6,7 @@
 #' @returns A table with baseline values and principal projection summary values
 #' @keywords internal
 calculate_principal_stats <- function(tbl, group_cols) {
-  summary_cols <- c("mean", "median", "p10", "p90")
+  stat_cols <- c("mean", "median", "p10", "p90")
   tbl |>
     check_single_row_groups(group_cols) |>
     dplyr::mutate(
@@ -19,7 +19,7 @@ calculate_principal_stats <- function(tbl, group_cols) {
       p90 = stats::quantile(.data[["value"]], 0.9),
       .by = tidyselect::all_of(swap_modelrun_for_stage(group_cols))
     ) |>
-    tidyr::pivot_longer(tidyselect::any_of(summary_cols), names_to = "stat") |>
+    tidyr::pivot_longer(tidyselect::any_of(stat_cols), names_to = "stat") |>
     tidyr::pivot_wider(names_from = "stage")
 }
 
