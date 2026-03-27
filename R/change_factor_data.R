@@ -88,7 +88,7 @@ compile_indiv_change_factor_data <- function(
     table_data <- table_data |>
       dplyr::summarise(
         dplyr::across("value", sum),
-        .by = c("change_factor", "tpma_label")
+        .by = c("change_factor", "measure", "tpma_label")
       ) |>
       dplyr::filter(
         dplyr::if_any("tpma_label", \(x) x != "-") &
