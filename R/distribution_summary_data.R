@@ -11,20 +11,14 @@ compile_distribution_summary_data <- function(
 ) {
   value_type <- rlang::arg_match(value_type)
   remove_col <- setdiff(c("median", "principal"), value_type)
+  # fmt: skip
   arr_levels <- c(
-    "Admissions",
-    "Bed days",
-    "Attendances",
-    "Tele-attendances",
-    "Ambulance",
-    "Walk-in"
+    "Admissions", "Bed days", "Attendances", "Tele-attendances",
+    "Ambulance", "Walk-in"
   )
 
   results[["default"]] |>
     prepare_distribution_summary_data() |>
-    # We get tiny discrepancies by doing the summing across sites *after* the
-    # calculation of summary stats. It is possible to do the summary stats
-    # calculations after site filtering and summing. But it's neater this way...
     filter_to_selected_sites(sites) |>
     summarise_for_all_sites() |>
     tidyr::pivot_wider(names_from = "stat", values_from = "principal") |>
@@ -32,9 +26,9 @@ compile_distribution_summary_data <- function(
     dplyr::select(!{{ remove_col }}) |>
     dplyr::mutate(
       change = .data[[value_type]] - .data[["baseline"]],
-      change_pct = .data[["change"]] / .data[["baseline"]]
+      change_pct = .data[["change"]] / .data[["baseline"]],
+      .before = "lower"
     ) |>
-    dplyr::relocate(tidyselect::starts_with("change"), .before = "lower") |>
     dplyr::mutate(dplyr::across("measure", \(x) forcats::fct(x, arr_levels))) |>
     dplyr::arrange(dplyr::across("baseline", dplyr::desc)) |>
     dplyr::arrange(dplyr::pick("measure"))
@@ -72,8 +66,9 @@ prepare_distribution_summary_data <- function(default_tbl) {
 #' @inheritParams compile_distribution_summary_data
 #' @returns A tibble
 #' @export
-export_distribution_summary_data <- function(results) {
+export_distribution_summary_data <- function(results, sites = NULL) {
   results[["default"]] |>
     prepare_distribution_summary_data() |>
+    filter_to_selected_sites(sites) |>
     tidyr::pivot_wider(names_from = "stat", values_from = "principal")
 }

@@ -107,36 +107,6 @@ compile_indiv_change_factor_data <- function(
 }
 
 
-#' Prepare a site-level summary table of change_factor results
-#'
-#' Intended to be used to create a table to be exported to .csv/.xlsx
-#' @inheritParams compile_change_factor_data
-#' @returns A tibble
-#' @export
-export_principal_cf_data <- function(results, sites = NULL) {
-  results[["step_counts"]] |>
-    filter_to_selected_sites(sites) |>
-    prepare_principal_cf_data(include_baseline = TRUE) |>
-    dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
-}
-
-
-filter_principal_data <- function(
-  dat,
-  selected_measure,
-  activity_type,
-  selected_pods = NULL
-) {
-  selected_pods <- selected_pods %||% unique(dat[["pod"]])
-  dat |>
-    dplyr::filter(
-      dplyr::if_any("pod", \(x) x %in% .env[["selected_pods"]]) &
-        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
-        dplyr::if_any("activity_type", \(x) x == .env[["activity_type"]])
-    )
-}
-
-
 #' Data preparation step for `change_factor` data
 #'
 #' @param dat A tibble
@@ -160,6 +130,23 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
       dplyr::across("value", mean),
       .by = tidyselect::all_of(change_factor_sort_vars())
     )
+}
+
+
+#' Prepare a site-level summary table of change_factor results
+#'
+#' Intended to be used to create a table to be exported to .csv/.xlsx
+#' @inheritParams compile_change_factor_data
+#' @returns A tibble
+#' @export
+export_principal_cf_data <- function(results, sites = NULL) {
+  results[["step_counts"]] |>
+    filter_to_selected_sites(sites) |>
+    prepare_principal_cf_data(
+      tpma_lookup = get_tpma_label_lookup(),
+      include_baseline = TRUE
+    ) |>
+    dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
 }
 
 

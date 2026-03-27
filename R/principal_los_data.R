@@ -19,6 +19,7 @@ compile_principal_los_data <- function(results, measure, sites = NULL) {
   los_groups_ordered <- los_groups[match(sort(init_digits), init_digits)]
 
   summary_los_data |>
+    dplyr::select(!c("activity_type_label", "measure")) |>
     dplyr::mutate(
       # display pods in desc order of baseline level of admissions/beddays
       dplyr::across("pod_label", \(x) {
@@ -37,14 +38,15 @@ compile_principal_los_data <- function(results, measure, sites = NULL) {
 #' @returns A tibble
 #' @keywords internal
 prepare_principal_los_data <- function(dat) {
+  grp_by <- default_group_cols(c("activity_type_label", "measure", "los_group"))
   dat |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     dplyr::summarise(
       dplyr::across("value", sum),
-      .by = tidyselect::all_of(default_group_cols("los_group"))
+      .by = tidyselect::all_of(grp_by)
     ) |>
-    calculate_principal_stats(default_group_cols("los_group")) |>
+    calculate_principal_stats(grp_by) |>
     keep_mean_only()
 }
 
@@ -57,8 +59,8 @@ prepare_principal_los_data <- function(dat) {
 #' @export
 export_principal_los_data <- function(results, sites = NULL) {
   results[["tretspef+los_group"]] |>
-    prepare_principal_los_data() |>
     filter_to_selected_sites(sites) |>
+    prepare_principal_los_data() |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }

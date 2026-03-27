@@ -4,10 +4,13 @@
 \alias{export_distribution_summary_data}
 \title{Prepare a site-level summary of activity distribution summary data}
 \usage{
-export_distribution_summary_data(results)
+export_distribution_summary_data(results, sites = NULL)
 }
 \arguments{
 \item{results}{A named list containing NHP results tables}
+
+\item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
+to. \code{NULL} means don't filter; include all sites present in the data}
 }
 \value{
 A tibble
