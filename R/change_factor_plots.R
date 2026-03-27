@@ -31,7 +31,8 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
       labels = scales::label_comma()
     ) +
     ggplot2::scale_y_discrete(limits = rev, labels = snakecase::to_title_case) +
-    ggplot2::labs(x = NULL, y = NULL)
+    ggplot2::labs(x = NULL, y = NULL) +
+    ggplot2::theme(text = ggplot2::element_text(size = 16))
 }
 
 
@@ -59,5 +60,6 @@ make_individual_cf_plot <- function(indiv_change_factor_data, x_axis_label) {
       axes = "all_x",
       axis.labels = "all_x",
       ncol = 1
-    )
+    ) +
+    ggplot2::theme(text = ggplot2::element_text(size = 16))
 }
