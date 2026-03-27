@@ -39,13 +39,16 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
 #'
 #' @param indiv_change_factor_data data frame. As produced by
 #'  [compile_indiv_change_factor_data]
-#' @param x_axis_label string. A label for the charts' x-axis.
 #' @export
-make_individual_cf_plot <- function(indiv_change_factor_data, x_axis_label) {
-  indiv_change_factor_data |>
+make_individual_cf_plot <- function(indiv_change_factor_data) {
+  prepared_dat <- indiv_change_factor_data |>
     dplyr::mutate(
-      dplyr::across("change_factor", \(x) uppercase_init(sub("_", " ", x)))
-    ) |>
+      dplyr::across(c("measure", "change_factor"), \(x) {
+        uppercase_init(sub("_", " ", x))
+      })
+    )
+  x_axis_label <- unique(prepared_dat[["measure"]])
+  prepared_dat |>
     ggplot2::ggplot(ggplot2::aes(.data[["value"]], .data[["tpma_label"]])) +
     ggplot2::geom_col(fill = "#2c2825") +
     ggplot2::scale_x_continuous(

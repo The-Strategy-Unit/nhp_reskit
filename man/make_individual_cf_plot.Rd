@@ -4,13 +4,11 @@
 \alias{make_individual_cf_plot}
 \title{Generate bar charts by change factor at individual TPMA level}
 \usage{
-make_individual_cf_plot(indiv_change_factor_data, x_axis_label)
+make_individual_cf_plot(indiv_change_factor_data)
 }
 \arguments{
 \item{indiv_change_factor_data}{data frame. As produced by
 \link{compile_indiv_change_factor_data}}
-
-\item{x_axis_label}{string. A label for the charts' x-axis.}
 }
 \description{
 Generate bar charts by change factor at individual TPMA level
