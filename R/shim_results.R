@@ -31,6 +31,6 @@ shim_with_baseline <- function(df) {
 
 
 ensure_character_cols <- function(df) {
-  these <- c("age_group", "attendance_category", "tretspef", "tretspef_grouped")
+  these <- c("age_group", "attendance_category", "tretspef", "tretspef_grouped", "los_group")
   dplyr::mutate(df, dplyr::across(tidyselect::any_of(these), as.character))
 }
