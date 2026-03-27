@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_results_parquet_files.R
 \name{check_grdp_inputs}
 \alias{check_grdp_inputs}
-\title{Various checks on the input parameters to \code{\link[=get_results_dir_path]{get_results_dir_path()}}}
+\title{Various checks on the input parameters to \link{get_results_dir_path}}
 \usage{
 check_grdp_inputs(cn, root_dir, version, scheme, scenario, stamp)
 }
