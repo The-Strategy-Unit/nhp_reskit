@@ -12,7 +12,11 @@ shim_results <- function(results) {
     purrr::map(ensure_character_cols)
 }
 
-shim_basic <- \(df) tidyr::unnest_longer(df, "model_runs", "value", "model_run")
+shim_basic <- function(df) {
+  df |>
+    dplyr::select(!tidyselect::any_of("value")) |>
+    tidyr::unnest_longer("model_runs", "value", "model_run")
+}
 
 
 shim_with_baseline <- function(df) {
