@@ -5,15 +5,20 @@
 \title{Return a path to a specific results directory}
 \usage{
 get_results_dir_path(
+  container,
+  path,
   version,
   scheme,
   scenario = NULL,
-  dttm_stamp = NULL,
-  container = NULL,
-  root_dir = NULL
+  dttm_stamp = NULL
 )
 }
 \arguments{
+\item{container}{An Azure container.}
+
+\item{path}{string. The path to the directory within the container, where the
+desired results data is stored}
+
 \item{version}{string. The NHP model version in the format "v3.6", or "dev"}
 
 \item{scheme}{string. The code/name of the NHP scheme. May be "national" etc}
@@ -33,17 +38,11 @@ to be in the format 'YYYYMMDD_HHMMSS', and must of course match a
 subdirectory of the selected 'scenario' directory, else an error will be
 thrown. A third alternative is to supply the string \code{"max"}, which will
 return the path to the most recent model run, where multiple runs are found}
-
-\item{container}{Azure container. Uses \link{get_results_container} by default}
-
-\item{root_dir}{string. The name of the root directory within the container
-where the desired results data is stored. Uses the value of the environment
-variable "AZ_RESULTS_DIRECTORY" by default}
 }
 \value{
 A path to an Azure blob storage directory, as a string
 }
 \description{
-Provides some logic and checks to assist the user in locating
-a valid directory from which to read in NHP results data
+Provides some logic and checks to assist the user in locating a valid
+directory from which to read in NHP results data
 }
