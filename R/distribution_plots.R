@@ -45,6 +45,7 @@ make_beeswarm_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
     ) +
     ggplot2::scale_y_continuous(expand = ggplot2::expansion(0.15)) +
     ggplot2::theme(
+      text = ggplot2::element_text(size = 16),
       axis.title.x = ggplot2::element_blank(),
       axis.ticks.y = ggplot2::element_blank(),
       # keep y-axis labels to help line up with ecdf plot, but make 'invisible'
@@ -130,5 +131,8 @@ make_cumulative_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
       expand = ggplot2::expansion(0)
     ) +
     ggplot2::labs(y = "Percentage of model runs") +
-    ggplot2::theme(axis.title.x = ggplot2::element_blank())
+    ggplot2::theme(
+      text = ggplot2::element_text(size = 16),
+      axis.title.x = ggplot2::element_blank()
+    )
 }
