@@ -28,7 +28,7 @@ RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Depends: R (>= 4.5.0)
 Imports:
-    azkit (>= 0.2.4),
+    azkit (>= 0.3.0),
     AzureStor,
     cli,
     dplyr,
