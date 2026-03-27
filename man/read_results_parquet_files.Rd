@@ -4,18 +4,18 @@
 \alias{read_results_parquet_files}
 \title{Read a selection of (or all) parquet files in an Azure directory}
 \usage{
-read_results_parquet_files(path, tables = NULL, container = NULL)
+read_results_parquet_files(container, path, tables = NULL)
 }
 \arguments{
-\item{path}{string. Path to an Azure directory of results data. As produced
-by \link{get_results_dir_path}}
+\item{container}{An Azure container.}
+
+\item{path}{string. Path to an Azure directory of results data. Potentially
+produced by \link{get_results_dir_path}}
 
 \item{tables}{character vector. \code{NULL}, the default, results in all available
 parquet files in the \code{path} folder being read in. If you wish only to read
-in a subset of the files, specify these here, without the ".parquet" file
-extension}
-
-\item{container}{Azure container. Uses \link{get_results_container} by default}
+in a subset of the files, specify their names here, without the ".parquet"
+file extension}
 }
 \value{
 A named list of tibbles
@@ -25,9 +25,11 @@ Read a selection of (or all) parquet files in an Azure directory
 }
 \examples{
 \dontrun{
-  data <- read_results_parquet_files("data/dev/national/test", "acuity")
+  data <- azkit::get_container("data_container") |>
+    read_results_parquet_files("data/dev/national/test", "acuity")
 
-  get_results_dir_path(version = "v4.0", scheme = "national") |>
+  data_list <- azkit::get_container("data_container") |>
+    get_results_dir_path("files", version = "v4.0", scheme = "national") |>
     read_results_parquet_files()
 }
 }

@@ -21,7 +21,7 @@ subdirectory of the selected 'scenario' directory, else an error will be
 thrown. A third alternative is to supply the string \code{"max"}, which will
 return the path to the most recent model run, where multiple runs are found}
 
-\item{container}{Azure container. Uses \link{get_results_container} by default}
+\item{container}{An Azure container.}
 }
 \value{
 A path to an Azure blob storage directory
