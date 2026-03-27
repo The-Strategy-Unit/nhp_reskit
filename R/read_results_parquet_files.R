@@ -1,58 +1,49 @@
 #' Read a selection of (or all) parquet files in an Azure directory
 #'
-#' @param path string. Path to an Azure directory of results data. As produced
-#'  by [get_results_dir_path]
+#' @param container An Azure container.
+#' @param path string. Path to an Azure directory of results data. Potentially
+#'  produced by [get_results_dir_path]
 #' @param tables character vector. `NULL`, the default, results in all available
 #'  parquet files in the `path` folder being read in. If you wish only to read
-#'  in a subset of the files, specify these here, without the ".parquet" file
-#'  extension
-#' @param container Azure container. Uses [get_results_container] by default
+#'  in a subset of the files, specify their names here, without the ".parquet"
+#'  file extension
 #' @examples
 #' \dontrun{
-#'   data <- read_results_parquet_files("data/dev/national/test", "acuity")
+#'   data <- azkit::get_container("data_container") |>
+#'     read_results_parquet_files("data/dev/national/test", "acuity")
 #'
-#'   get_results_dir_path(version = "v4.0", scheme = "national") |>
+#'   data_list <- azkit::get_container("data_container") |>
+#'     get_results_dir_path("files", version = "v4.0", scheme = "national") |>
 #'     read_results_parquet_files()
 #' }
 #' @returns A named list of tibbles
 #' @export
-read_results_parquet_files <- function(path, tables = NULL, container = NULL) {
-  stopifnot("`path` must be a single string" = rlang::is_string(path))
-  container <- container %||% get_results_container()
+read_results_parquet_files <- function(container, path, tables = NULL) {
   stopifnot("container not found" = inherits(container, "blob_container"))
-  tables <- tables %||% all_parquet_names()
-  tables <- rlang::arg_match(tables, all_parquet_names(), multiple = TRUE)
+  stopifnot("`path` must be a single string" = rlang::is_string(path))
 
-  file_paths <- AzureStor::list_blobs(container, path, recursive = FALSE) |>
-    dplyr::pull("name") |>
-    gregv("\\.parquet$")
-  parquet_names <- sub("^(.*/)([[:graph:]]+)(\\.parquet)$", "\\2", file_paths)
+  parquet_paths <- azkit::list_files(container, path, "parquet")
+  parquet_names <- sub("\\.parquet$", "", basename(parquet_paths))
+  selected_tables <- tables %||% parquet_names
 
-  absent <- setdiff(tables, parquet_names) # nolint
-  msg <- azkit::cv_error_msg("Table{?s} {.val {absent}} {?is/are} not present")
-  azkit::check_vec(tables, \(x) x %in% parquet_names, msg)
+  absent <- setdiff(selected_tables, parquet_names) # nolint
+  msg <- azkit::cv_error_msg("Table{?s} {.val {absent}} not found")
+  azkit::check_vec(selected_tables, \(x) x %in% parquet_names, msg)
 
-  named_paths <- rlang::set_names(file_paths, parquet_names)
-  named_paths[tables] |>
-    purrr::map(\(p) azkit::read_azure_parquet(container, p))
-}
-
-
-# fmt: skip
-all_parquet_names <- function() {
-  c(
-    "acuity", "age", "attendance_category", "avoided_activity", "default",
-    "delivery_episode_in_spell", "sex+age_group", "sex+tretspef_grouped",
-    "step_counts", "tretspef+los_group", "tretspef"
-  )
+  selected_tables |>
+    purrr::map_chr(\(x) gregv(parquet_paths, "{x}.parquet$")) |>
+    rlang::set_names(selected_tables) |>
+    purrr::map(\(path) azkit::read_azure_parquet(container, path))
 }
 
 
 #' Return a path to a specific results directory
 #'
-#' Provides some logic and checks to assist the user in locating
-#'  a valid directory from which to read in NHP results data
+#' Provides some logic and checks to assist the user in locating a valid
+#'  directory from which to read in NHP results data
 #'
+#' @param path string. The path to the directory within the container, where the
+#'  desired results data is stored
 #' @param version string. The NHP model version in the format "v3.6", or "dev"
 #' @param scheme string. The code/name of the NHP scheme. May be "national" etc
 #' @param scenario string. If `NULL`, the default, and only a single scenario is
@@ -69,34 +60,29 @@ all_parquet_names <- function() {
 #'  subdirectory of the selected 'scenario' directory, else an error will be
 #'  thrown. A third alternative is to supply the string `"max"`, which will
 #'  return the path to the most recent model run, where multiple runs are found
-#' @param root_dir string. The name of the root directory within the container
-#'  where the desired results data is stored. Uses the value of the environment
-#'  variable "AZ_RESULTS_DIRECTORY" by default
 #' @inheritParams read_results_parquet_files
 #'
 #' @returns A path to an Azure blob storage directory, as a string
 #' @export
 get_results_dir_path <- function(
+  container,
+  path,
   version,
   scheme,
   scenario = NULL,
-  dttm_stamp = NULL,
-  container = NULL,
-  root_dir = NULL
+  dttm_stamp = NULL
 ) {
-  container <- container %||% get_results_container()
-  root_dir <- root_dir %||% Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
-  check_grdp_inputs(container, root_dir, version, scheme, scenario, dttm_stamp)
+  check_grdp_inputs(container, path, version, scheme, scenario, dttm_stamp)
 
   # if 'scenario' is NULL then we try to return a single scenario subdir if poss
   get_scenario <- function() {
-    file.path(root_dir, version, scheme) |>
+    file.path(path, version, scheme) |>
       check_single_subdir("scenario", dttm_stamp, container)
   }
   scenario <- scenario %||% basename(get_scenario())
 
   # create new path including 'scenario' and pull out a model run subdir if poss
-  file.path(root_dir, version, scheme, scenario) |>
+  file.path(path, version, scheme, scenario) |>
     check_single_subdir("dttm_stamp", dttm_stamp, container)
 }
 
@@ -113,8 +99,8 @@ get_results_dir_path <- function(
 #' @keywords internal
 check_single_subdir <- function(path, level, dttm_stamp, container) {
   # error message if `path` not found
-  msg1 <- azkit::cv_error_msg("{.path {path}} not found.")
-  azkit::check_vec(path, \(x) AzureStor::blob_dir_exists(container, x), msg1)
+  msg1 <- azkit::ct_error_msg("{.path {path}} not found.")
+  azkit::check_that(path, \(x) AzureStor::blob_dir_exists(container, x), msg1)
 
   dir_name <- AzureStor::list_blobs(container, path, recursive = FALSE) |>
     dplyr::filter(dplyr::if_any("isdir")) |>
@@ -127,13 +113,15 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
 
   # construct error messages if length(dir_name) > 1
   dir_names <- cli::cli_vec(basename(dir_name), list(`vec-trunc` = 2))
-  msg3 <- "The folder {.val {cur_dir}} contains more than 1 sub-folder. "
-  msg4 <- c(msg3, "The sub-folders are: {.val {dir_names}}. ")
-  msg5 <- azkit::cst_error_msg(c(msg4, "You need to specify {.arg {level}}."))
 
   if (level == "scenario" || is.null(dttm_stamp)) {
     # if length(folder_name) == 1 then return it, otherwise throw an error
-    azkit::check_scalar_type(dir_name, "character", msg5)
+    msg2 <- azkit::cst_error_msg(c(
+      "The folder {.val {cur_dir}} contains more than 1 sub-folder.",
+      "i" = "The sub-folders are: {.val {dir_names}}. ",
+      ">" = "You need to specify {.arg {level}}."
+    ))
+    azkit::check_scalar_type(dir_name, "character", msg2)
   } else if (dttm_stamp == "max") {
     # if we find multiple model runs, "max" means return the dir of most recent
     cli::cli_alert_info("Using latest model run {.val {max_dttm}}.")
@@ -141,13 +129,13 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
   } else {
     # the user has supplied a particular dttm_stamp so we try to return that one
     dir_name <- gregv(dir_name, "{dttm_stamp}(/)?$")
-    msg6 <- azkit::cst_error_msg("No {.val {dttm_stamp}} directory found.")
-    azkit::check_scalar_type(dir_name, "string", msg6)
+    msg3 <- azkit::cst_error_msg("No {.val {dttm_stamp}} directory found.")
+    azkit::check_scalar_type(dir_name, "string", msg3)
   }
 }
 
 
-#' Various checks on the input parameters to [get_results_dir_path()]
+#' Various checks on the input parameters to [get_results_dir_path]
 #'
 #' Pulled out to a discrete function, just for neatness' sake
 #' @keywords internal
