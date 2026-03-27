@@ -112,7 +112,7 @@ check_single_subdir <- function(path, level, dttm_stamp, container) {
   max_dttm <- max(dir_name)
 
   # construct error messages if length(dir_name) > 1
-  dir_names <- cli::cli_vec(basename(dir_name), list(`vec-trunc` = 2))
+  dir_names <- cli::cli_vec(basename(dir_name), list(`vec-trunc` = 2)) # nolint
 
   if (level == "scenario" || is.null(dttm_stamp)) {
     # if length(folder_name) == 1 then return it, otherwise throw an error
