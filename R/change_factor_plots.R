@@ -16,7 +16,7 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
     ggplot2::ggplot() +
     ggplot2::geom_segment(
       ggplot2::aes(
-        x = .data[["hidden"]],
+        x = .data[["hide"]],
         xend = .data[["total"]],
         y = .data[["change_factor"]],
         yend = .data[["change_factor"]],
