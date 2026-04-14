@@ -42,7 +42,7 @@ prepare_principal_pod_data <- function(default_tbl) {
   default_tbl |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
-    dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
+    combine_all_aae_pods() |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     relabel_ip_activity_types() |>
@@ -67,4 +67,9 @@ export_principal_pod_data <- function(results, sites = NULL) {
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
+}
+
+
+combine_all_aae_pods <- function(tbl) {
+  dplyr::mutate(tbl, dplyr::across("pod", \(x) sub("^aae.*$", "aae", x)))
 }
