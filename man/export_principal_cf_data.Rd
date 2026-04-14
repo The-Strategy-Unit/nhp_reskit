@@ -4,13 +4,22 @@
 \alias{export_principal_cf_data}
 \title{Prepare a site-level summary table of change_factor results}
 \usage{
-export_principal_cf_data(results, sites = NULL)
+export_principal_cf_data(
+  results,
+  sites = NULL,
+  tpma_lookup = get_tpma_label_lookup()
+)
 }
 \arguments{
 \item{results}{A named list containing NHP results tables}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}
+
+\item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
+a column named \code{strategy} (used as a key for joining to the \code{step_counts}
+table) and a column named \code{tpma_label} that provides friendly labels for
+all TPMAs/strategies}
 }
 \value{
 A tibble
