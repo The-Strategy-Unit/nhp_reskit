@@ -151,13 +151,14 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
 #' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @export
-export_principal_cf_data <- function(results, sites = NULL) {
+export_principal_cf_data <- function(
+  results,
+  sites = NULL,
+  tpma_lookup = get_tpma_label_lookup()
+) {
   results[["step_counts"]] |>
     filter_to_selected_sites(sites) |>
-    prepare_principal_cf_data(
-      tpma_lookup = get_tpma_label_lookup(),
-      include_baseline = TRUE
-    ) |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline = TRUE) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
 }
 
@@ -173,7 +174,7 @@ change_factor_sort_vars <- function() {
 
 move_baseline_row_to_top <- function(dat, var = "change_factor") {
   stopifnot(!("rn" %in% colnames(dat)))
-  #  add row_number column to ensure we don't lose any rows in setdiff below
+  # add row_number column to ensure we don't lose any rows in setdiff below
   dat <- dplyr::mutate(dat, rn = dplyr::row_number())
   baseline_row <- dplyr::filter(dat, .data[[var]] == "baseline")
   dplyr::bind_rows(baseline_row, dplyr::setdiff(dat, baseline_row)) |>
