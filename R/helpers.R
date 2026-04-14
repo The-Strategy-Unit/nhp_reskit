@@ -186,3 +186,11 @@ get_tpma_label_lookup <- function() {
     purrr::imap(\(x, nm) tibble::tibble(strategy = nm, tpma_label = x)) |>
     purrr::list_rbind()
 }
+
+
+#' grepv a glued regex
+#' @description Facilitates using regex in search/filter patterns, and puts the
+#'  arguments "the right way round" (x first, then pattern), unlike [grepv]
+#' @returns A character vector: all values of x that match the regex in rx
+#' @keywords internal
+gregv <- \(x, rx, g = parent.frame()) grepv(glue::glue_data(g, rx), x)
