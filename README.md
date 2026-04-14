@@ -1,27 +1,33 @@
 # reskit ![R](https://www.r-project.org/favicon-32x32.png) 📦🍪🦺
 
 <!-- badges: start -->
-![GitHub License][gh_licence]
-[![Project Status: WIP – Initial development is in progress, but there
-has not yet been a stable release][repostatus_svg]][repostatus_info]
-[![Lifecycle: experimental][lifecycle_svg]][lifecycle]
+[![License: MIT][mit_svg]](https://opensource.org/licenses/MIT)
+[![Project Status: Active – The project has reached a stable, usable state and
+is being actively developed][repostatus_svg]][repostatus_info]
 ![GitHub R package version][gh_ver]
+[![R CMD check status][cmd_svg]][cmd_yaml]
 
-[gh_licence]: https://img.shields.io/github/license/The-Strategy-Unit/nhp_reskit
-[gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/nhp_reskit
-[repostatus_info]: https://www.repostatus.org/#wip
-[repostatus_svg]: https://www.repostatus.org/badges/latest/wip.svg
-[lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
-[lifecycle_svg]: https://img.shields.io/badge/lifecycle-experimental-orange.svg
+[mit_svg]: https://img.shields.io/badge/License-MIT-yellow.svg?label=licence
+[repostatus_svg]: https://www.repostatus.org/badges/latest/active.svg
+[repostatus_info]: https://www.repostatus.org/#active
+[gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/azkit?logo=r&label=version
+[cmd_svg]: https://github.com/The-Strategy-Unit/nhp_reskit/actions/workflows/R-CMD-check.yaml/badge.svg?event=release
+[cmd_yaml]: https://github.com/The-Strategy-Unit/nhp_reskit/actions/workflows/R-CMD-check.yaml
 <!-- badges: end -->
 
-An R package (just called `{reskit}`) helping process NHP model results.
+An R package (just called `reskit`) that helps process NHP model results.
+
 
 ## Status
 
-This is just a framework repository at present, while the package scope and
-design are being explored.
-This README will be fleshed out as the package is developed.
+The package is now at version 0.5 and contains a range of useful functions.
+While of course it is still in development, and we may make further signficant
+changes to the user interface for some functions, the package is now ready to be
+used.
+
+Using it will be very helpful as it will no doubt surface some bugs or areas
+where the documentation needs to be improved.
+
 
 ## Installation
 
@@ -35,37 +41,14 @@ pak::pak("The-Strategy-Unit/nhp_reskit")
 On Windows, you may need to have [RTools](https://cloud.r-project.org/)
 already installed in order to install reskit.
 
+
 ## Usage
 
 You will need certain environment variables to be available (see section below).
 
 Some key functions and workflows you might want to use include:
 
-```r
-# Compiles a table of metadata for each model run for each scheme
-compile_run_metadata_tbl()
-
-# Get the Azure storage container for results data
-get_results_container() # uses the environment variable "AZ_RESULTS_CONTAINER"
-
-# Return a vector of provider codes from the supporting data container
-get_providers() # requires the environment variable "AZ_SUPPORT_CONTAINER"
-
-# Get the path to a folder of results data
-# (the below example will succeed only if there is a single scenario and a
-# single model run within the particular version and scheme combination below)
-get_results_dir_path(version = "v4.0", scheme = "national", scenario = "test")
-
-# Read all parquet data files from a location
-results_dir <- get_results_dir_path(version = "v4.0", scheme = "national")
-read_results_parquet_files(results_dir)
-
-# Read only selected results files from multiple scenarios
-c("scenario1", "scenario2") |>
-  purrr::map(\(x) get_results_dir_path("v3.6", "RZZ", scenario = x)) |>
-  purrr::map(\(x) read_results_parquet_files(x, files = c("default", "age")))
-```
-
+#TODO
 
 ## Environment variables
 
@@ -82,9 +65,6 @@ Ask a member of [the Data Science team][suds] for the necessary values.
 
 ```
 AZ_STORAGE_EP =
-AZ_SUPPORT_CONTAINER =
-AZ_RESULTS_CONTAINER =
-AZ_RESULTS_DIRECTORY =
 ```
 
 An example `.Renviron.example` file is provided in this repository.
