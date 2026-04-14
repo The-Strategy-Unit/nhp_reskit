@@ -130,7 +130,7 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
   dat_prepared <- if (include_baseline) dat else bsline_filtered
   dat_prepared |>
     dplyr::filter(dplyr::if_any("value", \(x) x != 0)) |>
-    dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
+    combine_all_aae_pods() |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>
