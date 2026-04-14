@@ -14,7 +14,9 @@ shim_results <- function(results) {
 
 shim_basic <- function(df) {
   df |>
-    dplyr::select(!tidyselect::any_of("value")) |>
+    dplyr::select(
+      !tidyselect::any_of(c("value", "principal", "median", "lwr_pi", "upr_pi"))
+    ) |>
     tidyr::unnest_longer("model_runs", "value", "model_run")
 }
 
@@ -31,6 +33,12 @@ shim_with_baseline <- function(df) {
 
 
 ensure_character_cols <- function(df) {
-  these <- c("age_group", "attendance_category", "tretspef", "tretspef_grouped", "los_group")
+  these <- c(
+    "age_group",
+    "attendance_category",
+    "tretspef",
+    "tretspef_grouped",
+    "los_group"
+  )
   dplyr::mutate(df, dplyr::across(tidyselect::any_of(these), as.character))
 }
