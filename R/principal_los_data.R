@@ -7,28 +7,33 @@
 #'  by point of delivery and grouped length of stay
 #' @export
 compile_principal_los_data <- function(results, measure, sites = NULL) {
-  summary_los_data <- results[["tretspef+los_group"]] |>
+  init_data <- results[["tretspef+los_group"]] |>
     dplyr::filter(dplyr::if_any("measure", \(x) x == .env[["measure"]])) |>
-    filter_to_selected_sites(sites) |>
-    prepare_principal_los_data() |>
-    summarise_for_all_sites() |>
-    add_change_cols()
+    filter_to_selected_sites(sites)
+  if (nrow(init_data) == 0) {
+    init_data
+  } else {
+    summary_los_data <- init_data |>
+      prepare_principal_los_data() |>
+      summarise_for_all_sites() |>
+      add_change_cols()
 
-  los_groups <- unique(summary_los_data[["los_group"]])
-  init_digits <- as.integer(sub("^(\\d+)(.*)", "\\1", los_groups))
-  los_groups_ordered <- los_groups[match(sort(init_digits), init_digits)]
+    los_groups <- unique(summary_los_data[["los_group"]])
+    init_digits <- as.integer(sub("^(\\d+)(.*)", "\\1", los_groups))
+    los_groups_ordered <- los_groups[match(sort(init_digits), init_digits)]
 
-  summary_los_data |>
-    dplyr::select(!c("activity_type_label", "measure")) |>
-    dplyr::mutate(
-      # display pods in desc order of baseline level of admissions/beddays
-      dplyr::across("pod_label", \(x) {
-        forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
-      }),
-      # correctly sort LoS group factor levels numerically
-      dplyr::across("los_group", \(x) forcats::fct(x, los_groups_ordered))
-    ) |>
-    dplyr::arrange(dplyr::pick(c("pod_label", "los_group")))
+    summary_los_data |>
+      dplyr::select(!c("activity_type_label", "measure")) |>
+      dplyr::mutate(
+        # display pods in desc order of baseline level of admissions/beddays
+        dplyr::across("pod_label", \(x) {
+          forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
+        }),
+        # correctly sort LoS group factor levels numerically
+        dplyr::across("los_group", \(x) forcats::fct(x, los_groups_ordered))
+      ) |>
+      dplyr::arrange(dplyr::pick(c("pod_label", "los_group")))
+  }
 }
 
 
