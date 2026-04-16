@@ -23,33 +23,38 @@ compile_change_factor_data <- function(
   include_baseline = TRUE
 ) {
   activity_type <- rlang::arg_match(activity_type)
-  interim_data <- results[["step_counts"]] |>
+  init_data <- results[["step_counts"]] |>
     filter_principal_data(measure, activity_type, pods) |>
-    filter_to_selected_sites(sites) |>
-    prepare_principal_cf_data(tpma_lookup, include_baseline) |>
-    summarise_for_all_sites() |>
-    dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
-    # Here we need to sort by decreasing value (biggest increases in activity
-    # (positive 'value's) at the top), and we need to ensure that the 'baseline'
-    # row, if any, is at the top so that the cumsum() step works correctly.
-    dplyr::arrange(dplyr::desc(dplyr::pick("value"))) |>
-    move_baseline_row_to_top() |>
-    dplyr::mutate(
-      cmvalue = cumsum(.data[["value"]]),
-      hidden = dplyr::lag(.data[["cmvalue"]], 1, 0) + pmin(.data[["value"]], 0),
-      total = abs(.data[["value"]]) + .data[["hidden"]]
-    ) |>
-    dplyr::select(!"cmvalue")
+    filter_to_selected_sites(sites)
+  if (nrow(init_data) == 0) {
+    init_data
+  } else {
+    interim_data <- init_data |>
+      prepare_principal_cf_data(tpma_lookup, include_baseline) |>
+      summarise_for_all_sites() |>
+      dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
+      # Here we need to sort by decreasing value (biggest increases in activity
+      # (+ve 'value's) at the top), and we need to ensure that the 'baseline'
+      # row, if any, is at the top so that the cumsum() step works correctly.
+      dplyr::arrange(dplyr::desc(dplyr::pick("value"))) |>
+      move_baseline_row_to_top() |>
+      dplyr::mutate(
+        cmvalue = cumsum(.data[["value"]]),
+        hide = dplyr::lag(.data[["cmvalue"]], 1, 0) + pmin(.data[["value"]], 0),
+        total = abs(.data[["value"]]) + .data[["hide"]]
+      ) |>
+      dplyr::select(!"cmvalue")
 
-  estimate_row <- tibble::tibble_row(
-    change_factor = "estimate",
-    value = sum(interim_data[["value"]]),
-    hidden = 0,
-    total = .data[["value"]]
-  )
-  interim_data |>
-    dplyr::bind_rows(estimate_row) |>
-    dplyr::mutate(dplyr::across("change_factor", forcats::fct_inorder))
+    estimate_row <- tibble::tibble_row(
+      change_factor = "estimate",
+      value = sum(interim_data[["value"]]),
+      hide = 0,
+      total = .data[["value"]]
+    )
+    interim_data |>
+      dplyr::bind_rows(estimate_row) |>
+      dplyr::mutate(dplyr::across("change_factor", forcats::fct_inorder))
+  }
 }
 
 
@@ -74,34 +79,41 @@ compile_indiv_change_factor_data <- function(
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
 
-  table_data <- results[["step_counts"]] |>
+  init_data <- results[["step_counts"]] |>
     filter_principal_data(measure, activity_type, pods) |>
-    filter_to_selected_sites(sites) |>
-    prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
-    summarise_for_all_sites() |>
-    dplyr::filter(
-      dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
-    )
-  if (nrow(table_data) == 0) {
-    NULL
+    filter_to_selected_sites(sites)
+  if (nrow(init_data) == 0) {
+    init_data
   } else {
-    table_data <- table_data |>
-      dplyr::summarise(
-        dplyr::across("value", sum),
-        .by = c("change_factor", "measure", "tpma_label")
-      ) |>
+    table_data <- init_data |>
+      prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
+      summarise_for_all_sites() |>
       dplyr::filter(
-        dplyr::if_any("tpma_label", \(x) x != "-") &
-          # we only want to show TPMAs that _reduce_ the activity measure
-          dplyr::if_any("value", \(x) x < 0)
+        dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
       )
-    # I would like to apologise for nesting ifs
     if (nrow(table_data) == 0) {
-      NULL
+      table_data
     } else {
-      table_data |>
-        dplyr::arrange(dplyr::desc(dplyr::pick(tidyselect::all_of(sort_by)))) |>
-        dplyr::mutate(dplyr::across("tpma_label", forcats::fct_inorder))
+      table_data <- table_data |>
+        dplyr::summarise(
+          dplyr::across("value", sum),
+          .by = c("change_factor", "measure", "tpma_label")
+        ) |>
+        dplyr::filter(
+          dplyr::if_any("tpma_label", \(x) x != "-") &
+            # we only want to show TPMAs that _reduce_ the activity measure
+            dplyr::if_any("value", \(x) x < 0)
+        )
+      # I would like to apologise for nesting ifs
+      if (nrow(table_data) == 0) {
+        table_data
+      } else {
+        table_data |>
+          dplyr::arrange(
+            dplyr::desc(dplyr::pick(tidyselect::all_of(sort_by)))
+          ) |>
+          dplyr::mutate(dplyr::across("tpma_label", forcats::fct_inorder))
+      }
     }
   }
 }
@@ -118,7 +130,7 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
   dat_prepared <- if (include_baseline) dat else bsline_filtered
   dat_prepared |>
     dplyr::filter(dplyr::if_any("value", \(x) x != 0)) |>
-    dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x))) |>
+    combine_all_aae_pods() |>
     inner_join_for_labels(get_principal_pods()) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>
@@ -139,13 +151,14 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
 #' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @export
-export_principal_cf_data <- function(results, sites = NULL) {
+export_principal_cf_data <- function(
+  results,
+  sites = NULL,
+  tpma_lookup = get_tpma_label_lookup()
+) {
   results[["step_counts"]] |>
     filter_to_selected_sites(sites) |>
-    prepare_principal_cf_data(
-      tpma_lookup = get_tpma_label_lookup(),
-      include_baseline = TRUE
-    ) |>
+    prepare_principal_cf_data(tpma_lookup, include_baseline = TRUE) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
 }
 
@@ -161,7 +174,7 @@ change_factor_sort_vars <- function() {
 
 move_baseline_row_to_top <- function(dat, var = "change_factor") {
   stopifnot(!("rn" %in% colnames(dat)))
-  #  add row_number column to ensure we don't lose any rows in setdiff below
+  # add row_number column to ensure we don't lose any rows in setdiff below
   dat <- dplyr::mutate(dat, rn = dplyr::row_number())
   baseline_row <- dplyr::filter(dat, .data[[var]] == "baseline")
   dplyr::bind_rows(baseline_row, dplyr::setdiff(dat, baseline_row)) |>
