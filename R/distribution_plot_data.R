@@ -12,15 +12,20 @@ compile_distribution_plot_data <- function(
   sites = NULL
 ) {
   activity_type <- rlang::arg_match(activity_type)
-  results[["default"]] |>
-    get_activity_type_from_pod() |>
-    filter_principal_data(measure, activity_type, pods) |>
-    prepare_distribution_plot_data() |>
+  init_data <- results[["default"]] |>
     filter_to_selected_sites(sites) |>
-    dplyr::summarise(
-      dplyr::across(c("value", "baseline", "principal"), sum),
-      .by = "model_run"
-    )
+    get_activity_type_from_pod() |>
+    filter_principal_data(measure, activity_type, pods)
+  if (nrow(init_data) == 0) {
+    init_data
+  } else {
+    init_data |>
+      prepare_distribution_plot_data() |>
+      dplyr::summarise(
+        dplyr::across(c("value", "baseline", "principal"), sum),
+        .by = "model_run"
+      )
+  }
 }
 
 #' Preparation of site-level data for the main summary table

@@ -4,6 +4,3 @@
 # might be more appropriately kept as project-specific values.)
 # Contact a member of SU Data Science to get the required values for these.
 AZ_STORAGE_EP =
-AZ_STORAGE_CONTAINER =
-AZ_SUPPORT_CONTAINER =
-AZ_RESULTS_CONTAINER =

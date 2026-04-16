@@ -11,27 +11,34 @@ compile_distribution_summary_data <- function(
 ) {
   value_type <- rlang::arg_match(value_type)
   remove_col <- setdiff(c("median", "principal"), value_type)
-  # fmt: skip
-  arr_levels <- c(
-    "Admissions", "Bed days", "Attendances", "Tele-attendances",
-    "Ambulance", "Walk-in"
-  )
 
-  results[["default"]] |>
+  init_data <- results[["default"]] |>
     prepare_distribution_summary_data() |>
-    filter_to_selected_sites(sites) |>
-    summarise_for_all_sites() |>
-    tidyr::pivot_wider(names_from = "stat", values_from = "principal") |>
-    dplyr::rename(principal = "mean", lower = "p10", upper = "p90") |>
-    dplyr::select(!{{ remove_col }}) |>
-    dplyr::mutate(
-      change = .data[[value_type]] - .data[["baseline"]],
-      change_pct = .data[["change"]] / .data[["baseline"]],
-      .before = "lower"
-    ) |>
-    dplyr::mutate(dplyr::across("measure", \(x) forcats::fct(x, arr_levels))) |>
-    dplyr::arrange(dplyr::across("baseline", dplyr::desc)) |>
-    dplyr::arrange(dplyr::pick("measure"))
+    filter_to_selected_sites(sites)
+  if (nrow(init_data) == 0) {
+    init_data
+  } else {
+    # fmt: skip
+    arr_levels <- c(
+      "Admissions", "Bed days", "Attendances", "Tele-attendances",
+      "Ambulance", "Walk-in"
+    )
+    init_data |>
+      summarise_for_all_sites() |>
+      tidyr::pivot_wider(names_from = "stat", values_from = "principal") |>
+      dplyr::rename(principal = "mean", lower = "p10", upper = "p90") |>
+      dplyr::select(!{{ remove_col }}) |>
+      dplyr::mutate(
+        change = .data[[value_type]] - .data[["baseline"]],
+        change_pct = .data[["change"]] / .data[["baseline"]],
+        .before = "lower"
+      ) |>
+      dplyr::mutate(
+        dplyr::across("measure", \(x) forcats::fct(x, arr_levels))
+      ) |>
+      dplyr::arrange(dplyr::across("baseline", dplyr::desc)) |>
+      dplyr::arrange(dplyr::pick("measure"))
+  }
 }
 
 
