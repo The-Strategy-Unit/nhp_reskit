@@ -31,7 +31,7 @@ swap_modelrun_for_stage <- \(x) sub("^model_run$", "stage", x)
 check_single_row_groups <- function(tbl, group_cols) {
   out <- tbl |>
     dplyr::summarise(n = dplyr::n(), .by = tidyselect::all_of(group_cols))
-  csrg <- "check_single_row_groups"
+  csrg <- "check_single_row_groups" # nolint
   msg <- "{.fn {csrg}}: The grouping columns do not group to single rows"
   azkit::check_that(out, \(x) all(x[["n"]] == 1L), msg)
   tbl
