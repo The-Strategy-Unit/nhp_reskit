@@ -1,9 +1,11 @@
 test_that("get model runs (data_dirs) overview", {
   skip_on_ci()
-  res <- get_results_container()
+  res_cont_nm <- Sys.getenv("AZ_RESULTS_CONTAINER")
+  expect_true(nzchar(res_cont_nm))
+  res <- azkit::get_container(res_cont_nm)
   expect_s3_class(res, "blob_container")
-  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
-  expect_false(is.na(root_dir))
+  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY")
+  expect_true(nzchar(root_dir))
   version <- "v3.6"
   scheme <- "RCF"
   scenario <- "test"
@@ -22,10 +24,12 @@ test_that("get model runs (data_dirs) overview", {
 
 test_that("read parquet files overview", {
   skip_on_ci()
-  res <- get_results_container()
+  res_cont_nm <- Sys.getenv("AZ_RESULTS_CONTAINER")
+  expect_true(nzchar(res_cont_nm))
+  res <- azkit::get_container(res_cont_nm)
   expect_s3_class(res, "blob_container")
-  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
-  expect_false(is.na(root_dir))
+  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY")
+  expect_true(nzchar(root_dir))
   version <- "v3.6"
   scheme <- "RCF"
   scenario <- "test"
@@ -107,11 +111,12 @@ test_that("table selection works", {
 
 test_that("bughunting", {
   skip_on_ci()
-
-  res <- get_results_container()
+  res_cont_nm <- Sys.getenv("AZ_RESULTS_CONTAINER")
+  expect_true(nzchar(res_cont_nm))
+  res <- azkit::get_container(res_cont_nm)
   expect_s3_class(res, "blob_container")
-  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY", NA)
-  expect_false(is.na(root_dir))
+  root_dir <- Sys.getenv("AZ_RESULTS_DIRECTORY")
+  expect_true(nzchar(root_dir))
 
   version <- "v4.0"
   expect_true(rlang::is_string(version))
