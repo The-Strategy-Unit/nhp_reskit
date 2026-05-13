@@ -9,6 +9,7 @@
 compile_detailed_activity_data <- function(
   results,
   measure,
+  pod_lookup = get_detailed_pods(),
   tretspef_lookup = get_tretspef_lookup(),
   activity_type = c("ip", "op", "aae"),
   aggregation = c("age_group", "tretspef_grouped"),
@@ -29,7 +30,7 @@ compile_detailed_activity_data <- function(
     get_activity_type_from_pod() |>
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites) |>
-    prepare_detailed_activity_data(aggregation) |>
+    prepare_detailed_activity_data(aggregation, pod_lookup) |>
     summarise_for_all_pods(aggregation) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
@@ -72,13 +73,13 @@ prepare_tretspef_data <- function(results, tretspef_lookup) {
 #' @inheritParams compile_detailed_activity_data
 #' @returns A tibble
 #' @keywords internal
-prepare_detailed_activity_data <- function(dat, aggregation) {
+prepare_detailed_activity_data <- function(dat, aggregation, pod_lookup) {
   dat |>
     dplyr::mutate(
       dplyr::across("sex", convert_sex_codes),
       dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male")))
     ) |>
-    inner_join_for_labels(get_detailed_pods()) |>
+    inner_join_for_labels(pod_lookup) |>
     relabel_pods() |>
     calculate_principal_stats(detailed_activity_sort_vars(aggregation)) |>
     keep_mean_only()
@@ -111,6 +112,7 @@ summarise_for_all_pods <- function(dat, aggregation) {
 #' @export
 export_detailed_activity_data <- function(
   results,
+  pod_lookup = get_detailed_pods(),
   tretspef_lookup = get_tretspef_lookup(),
   aggregation = c("age_group", "tretspef_grouped"),
   sites = NULL
@@ -126,7 +128,7 @@ export_detailed_activity_data <- function(
   sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
   init_data |>
     filter_to_selected_sites(sites) |>
-    prepare_detailed_activity_data(aggregation) |>
+    prepare_detailed_activity_data(aggregation, pod_lookup) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
 }
