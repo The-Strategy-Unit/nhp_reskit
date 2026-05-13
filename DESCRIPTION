@@ -30,6 +30,7 @@ Depends: R (>= 4.5.0)
 Imports:
     azkit (>= 0.2.5),
     AzureStor,
+    base64enc,
     cli,
     dplyr,
     forcats,
@@ -37,6 +38,7 @@ Imports:
     ggplot2,
     glue,
     gt,
+    httr2,
     purrr,
     rlang,
     scales,
