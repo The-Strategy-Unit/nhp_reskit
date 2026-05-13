@@ -4,10 +4,15 @@
 \alias{prepare_distribution_plot_data}
 \title{Preparation of site-level data for the main summary table}
 \usage{
-prepare_distribution_plot_data(dat)
+prepare_distribution_plot_data(dat, pod_lookup)
 }
 \arguments{
 \item{dat}{A tibble}
+
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
 }
 \value{
 A tibble

@@ -7,6 +7,7 @@
 export_principal_cf_data(
   results,
   sites = NULL,
+  pod_lookup = get_principal_pods(),
   tpma_lookup = get_tpma_label_lookup()
 )
 }
@@ -15,6 +16,11 @@ export_principal_cf_data(
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}
+
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
 
 \item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
 a column named \code{strategy} (used as a key for joining to the \code{step_counts}

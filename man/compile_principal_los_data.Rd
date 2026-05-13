@@ -4,13 +4,23 @@
 \alias{compile_principal_los_data}
 \title{Prepare data from tretspef+los_group results for displaying as summary table}
 \usage{
-compile_principal_los_data(results, measure, sites = NULL)
+compile_principal_los_data(
+  results,
+  measure,
+  pod_lookup = get_principal_pods(),
+  sites = NULL
+)
 }
 \arguments{
 \item{results}{A named list containing NHP results tables}
 
 \item{measure}{Either "admissions" or "beddays". The measure to focus on for
 the output table}
+
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}
