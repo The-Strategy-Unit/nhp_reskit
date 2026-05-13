@@ -45,7 +45,7 @@ Imports:
     snakecase,
     tidyr,
     tidyselect,
-    yaml,
+    yaml12,
     yyjsonr
 Remotes:
     The-Strategy-Unit/azkit

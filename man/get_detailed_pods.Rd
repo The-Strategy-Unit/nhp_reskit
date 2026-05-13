@@ -5,9 +5,17 @@
 \alias{get_principal_pods}
 \title{Prepare a lookup table with activity type labels and PoD labels for each PoD}
 \usage{
-get_detailed_pods()
+get_detailed_pods(use_local = FALSE)
 
-get_principal_pods()
+get_principal_pods(use_local = FALSE)
+}
+\arguments{
+\item{use_local}{logical. Whether to use a local file (internal to the
+reskit package) or attempt to pull the lookup file from GitHub. Default is
+\code{FALSE}, meaning it will use the GitHub route. If you want to always use a
+local file (for example, for fully offline working), you can set the
+\code{reskit.local.lookups} option to \code{TRUE} using
+\code{options(reskit.local.lookups = TRUE)} or \code{withr::with_options()}}
 }
 \value{
 A tibble
@@ -16,5 +24,5 @@ A tibble
 }
 \description{
 This function condenses all A&E activity to a single category - compare
-\code{get_detailed_pods()} which keeps all A&E categories
+\code{get_detailed_pods()} which \emph{keeps} all A&E categories
 }
