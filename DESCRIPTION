@@ -1,6 +1,6 @@
 Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
-Version: 0.4.7
+Version: 0.4.8
 Authors@R:
     c(person(
         "Fran", "Barton",
@@ -24,7 +24,6 @@ Description: 'Wafer' goodbye to crumbly code, and dunk a sturdy reskit
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Depends: R (>= 4.5.0)
 Imports:
@@ -55,3 +54,4 @@ Suggests:
     testthat (>= 3.0.0),
     tibble,
     withr
+Config/roxygen2/version: 8.0.0
