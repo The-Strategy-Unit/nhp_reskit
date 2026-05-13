@@ -6,7 +6,12 @@
 #' @returns A filtered and sorted tibble of principal projections of results,
 #'  by point of delivery and grouped length of stay
 #' @export
-compile_principal_los_data <- function(results, measure, sites = NULL) {
+compile_principal_los_data <- function(
+  results,
+  measure,
+  pod_lookup = get_principal_pods(),
+  sites = NULL
+) {
   init_data <- results[["tretspef+los_group"]] |>
     dplyr::filter(dplyr::if_any("measure", \(x) x == .env[["measure"]])) |>
     filter_to_selected_sites(sites)
@@ -14,7 +19,7 @@ compile_principal_los_data <- function(results, measure, sites = NULL) {
     init_data
   } else {
     summary_los_data <- init_data |>
-      prepare_principal_los_data() |>
+      prepare_principal_los_data(pod_lookup) |>
       summarise_for_all_sites() |>
       add_change_cols()
 
@@ -42,10 +47,10 @@ compile_principal_los_data <- function(results, measure, sites = NULL) {
 #' @inheritParams prepare_principal_cf_data
 #' @returns A tibble
 #' @keywords internal
-prepare_principal_los_data <- function(dat) {
+prepare_principal_los_data <- function(dat, pod_lookup) {
   grp_by <- default_group_cols(c("activity_type_label", "measure", "los_group"))
   dat |>
-    inner_join_for_labels(get_principal_pods()) |>
+    inner_join_for_labels(pod_lookup) |>
     relabel_pods() |>
     dplyr::summarise(
       dplyr::across("value", sum),
@@ -62,10 +67,14 @@ prepare_principal_los_data <- function(dat) {
 #' @inheritParams compile_principal_los_data
 #' @returns A tibble
 #' @export
-export_principal_los_data <- function(results, sites = NULL) {
+export_principal_los_data <- function(
+  results,
+  pod_lookup = get_principal_pods(),
+  sites = NULL
+) {
   results[["tretspef+los_group"]] |>
     filter_to_selected_sites(sites) |>
-    prepare_principal_los_data() |>
+    prepare_principal_los_data(pod_lookup) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }

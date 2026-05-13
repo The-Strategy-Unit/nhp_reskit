@@ -9,6 +9,7 @@ compile_distribution_plot_data <- function(
   measure,
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
+  pod_lookup = get_detailed_pods(),
   sites = NULL
 ) {
   activity_type <- rlang::arg_match(activity_type)
@@ -20,7 +21,7 @@ compile_distribution_plot_data <- function(
     init_data
   } else {
     init_data |>
-      prepare_distribution_plot_data() |>
+      prepare_distribution_plot_data(pod_lookup) |>
       dplyr::summarise(
         dplyr::across(c("value", "baseline", "principal"), sum),
         .by = "model_run"
@@ -33,7 +34,7 @@ compile_distribution_plot_data <- function(
 #' @inheritParams prepare_principal_cf_data
 #' @returns A tibble
 #' @keywords internal
-prepare_distribution_plot_data <- function(dat) {
+prepare_distribution_plot_data <- function(dat, pod_lookup) {
   key_cols <- c("measure", "activity_type_label")
   group_cols <- default_group_cols(key_cols)
   fill_cols <- c("pod_label", "sitetret", key_cols)
@@ -41,7 +42,7 @@ prepare_distribution_plot_data <- function(dat) {
   dat |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
-    inner_join_for_labels(get_detailed_pods()) |>
+    inner_join_for_labels(pod_lookup) |>
     check_single_row_groups(group_cols) |>
     dplyr::mutate(
       stage = dplyr::if_else(.data[["model_run"]] == 0, "baseline", "principal")
