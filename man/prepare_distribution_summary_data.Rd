@@ -4,7 +4,7 @@
 \alias{prepare_distribution_summary_data}
 \title{Initial preparation of site-level data for the main summary table}
 \usage{
-prepare_distribution_summary_data(default_tbl)
+prepare_distribution_summary_data(default_tbl, pod_lookup)
 }
 \arguments{
 \item{default_tbl}{the "default" table from NHP results}

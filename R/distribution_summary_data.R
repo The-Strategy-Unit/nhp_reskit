@@ -7,13 +7,14 @@
 compile_distribution_summary_data <- function(
   results,
   value_type = c("median", "principal"),
+  pod_lookup = get_detailed_pods(),
   sites = NULL
 ) {
   value_type <- rlang::arg_match(value_type)
   remove_col <- setdiff(c("median", "principal"), value_type)
 
   init_data <- results[["default"]] |>
-    prepare_distribution_summary_data() |>
+    prepare_distribution_summary_data(pod_lookup) |>
     filter_to_selected_sites(sites)
   if (nrow(init_data) == 0) {
     init_data
@@ -47,11 +48,11 @@ compile_distribution_summary_data <- function(
 #' @inheritParams prepare_principal_pod_data
 #' @returns A tibble
 #' @keywords internal
-prepare_distribution_summary_data <- function(default_tbl) {
+prepare_distribution_summary_data <- function(default_tbl, pod_lookup) {
   default_tbl |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
-    inner_join_for_labels(get_detailed_pods()) |>
+    inner_join_for_labels(pod_lookup) |>
     dplyr::mutate(
       dplyr::across("pod_label", \(x) {
         paste0(.data[["activity_type_label"]], " ", x)
@@ -73,9 +74,13 @@ prepare_distribution_summary_data <- function(default_tbl) {
 #' @inheritParams compile_distribution_summary_data
 #' @returns A tibble
 #' @export
-export_distribution_summary_data <- function(results, sites = NULL) {
+export_distribution_summary_data <- function(
+  results,
+  pod_lookup = get_detailed_pods(),
+  sites = NULL
+) {
   results[["default"]] |>
-    prepare_distribution_summary_data() |>
+    prepare_distribution_summary_data(pod_lookup) |>
     filter_to_selected_sites(sites) |>
     tidyr::pivot_wider(names_from = "stat", values_from = "principal")
 }

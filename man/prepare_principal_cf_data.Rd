@@ -4,10 +4,15 @@
 \alias{prepare_principal_cf_data}
 \title{Data preparation step for \code{change_factor} data}
 \usage{
-prepare_principal_cf_data(dat, tpma_lookup, include_baseline)
+prepare_principal_cf_data(dat, pod_lookup, tpma_lookup, include_baseline)
 }
 \arguments{
 \item{dat}{A tibble}
+
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
 
 \item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
 a column named \code{strategy} (used as a key for joining to the \code{step_counts}

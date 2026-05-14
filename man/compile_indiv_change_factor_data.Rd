@@ -7,10 +7,11 @@
 compile_indiv_change_factor_data(
   results,
   measure,
-  tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
+  pod_lookup = get_principal_pods(),
+  tpma_lookup = get_tpma_label_lookup(),
   sort_by = c("value", "tpma_label")
 )
 }
@@ -20,18 +21,23 @@ compile_indiv_change_factor_data(
 \item{measure}{The measure to focus on for the output table. Valid values
 depend on which activity_type is selected}
 
-\item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
-a column named \code{strategy} (used as a key for joining to the \code{step_counts}
-table) and a column named \code{tpma_label} that provides friendly labels for
-all TPMAs/strategies}
-
-\item{activity_type}{string. One of "ip", "op", "aae"}
+\item{activity_type}{string. One of "ip", "op", "aae". "ip" is the default.}
 
 \item{pods}{character vector. PoD labels to filter data to. The default
 value of \code{NULL} means no PoDs will be filtered out}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}
+
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
+
+\item{tpma_lookup}{A tibble, or a function that returns a tibble, containing
+a column named \code{strategy} (used as a key for joining to the \code{step_counts}
+table) and a column named \code{tpma_label} that provides friendly labels for
+all TPMAs/strategies}
 
 \item{sort_by}{string, one of "value" or "tpma_label". The former sorts
 the output table by the value of the change, the latter alphabetically by
