@@ -21,7 +21,7 @@ compile_change_factor_data(
 \item{measure}{The measure to focus on for the output table. Valid values
 depend on which activity_type is selected}
 
-\item{activity_type}{string. One of "ip", "op", "aae". "ip" s the default.}
+\item{activity_type}{string. One of "ip", "op", "aae". "ip" is the default.}
 
 \item{pods}{character vector. PoD labels to filter data to. The default
 value of \code{NULL} means no PoDs will be filtered out}
