@@ -9,6 +9,7 @@ compile_distribution_plot_data(
   measure,
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
+  pod_lookup = get_detailed_pods(),
   sites = NULL
 )
 }
@@ -18,10 +19,15 @@ compile_distribution_plot_data(
 \item{measure}{The measure to focus on for the output table. Valid values
 depend on which activity_type is selected}
 
-\item{activity_type}{string. One of "ip", "op", "aae"}
+\item{activity_type}{string. One of "ip", "op", "aae". "ip" is the default.}
 
 \item{pods}{character vector. PoD labels to filter data to. The default
 value of \code{NULL} means no PoDs will be filtered out}
+
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
 
 \item{sites}{Either \code{NULL} (the default) or a vector of site codes to filter
 to. \code{NULL} means don't filter; include all sites present in the data}

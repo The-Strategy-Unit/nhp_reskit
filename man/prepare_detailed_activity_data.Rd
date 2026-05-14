@@ -4,10 +4,15 @@
 \alias{prepare_detailed_activity_data}
 \title{Data preparation step for 'activity in detail' table}
 \usage{
-prepare_detailed_activity_data(dat, aggregation)
+prepare_detailed_activity_data(dat, aggregation, pod_lookup)
 }
 \arguments{
 \item{aggregation}{string. One of "age_group" or "tretspef_grouped"}
+
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
 }
 \value{
 A tibble

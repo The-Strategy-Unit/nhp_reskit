@@ -7,6 +7,7 @@
 compile_detailed_activity_data(
   results,
   measure,
+  pod_lookup = get_detailed_pods(),
   tretspef_lookup = get_tretspef_lookup(),
   activity_type = c("ip", "op", "aae"),
   aggregation = c("age_group", "tretspef_grouped"),
@@ -20,11 +21,16 @@ compile_detailed_activity_data(
 \item{measure}{The measure to focus on for the output table. Valid values
 depend on which activity_type is selected}
 
+\item{pod_lookup}{A tibble, or a function that returns a tibble, containing
+columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides
+friendly labels for POD variables in the data. \code{pod} is the key column used
+for joining to data tables.}
+
 \item{tretspef_lookup}{A tibble, or a function that returns a tibble,
 containing a \code{code} column (used as a key for joining to the tretspef
 table) and a \code{tretspef} column that provides friendly labels for specialties}
 
-\item{activity_type}{string. One of "ip", "op", "aae"}
+\item{activity_type}{string. One of "ip", "op", "aae". "ip" is the default.}
 
 \item{aggregation}{string. One of "age_group" or "tretspef_grouped"}
 

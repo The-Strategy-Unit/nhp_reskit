@@ -2,13 +2,13 @@
 #'
 #' @param measure The measure to focus on for the output table. Valid values
 #'  depend on which activity_type is selected
+#' @param activity_type string. One of "ip", "op", "aae". "ip" is the default.
+#' @param pods character vector. PoD labels to filter data to. The default
+#'  value of `NULL` means no PoDs will be filtered out
 #' @param tpma_lookup A tibble, or a function that returns a tibble, containing
 #'  a column named `strategy` (used as a key for joining to the `step_counts`
 #'  table) and a column named `tpma_label` that provides friendly labels for
 #'  all TPMAs/strategies
-#' @param activity_type string. One of "ip", "op", "aae"
-#' @param pods character vector. PoD labels to filter data to. The default
-#'  value of `NULL` means no PoDs will be filtered out
 #' @param include_baseline Boolean. Whether to include baseline data
 #' @inheritParams compile_principal_los_data
 #' @returns A prepared tibble of step count changes for each included TPMA
@@ -16,10 +16,11 @@
 compile_change_factor_data <- function(
   results,
   measure,
-  tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
+  pod_lookup = get_principal_pods(),
+  tpma_lookup = get_tpma_label_lookup(),
   include_baseline = TRUE
 ) {
   activity_type <- rlang::arg_match(activity_type)
@@ -30,7 +31,11 @@ compile_change_factor_data <- function(
     init_data
   } else {
     interim_data <- init_data |>
-      prepare_principal_cf_data(tpma_lookup, include_baseline) |>
+      prepare_principal_cf_data(
+        pod_lookup,
+        tpma_lookup,
+        include_baseline
+      ) |>
       summarise_for_all_sites() |>
       dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
       # Here we need to sort by decreasing value (biggest increases in activity
@@ -69,10 +74,11 @@ compile_change_factor_data <- function(
 compile_indiv_change_factor_data <- function(
   results,
   measure,
-  tpma_lookup = get_tpma_label_lookup(),
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
+  pod_lookup = get_principal_pods(),
+  tpma_lookup = get_tpma_label_lookup(),
   sort_by = c("value", "tpma_label")
 ) {
   activity_type <- rlang::arg_match(activity_type)
@@ -86,7 +92,11 @@ compile_indiv_change_factor_data <- function(
     init_data
   } else {
     table_data <- init_data |>
-      prepare_principal_cf_data(tpma_lookup, include_baseline = FALSE) |>
+      prepare_principal_cf_data(
+        pod_lookup,
+        tpma_lookup,
+        include_baseline = FALSE
+      ) |>
       summarise_for_all_sites() |>
       dplyr::filter(
         dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
@@ -125,13 +135,18 @@ compile_indiv_change_factor_data <- function(
 #' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @keywords internal
-prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
+prepare_principal_cf_data <- function(
+  dat,
+  pod_lookup,
+  tpma_lookup,
+  include_baseline
+) {
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
   dat_prepared <- if (include_baseline) dat else bsline_filtered
   dat_prepared |>
     dplyr::filter(dplyr::if_any("value", \(x) x != 0)) |>
     combine_all_aae_pods() |>
-    inner_join_for_labels(get_principal_pods()) |>
+    inner_join_for_labels(pod_lookup) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>
     dplyr::select(!"strategy") |>
@@ -154,11 +169,16 @@ prepare_principal_cf_data <- function(dat, tpma_lookup, include_baseline) {
 export_principal_cf_data <- function(
   results,
   sites = NULL,
+  pod_lookup = get_principal_pods(),
   tpma_lookup = get_tpma_label_lookup()
 ) {
   results[["step_counts"]] |>
     filter_to_selected_sites(sites) |>
-    prepare_principal_cf_data(tpma_lookup, include_baseline = TRUE) |>
+    prepare_principal_cf_data(
+      pod_lookup,
+      tpma_lookup,
+      include_baseline = TRUE
+    ) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
 }
 

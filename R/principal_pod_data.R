@@ -1,14 +1,22 @@
 #' Prepare data from default results table for displaying as summary table
 #'
 #' @param results A named list containing NHP results tables
+#' @param pod_lookup A tibble, or a function that returns a tibble, containing
+#'  columns named `activity_type_label`, `pod` and `pod_label`. This provides
+#'  friendly labels for POD variables in the data. `pod` is the key column used
+#'  for joining to data tables.
 #' @param sites Either `NULL` (the default) or a vector of site codes to filter
 #'  to. `NULL` means don't filter; include all sites present in the data
 #' @returns A filtered and sorted tibble of principal projections of results,
 #'  by activity type and point of delivery (PoD)
 #' @export
-compile_principal_pod_data <- function(results, sites = NULL) {
+compile_principal_pod_data <- function(
+  results,
+  pod_lookup = get_principal_pods(),
+  sites = NULL
+) {
   init_data <- results[["default"]] |>
-    prepare_principal_pod_data() |>
+    prepare_principal_pod_data(pod_lookup) |>
     filter_to_selected_sites(sites)
   if (nrow(init_data) == 0) {
     init_data
@@ -38,12 +46,12 @@ compile_principal_pod_data <- function(results, sites = NULL) {
 #' @param default_tbl the "default" table from NHP results
 #' @returns A tibble
 #' @keywords internal
-prepare_principal_pod_data <- function(default_tbl) {
+prepare_principal_pod_data <- function(default_tbl, pod_lookup) {
   default_tbl |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
     combine_all_aae_pods() |>
-    inner_join_for_labels(get_principal_pods()) |>
+    inner_join_for_labels(pod_lookup) |>
     relabel_pods() |>
     relabel_ip_activity_types() |>
     dplyr::summarise(
@@ -61,9 +69,13 @@ prepare_principal_pod_data <- function(default_tbl) {
 #' @inheritParams compile_principal_pod_data
 #' @returns A tibble
 #' @export
-export_principal_pod_data <- function(results, sites = NULL) {
+export_principal_pod_data <- function(
+  results,
+  pod_lookup = get_principal_pods(),
+  sites = NULL
+) {
   results[["default"]] |>
-    prepare_principal_pod_data() |>
+    prepare_principal_pod_data(pod_lookup) |>
     filter_to_selected_sites(sites) |>
     add_change_cols() |>
     dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
