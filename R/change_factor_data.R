@@ -2,7 +2,7 @@
 #'
 #' @param measure The measure to focus on for the output table. Valid values
 #'  depend on which activity_type is selected
-#' @param activity_type string. One of "ip", "op", "aae". "ip" s the default.
+#' @param activity_type string. One of "ip", "op", "aae". "ip" is the default.
 #' @param pods character vector. PoD labels to filter data to. The default
 #'  value of `NULL` means no PoDs will be filtered out
 #' @param tpma_lookup A tibble, or a function that returns a tibble, containing
