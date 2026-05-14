@@ -25,15 +25,21 @@ compile_detailed_activity_data <- function(
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
     aggregation <- "tretspef"
   }
-
-  init_data |>
+  interim_data <-
+    init_data |>
     get_activity_type_from_pod() |>
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites) |>
     prepare_detailed_activity_data(aggregation, pod_lookup) |>
-    summarise_for_all_pods(aggregation) |>
-    add_change_cols() |>
-    dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
+    summarise_for_all_pods(aggregation)
+
+  if (nrow(interim_data) == 0) {
+    interim_data
+  } else {
+    interim_data |>
+      add_change_cols() |>
+      dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
+  }
 }
 
 #' Prepare data from the 'sex+age_group' results table
@@ -126,9 +132,16 @@ export_detailed_activity_data <- function(
     aggregation <- "tretspef"
   }
   sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
-  init_data |>
+  interim_data <-
+    init_data |>
     filter_to_selected_sites(sites) |>
-    prepare_detailed_activity_data(aggregation, pod_lookup) |>
-    add_change_cols() |>
-    dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
+    prepare_detailed_activity_data(aggregation, pod_lookup)
+
+  if (nrow(interim_data) == 0) {
+    interim_data
+  } else {
+    interim_data |>
+      add_change_cols() |>
+      dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
+  }
 }
