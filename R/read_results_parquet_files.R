@@ -31,6 +31,7 @@ read_results_parquet_files <- function(container, path, tables = NULL) {
   azkit::check_vec(selected_tables, \(x) x %in% parquet_names, msg)
 
   selected_tables |>
+    sub("\\+", "\\\\+", x = _) |>
     purrr::map_chr(\(x) gregv(parquet_paths, "{x}.parquet$")) |>
     rlang::set_names(selected_tables) |>
     purrr::map(\(path) azkit::read_azure_parquet(container, path))
