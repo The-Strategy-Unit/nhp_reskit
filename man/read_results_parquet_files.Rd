@@ -9,8 +9,8 @@ read_results_parquet_files(container, path, tables = NULL)
 \arguments{
 \item{container}{An Azure container.}
 
-\item{path}{string. Path to an Azure directory of results data. Potentially
-produced by \link{get_results_dir_path}}
+\item{path}{string. Path to an Azure directory of model results data.
+Potentially pulled from a field in a table of model runs metadata}
 
 \item{tables}{character vector. \code{NULL}, the default, results in all available
 parquet files in the \code{path} folder being read in. If you wish only to read
@@ -29,7 +29,6 @@ Read a selection of (or all) parquet files in an Azure directory
     read_results_parquet_files("data/dev/national/test", "acuity")
 
   data_list <- azkit::get_container("data_container") |>
-    get_results_dir_path("files", version = "v4.0", scheme = "national") |>
-    read_results_parquet_files()
+    read_results_parquet_files(path = "files/v4.0/national")
 }
 }
