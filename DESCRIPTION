@@ -27,7 +27,7 @@ Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 Depends: R (>= 4.5.0)
 Imports:
-    azkit (>= 0.3.0),
+    azkit (>= 0.3.1),
     base64enc,
     dplyr,
     forcats,
