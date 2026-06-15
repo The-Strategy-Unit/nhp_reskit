@@ -12,3 +12,5 @@
 ^test_results[.]rds$
 ^[.]lintr$
 ^jarl[.]toml$
+^vignettes/\.quarto$
+^vignettes/*_files$

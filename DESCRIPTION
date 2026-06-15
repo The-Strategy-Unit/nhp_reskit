@@ -48,8 +48,11 @@ Remotes:
     The-Strategy-Unit/azkit
 Suggests:
     here,
+    knitr,
+    quarto,
     readr,
     testthat (>= 3.0.0),
     tibble,
     withr
 Config/roxygen2/version: 8.0.0
+VignetteBuilder: quarto
