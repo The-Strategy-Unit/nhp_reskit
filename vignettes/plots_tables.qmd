@@ -1,0 +1,483 @@
+---
+title: "Plots and tables with reskit"
+vignette: >
+  %\VignetteIndexEntry{Plots and tables with reskit}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+The aims of this vignette are to:
+
+* illustrate usage patterns of some of the functions in {reskit}
+* provide a set of test/example outputs of tables and charts derived from NHP
+  demand model results data.
+
+The latter may be visually compared to / validated against visualisations
+currently produced by the NHP Outputs app.
+
+Firstly we load the functions in the {reskit} package.
+Then read in a set of results in the "new" format (Parquet files); in this
+vignette we just read in three of the results tables, specified using the
+`tables` argument to `read_results_parquet_files()`, as these are all we will
+need for the visualisations.
+
+
+```{r}
+#| label: setup
+library(reskit)
+# purrr::walk(dir(here::here("R"), full.names = TRUE), source)
+```
+
+
+```{r}
+#| label: get-data
+#| cache: true
+token <- azkit::get_auth_token()
+results_container <- azkit::get_container(
+  Sys.getenv("AZ_RESULTS_CONTAINER"),
+  token = token
+)
+
+results_path <- azkit::read_azure_table(
+  Sys.getenv("AZ_RUNS_TABLE"),
+  token = token,
+  filter = "PartitionKey eq 'national' and app_version eq 'v5.1'",
+  select = "aggregated_results_path"
+) |>
+  dplyr::pull("aggregated_results_path") |>
+  grepl(pattern = "NDG2\\-zero") |>
+  dplyr::first() # ensure we only get 1 path!
+
+results_tables <- c(
+  "default",
+  "tretspef+los_group",
+  "step_counts",
+  "sex+age_group",
+  "sex+tretspef_grouped"
+)
+
+results <- read_results_parquet_files(results_container, results_path)
+
+default_tbl <- results[["default"]]
+```
+
+```{r}
+#| label: create-dummy-data
+create_dummy_default_tbl <- function(seed) {
+  set.seed(seed)
+  ae_pods <- paste0("aae_type-0", seq(5))
+  ae_measures <- c("ambulance", "walk-in")
+  ip_pods <- paste0(
+    "ip_",
+    c(
+      paste0(c("elective", "maternity", "non-elective"), "_admission"),
+      paste0("regular_", c("night", "day"), "_attender")
+    )
+  )
+  ip_measures <- c("admissions", "beddays", "procedures")
+  op_pods <- paste0("op_", c("first", "follow-up", "procedure"))
+  op_measures <- paste0(c("", "tele_"), "attendances")
+  ae_tbl <- tidyr::expand_grid(pod = ae_pods, measure = ae_measures)
+  ip_tbl <- tidyr::expand_grid(pod = ip_pods, measure = ip_measures)
+  op_tbl <- tidyr::expand_grid(pod = op_pods, measure = op_measures)
+  init_tbl <- dplyr::bind_rows(ae_tbl, ip_tbl, op_tbl) |>
+    dplyr::mutate(sitetret = "site1", .before = "measure")
+  init_tbl2 <- dplyr::mutate(init_tbl, sitetret = "site2")
+  activ_min <- 5e3L
+  activ_max <- 85e3L
+  site1_baselines <- sample(seq(activ_min, activ_max, 1e3L), nrow(init_tbl))
+  site2_baselines <- as.integer(site1_baselines / 2)
+  mitigations <- rnorm(nrow(init_tbl), 1, 0.1) *
+    c(rep(0.9, nrow(ae_tbl)), rep(0.85, nrow(ip_tbl)), rep(0.8, nrow(op_tbl)))
+  site1_baseline <- init_tbl |>
+    dplyr::mutate(model_run = 0L, value = site1_baselines)
+  site2_baseline <- init_tbl2 |>
+    dplyr::mutate(model_run = 0L, value = site2_baselines)
+  site1_horizons <- init_tbl |>
+    dplyr::mutate(
+      value = purrr::map2(site1_baselines, mitigations, generate_horizon_vals)
+    )
+  site2_horizons <- init_tbl2 |>
+    dplyr::mutate(
+      value = purrr::map2(site2_baselines, mitigations, generate_horizon_vals)
+    )
+  horizons_tbl <- dplyr::bind_rows(site1_horizons, site2_horizons) |>
+    tidyr::unnest_longer("value", indices_to = "model_run")
+  list(site1_baseline, site2_baseline, horizons_tbl) |>
+    dplyr::bind_rows() |>
+    dplyr::arrange(dplyr::pick(c("pod", "sitetret", "measure", "model_run")))
+}
+
+generate_horizon_vals <- function(baseline, mitigation, picks = 64) {
+  as.integer(round(rnorm(picks, 1, 0.1) * baseline * mitigation))
+}
+
+create_dummy_default_tbl(seed = 1871)
+```
+
+
+Having shown one way of accessing the results parquet files, this vignette now
+runs through the suggested pipelines of functions that generate the NHP Outputs
+app tables and charts, which usually comprise in their simplest form, a data
+preparation function which passes data into a table or chart creation function.
+
+This series of example outputs is followed by a breakdown of one of the data
+preparation functions, showing how a results data table may be filtered,
+enhanced, summarised and arranged using {reskit} functions to produce standard
+statistics and outputs.
+
+
+## Outputs: tables and charts
+
+
+### "Main summary table"
+
+This uses the "default" table (from `default.parquet`), passing it to the
+`compile_principal_pod_data` function which prepares the data for the table.
+
+The only relevant filter here is for site selection.
+
+Then the `make_principal_pod_table` function generates the table.
+
+
+```{r main summary table}
+results |>
+  purrr::pluck("default") |>
+  compile_principal_pod_data(sites = NULL) |>
+  make_principal_pod_table()
+```
+
+
+### "Principal LoS table" - bed days measure
+
+
+```{r principal los table}
+results |>
+  purrr::pluck("tretspef+los_group") |>
+  compile_principal_los_data(measure = "Beddays", sites = NULL) |>
+  make_principal_los_table()
+```
+
+
+### "Principal LoS table" - admissions measure
+
+```{r}
+results |>
+  purrr::pluck("tretspef+los_group") |>
+  compile_principal_los_data(measure = "Admissions", sites = NULL) |>
+  make_principal_los_table()
+```
+
+
+### Impact of changes - overall ("waterfall") chart with baseline
+
+Selecting `pods = NULL` would use data
+
+```{r}
+results |>
+  purrr::pluck("step_counts") |>
+  compile_change_factor_data(
+    measure = "admissions",
+    activity_type = "ip",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    sites = NULL,
+    include_baseline = TRUE
+  ) |>
+  make_overall_cf_plot()
+```
+
+
+
+### Impact of changes - overall ("waterfall") chart without baseline
+
+```{r}
+results |>
+  purrr::pluck("step_counts") |>
+  compile_change_factor_data(
+    activity_type = "Inpatient",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    measure = "Admissions",
+    sites = NULL,
+    include_baseline = FALSE
+  ) |>
+  make_overall_cf_plot()
+```
+
+
+### Impact of changes - individual TPMA chart, Admissions measure, sort by value
+
+
+```{r}
+measure <- "Admissions"
+
+results |>
+  purrr::pluck("step_counts") |>
+  compile_indiv_change_factor_data(
+    activity_type = "Inpatient",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    measure = measure,
+    sort_by = "value",
+    sites = NULL
+  ) |>
+  make_individual_cf_plot(x_axis_label = measure)
+```
+
+
+### Impact of changes - individual TPMA chart, Admissions measure, sorted by name
+
+
+```{r}
+measure <- "Admissions"
+
+results |>
+  purrr::pluck("step_counts") |>
+  compile_indiv_change_factor_data(
+    activity_type = "Inpatient",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    measure = measure,
+    sort_by = "tpma_label",
+    sites = NULL
+  ) |>
+  make_individual_cf_plot(x_axis_label = measure)
+```
+
+
+### Impact of changes - individual TPMA chart, Bed Days measure, sort by value
+
+
+```{r}
+measure <- "Beddays"
+
+results |>
+  purrr::pluck("step_counts") |>
+  compile_indiv_change_factor_data(
+    activity_type = "Inpatient",
+    pods = c(
+      "Daycase Admission",
+      "Maternity Admission",
+      "Non-Elective Admission"
+    ),
+    measure = measure,
+    sort_by = "value",
+    sites = NULL
+  ) |>
+  make_individual_cf_plot(x_axis_label = measure)
+```
+
+
+### Activity in detail table - IP activity by sex and age group
+
+
+```{r}
+results |>
+  compile_detailed_activity_data()
+# filter_detailed_activity_data(
+#   aggregation = "age_group",
+#   activity_type = "ip",
+#   pods =
+# )
+```
+
+
+
+
+
+
+## Breakdown of a data preparation function
+
+This section shows the interim steps generated by the constituent functions and
+processes with an example data preparation function.
+
+We will look at `compile_principal_pod_data()` here.
+
+```{r}
+#| echo: false
+def <- results[["default"]]
+```
+
+Starting with the default table, before applying any functions to it, we can see
+that it has `r ncol(def)` columns.
+Several of these are "metadata" columns - containing only a single unique value,
+such as the name of the scenario - that we won't need for the further processing
+of the table.
+
+The data columns we need to work with are:
+
+* `sitetret`
+* `pod`
+* `measure`
+* `model_run`, and
+* `value`
+
+(Other results tables will have a different selection of column names that we
+would need to use.)
+
+
+```{r}
+results[["default"]]
+```
+
+In preparing the data for visualisation, we apply the
+`compile_principal_pod_data()` function.
+This runs through a sequence of functions that transform and summarise the data.
+These are, in turn:
+
+* `prepare_sites_principal_pod_data()`
+* `filter_to_selected_sites()` + `summarise_for_all_sites()`
+* `add_change_cols()`
+* final preparations, via for example `forcats::fct()` and `dplyr::arrange()`
+
+
+```{r}
+interim1 <- results[["default"]] |>
+  prepare_sites_principal_pod_data()
+interim1
+```
+
+The `prepare_sites_principal_pod_data()` function applies some filters to the
+data table and adds a human-friendly `pod_label` column (via `relabel_pods()`),
+then - even more importantly - applies `calculate_principal_stats()`.
+This last function calculates the "p10" and "p90" values as well as the mean of
+the values across all the model runs for each combination of `pod` and
+`measure` (in this case).
+
+### Breaking down `prepare_sites_principal_pod_data()`
+
+Let's have a look at how these functions change the shape and content of the
+data table to create the `interim1` object shown above.
+
+Firstly there are some initial changes and filters:
+
+```{r}
+interim1a <- results[["default"]] |>
+  dplyr::filter(dplyr::if_any("measure", \(x) x %in% keep_measures())) |>
+  dplyr::filter(
+    # exclude outpatient procedures from tele-attendances count only
+    dplyr::if_any("measure", \(x) x != "tele_attendances") |
+      dplyr::if_any("pod", \(x) x != "op_procedure")
+  ) |>
+  dplyr::mutate(dplyr::across("pod", \(x) sub("^aae.*$", "aae", x)))
+interim1a
+```
+
+Now joining to a lookup of POD (point of delivery) codes and labels:
+
+```{r}
+interim1b <- interim1a |>
+  inner_join_for_labels(get_principal_pods()) |>
+  relabel_pods()
+interim1b
+```
+
+We now have a new `activity_type_label` column.
+
+And then, summarising by certain fields to calculate the mean values:
+
+
+```{r}
+interim1c <- interim1b |>
+  calculate_principal_stats(default_group_cols("activity_type_label")) |>
+  dplyr::filter(dplyr::if_any("stat", \(x) x == "mean")) |>
+  dplyr::select(!"stat")
+interim1c
+```
+
+```{r}
+identical(interim1c, interim1)
+```
+
+`calculate_principal_stats()` helps us treat model run 0 as a "baseline" value,
+and model runs 1-256 as the basis for our "principal" projection.
+
+We now have a table with just `r nrow(interim1c)` rows and `r ncol(interim1c)`
+columns, and some quite different column names to the table we started with.
+
+### Subsequent steps
+
+The above steps will be the same no matter what the user of the NHP Outputs app
+selects.
+
+Next there is a further step that will depend on the selection of sites chosen
+by the user.
+The default selection is `NULL`, meaning all sites in the data will be included.
+The dataset we are using in this vignette is "national", which means we don't
+have any specific sites to filter by in any case.
+But for a local scheme, a user could choose to filter results data just to
+specific sites.
+
+The `filter_to_selected_sites()` and `summarise_for_all_sites()` functions
+deal with this.
+
+`add_change_cols()` calculates the change from the baseline values to the
+mean principal projected values, as an absolute number and as a percentage.
+
+Let's apply these anyway to our output from
+`prepare_sites_principal_pod_data()`, and then apply `add_change_cols()`.
+
+
+```{r}
+interim2 <- interim1 |>
+  filter_to_selected_sites(NULL) |>
+  summarise_for_all_sites(site_col = "sitetret") |>
+  add_change_cols()
+interim2
+```
+
+Then our final steps in this breakdown of `compile_principal_pod_data()`.
+
+We should have ended up reproducing the output we get from simply running
+`compile_principal_pod_data(results[["default"]])`:
+
+```{r}
+at_levels <- c(
+  "Inpatient Admissions",
+  "Inpatient Bed Days",
+  "Outpatient",
+  "A&E"
+)
+interim3 <- interim2 |>
+  dplyr::mutate(
+    dplyr::across("activity_type_label", \(x) forcats::fct(x, at_levels)),
+    # display pods in descending order of baseline value, by activity type
+    dplyr::across("pod_label", \(x) {
+      forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
+    })
+  ) |>
+  dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
+interim3
+```
+
+This data table is now in the expected format to be passed through to
+`make_principal_pod_table()`.
+
+### Other data preparation functions
+
+Exploring each preparation pipeline in detail would make this a very lengthy
+vignette.
+However they do share some common functions and techniques.
+
+Other data preparation functions in {reskit} include:
+
+* `compile_principal_los_data()`, used to prepare data for `make_principal_los_table()`
+* `compile_change_factor_data()`, used to prepare data for `make_overall_cf_plot()`
+* and so on
