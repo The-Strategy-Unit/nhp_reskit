@@ -30,12 +30,13 @@ need for the visualisations.
 #| label: setup
 library(reskit)
 # purrr::walk(dir(here::here("R"), full.names = TRUE), source)
+seed <- 1871
 ```
 
 
 ```{r}
 #| label: get-data
-#| cache: true
+#| eval: false
 token <- azkit::get_auth_token()
 results_container <- azkit::get_container(
   Sys.getenv("AZ_RESULTS_CONTAINER"),
@@ -49,20 +50,25 @@ results_path <- azkit::read_azure_table(
   select = "aggregated_results_path"
 ) |>
   dplyr::pull("aggregated_results_path") |>
-  grepl(pattern = "NDG2\\-zero") |>
+  grepv(pattern = "NDG2\\-zero") |>
   dplyr::first() # ensure we only get 1 path!
 
-results_tables <- c(
-  "default",
-  "tretspef+los_group",
-  "step_counts",
-  "sex+age_group",
-  "sex+tretspef_grouped"
-)
+# results_tables <- c(
+#   "default",
+#   "tretspef+los_group",
+#   "step_counts",
+#   "sex+age_group",
+#   "sex+tretspef_grouped"
+# )
 
-results <- read_results_parquet_files(results_container, results_path)
+read_results_parquet_files(results_container, results_path) |>
+  readr::write_rds("vignette_national_results.rds")
+```
 
-default_tbl <- results[["default"]]
+```{r}
+#| label: read-rds-data
+results <- readr::read_rds("vignette_national_results.rds")
+# default_tbl <- results[["default"]]
 ```
 
 ```{r}
@@ -85,7 +91,7 @@ create_dummy_default_tbl <- function(seed) {
   ip_tbl <- tidyr::expand_grid(pod = ip_pods, measure = ip_measures)
   op_tbl <- tidyr::expand_grid(pod = op_pods, measure = op_measures)
   init_tbl <- dplyr::bind_rows(ae_tbl, ip_tbl, op_tbl) |>
-    dplyr::mutate(sitetret = "site1", .before = "measure")
+    dplyr::mutate(sitetret = "site1", .after = "pod")
   init_tbl2 <- dplyr::mutate(init_tbl, sitetret = "site2")
   activ_min <- 5e3L
   activ_max <- 85e3L
@@ -112,11 +118,232 @@ create_dummy_default_tbl <- function(seed) {
     dplyr::arrange(dplyr::pick(c("pod", "sitetret", "measure", "model_run")))
 }
 
+
 generate_horizon_vals <- function(baseline, mitigation, picks = 64) {
   as.integer(round(rnorm(picks, 1, 0.1) * baseline * mitigation))
 }
 
-create_dummy_default_tbl(seed = 1871)
+
+create_dummy_tls_tbl <- function(seed) {
+  set.seed(seed)
+  ip_pods <- paste0(
+    "ip_",
+    c(
+      paste0(c("elective", "maternity", "non-elective"), "_admission"),
+      paste0("regular_", c("night", "day"), "_attender")
+    )
+  )
+  ip_measures <- c("admissions", "beddays", "procedures")
+  tretspef_codes <- sort(sample(get_tretspef_lookup()[["code"]], 25))
+  los_groups <- paste0(
+    c("0", "1", "2", "3", "4-7", "8-14", "15-21", "22+"),
+    " days"
+  ) |>
+    sub("^1 days$", "1 day", x = _)
+  ip_tbl <- tidyr::expand_grid(
+    pod = ip_pods,
+    tretspef = tretspef_codes,
+    los_group = los_groups,
+    measure = ip_measures
+  )
+  init_tbl <- ip_tbl |>
+    dplyr::mutate(sitetret = "site1", .after = "pod")
+  init_tbl2 <- dplyr::mutate(init_tbl, sitetret = "site2")
+  activ_min <- 100L
+  activ_max <- 5e4L
+  site1_baselines <- sample(
+    seq(activ_min, activ_max, 100L),
+    nrow(init_tbl),
+    TRUE
+  )
+  site2_baselines <- as.integer(site1_baselines / 2)
+  mitigations <- rnorm(nrow(init_tbl), 1, 0.1) * rep(0.85, nrow(ip_tbl))
+  site1_baseline <- init_tbl |>
+    dplyr::mutate(model_run = 0L, value = site1_baselines)
+  site2_baseline <- init_tbl2 |>
+    dplyr::mutate(model_run = 0L, value = site2_baselines)
+  site1_horizons <- init_tbl |>
+    dplyr::mutate(
+      value = purrr::map2(site1_baselines, mitigations, generate_horizon_vals)
+    )
+  site2_horizons <- init_tbl2 |>
+    dplyr::mutate(
+      value = purrr::map2(site2_baselines, mitigations, generate_horizon_vals)
+    )
+  horizons_tbl <- dplyr::bind_rows(site1_horizons, site2_horizons) |>
+    tidyr::unnest_longer("value", indices_to = "model_run")
+  list(site1_baseline, site2_baseline, horizons_tbl) |>
+    dplyr::bind_rows() |>
+    dplyr::arrange(dplyr::pick(c(
+      "pod",
+      "sitetret",
+      "tretspef",
+      "los_group",
+      "measure",
+      "model_run"
+    )))
+}
+
+
+create_dummy_sag_tbl <- function(seed) {
+  set.seed(seed)
+  ae_pods <- paste0("aae_type-0", seq(5))
+  ae_measures <- c("ambulance", "walk-in")
+  ip_pods <- paste0(
+    "ip_",
+    c(
+      paste0(c("elective", "maternity", "non-elective"), "_admission"),
+      paste0("regular_", c("night", "day"), "_attender")
+    )
+  )
+  ip_measures <- c("admissions", "beddays", "procedures")
+  op_pods <- paste0("op_", c("first", "follow-up", "procedure"))
+  op_measures <- paste0(c("", "tele_"), "attendances")
+  sexes <- c(1L, 2L)
+  # fmt: skip
+  age_groups <- c(
+    "0", "1-4", "10-15", "16-17", "18-34", "35-49", "5-9",
+    "50-64", "65-74", "75-84", "85+"
+  )
+  ae_tbl <- tidyr::expand_grid(
+    pod = ae_pods,
+    sex = sexes,
+    age_group = age_groups,
+    measure = ae_measures
+  )
+  ip_tbl <- tidyr::expand_grid(
+    pod = ip_pods,
+    sex = sexes,
+    age_group = age_groups,
+    measure = ip_measures
+  )
+  op_tbl <- tidyr::expand_grid(
+    pod = op_pods,
+    sex = sexes,
+    age_group = age_groups,
+    measure = op_measures
+  )
+  init_tbl <- dplyr::bind_rows(ae_tbl, ip_tbl, op_tbl) |>
+    dplyr::mutate(sitetret = "site1", .after = "pod")
+  init_tbl2 <- dplyr::mutate(init_tbl, sitetret = "site2")
+  activ_min <- 100L
+  activ_max <- 5e4L
+  site1_baselines <- sample(
+    seq(activ_min, activ_max, 100L),
+    nrow(init_tbl),
+    TRUE
+  )
+  site2_baselines <- as.integer(site1_baselines / 2)
+  mitigations <- rnorm(nrow(init_tbl), 1, 0.1) *
+    c(rep(0.9, nrow(ae_tbl)), rep(0.85, nrow(ip_tbl)), rep(0.8, nrow(op_tbl)))
+  site1_baseline <- init_tbl |>
+    dplyr::mutate(model_run = 0L, value = site1_baselines)
+  site2_baseline <- init_tbl2 |>
+    dplyr::mutate(model_run = 0L, value = site2_baselines)
+  site1_horizons <- init_tbl |>
+    dplyr::mutate(
+      value = purrr::map2(site1_baselines, mitigations, generate_horizon_vals)
+    )
+  site2_horizons <- init_tbl2 |>
+    dplyr::mutate(
+      value = purrr::map2(site2_baselines, mitigations, generate_horizon_vals)
+    )
+  horizons_tbl <- dplyr::bind_rows(site1_horizons, site2_horizons) |>
+    tidyr::unnest_longer("value", indices_to = "model_run")
+  list(site1_baseline, site2_baseline, horizons_tbl) |>
+    dplyr::bind_rows() |>
+    dplyr::arrange(dplyr::pick(c(
+      "pod",
+      "sitetret",
+      "sex",
+      "age_group",
+      "measure",
+      "model_run"
+    )))
+}
+
+
+create_dummy_stc_tbl <- function(seed) {
+  set.seed(seed)
+  ae_pods <- paste0("aae_type-0", seq(5))
+  ae_measures <- c("ambulance", "walk-in")
+  ip_pods <- paste0(
+    "ip_",
+    c(
+      paste0(c("elective", "maternity", "non-elective"), "_admission"),
+      paste0("regular_", c("night", "day"), "_attender")
+    )
+  )
+  ip_measures <- c("admissions", "beddays", "procedures")
+  op_pods <- paste0("op_", c("first", "follow-up", "procedure"))
+  op_measures <- paste0(c("", "tele_"), "attendances")
+  strategies <- get_tpma_label_lookup()[["strategy"]]
+  # for this purpose not all change factors are included
+  # fmt: skip
+  change_factors <- c(
+    "activity_avoidance", "efficiencies", "demographic_adjustment"
+  )
+  ae_tbl <- tidyr::expand_grid(
+    activity_type = "aae",
+    pod = ae_pods,
+    change_factor = change_factors,
+    measure = ae_measures
+  )
+  ip_tbl <- tidyr::expand_grid(
+    pod = ip_pods,
+    sex = sexes,
+    age_group = age_groups,
+    measure = ip_measures
+  )
+  op_tbl <- tidyr::expand_grid(
+    pod = op_pods,
+    sex = sexes,
+    age_group = age_groups,
+    measure = op_measures
+  )
+  init_tbl <- dplyr::bind_rows(ae_tbl, ip_tbl, op_tbl) |>
+    dplyr::mutate(sitetret = "site1", .after = "pod")
+  init_tbl2 <- dplyr::mutate(init_tbl, sitetret = "site2")
+  activ_min <- 100L
+  activ_max <- 5e4L
+  site1_baselines <- sample(
+    seq(activ_min, activ_max, 100L),
+    nrow(init_tbl),
+    TRUE
+  )
+  site2_baselines <- as.integer(site1_baselines / 2)
+  mitigations <- rnorm(nrow(init_tbl), 1, 0.1) *
+    c(rep(0.9, nrow(ae_tbl)), rep(0.85, nrow(ip_tbl)), rep(0.8, nrow(op_tbl)))
+  site1_baseline <- init_tbl |>
+    dplyr::mutate(model_run = 0L, value = site1_baselines)
+  site2_baseline <- init_tbl2 |>
+    dplyr::mutate(model_run = 0L, value = site2_baselines)
+  site1_horizons <- init_tbl |>
+    dplyr::mutate(
+      value = purrr::map2(site1_baselines, mitigations, generate_horizon_vals)
+    )
+  site2_horizons <- init_tbl2 |>
+    dplyr::mutate(
+      value = purrr::map2(site2_baselines, mitigations, generate_horizon_vals)
+    )
+  horizons_tbl <- dplyr::bind_rows(site1_horizons, site2_horizons) |>
+    tidyr::unnest_longer("value", indices_to = "model_run")
+  list(site1_baseline, site2_baseline, horizons_tbl) |>
+    dplyr::bind_rows() |>
+    dplyr::arrange(dplyr::pick(c(
+      "pod",
+      "sitetret",
+      "sex",
+      "age_group",
+      "measure",
+      "model_run"
+    )))
+}
+
+
+create_dummy_default_tbl(seed)
+create_dummy_tls_tbl(seed)
+create_dummy_sag_tbl(seed)
 ```
 
 
