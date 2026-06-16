@@ -175,16 +175,38 @@ get_tretspef_lookup <- function() {
 }
 
 
-#' Get a lookup of TPMA labels
+#' Prepare a lookup table for all current TPMAs
 #'
-#' Currently reads from a fixed location within the package.
-#' @returns A 2-column tibble, with columns `strategy` and `tpma_label`
+#' @param use_local logical. Whether to use a local file (internal to the
+#'  reskit package) or attempt to pull the lookup file from GitHub. Default is
+#'  `FALSE`, meaning it will use the GitHub route. If you want to always use a
+#'  local file (for example, for fully offline working), you can set the
+#'  `reskit.local.lookups` option to `TRUE` using
+#'  `options(reskit.local.lookups = TRUE)` or `withr::with_options()`
+#' @returns A 4-column tibble, with columns `activity_type`, `change_factor`,
+#'  `strategy` and `tpma_label`
 #' @export
-get_tpma_label_lookup <- function() {
-  system.file("mitigators.json", package = "reskit") |>
-    yyjsonr::read_json_file() |>
-    purrr::imap(\(x, nm) tibble::tibble(strategy = nm, tpma_label = x)) |>
-    purrr::list_rbind()
+get_tpma_label_lookup <- function(use_local = FALSE) {
+  read_cols <- "cccc----c"
+  use_local <- getOption("reskit.local.lookups") %||% use_local
+  csv_data <- system.file("mitigator-lookup.csv", package = "reskit") |>
+    readr::read_csv(col_types = read_cols)
+  csv_data_from_gh <- NULL
+  if (!use_local) {
+    csv_data_raw <- possibly_get_tpmas_gh_file("mitigator-lookup.csv")
+    if (!is.null(csv_data_raw)) {
+      csv_data_from_gh <- readr::read_csv(csv_data_raw, col_types = read_cols)
+    }
+  }
+  csv_data <- csv_data_from_gh %||% csv_data
+  csv_data |>
+    dplyr::filter(dplyr::if_any("active_to", is.na)) |>
+    dplyr::select(!"active_to") |>
+    dplyr::rename(
+      change_factor = "mitigator_type",
+      strategy = "mitigator_variable",
+      tpma_label = "mitigator_name"
+    )
 }
 
 
