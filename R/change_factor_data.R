@@ -141,6 +141,7 @@ prepare_principal_cf_data <- function(
   tpma_lookup,
   include_baseline
 ) {
+  tpma_lookup <- dplyr::select(tpma_lookup, c("strategy", "tpma_label"))
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
   dat_prepared <- if (include_baseline) dat else bsline_filtered
   dat_prepared |>
