@@ -5,6 +5,7 @@
 [![Project Status: Active – The project has reached a stable, usable state and
 is being actively developed][repostatus_svg]][repostatus_info]
 ![GitHub R package version][gh_ver]
+[![R CMD check status][cmd_svg]][cmd_yaml]
 
 [mit_svg]: https://img.shields.io/badge/License-MIT-yellow.svg?label=licence
 [repostatus_svg]: https://www.repostatus.org/badges/latest/active.svg
@@ -26,6 +27,7 @@ pak::pak("The-Strategy-Unit/nhp_reskit")
 
 On Windows, you may need to have [RTools](https://cloud.r-project.org/)
 already installed in order to install reskit.
+
 
 ## Usage
 
