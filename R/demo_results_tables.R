@@ -1,3 +1,9 @@
+#' Function to create a "default" table with synthetic values
+#'
+#' The table contains synthetic (randomly created) values for a selection of
+#'  PODs and measures, across 2 "sites", as if created by 64 model runs
+#' @param seed integer, for reproducibility of outputs, a seed value to be used
+#' @keywords internal
 create_demo_default_tbl <- function(seed) {
   init_tbl1 <- create_base_tbl_with_sitetret("site1")
   init_tbl2 <- create_base_tbl_with_sitetret("site2")
@@ -11,6 +17,12 @@ create_demo_default_tbl <- function(seed) {
 }
 
 
+#' Function to create a "tretspef + LoS group" table with synthetic values
+#' The table contains synthetic (randomly created) values for a selection of
+#'  PODs, tretspefs, LoS groups and measures, across 2 "sites", as if created
+#'  by 64 model runs
+#' @inheritParams create_demo_default_tbl
+#' @keywords internal
 create_demo_tretspef_losgroup_tbl <- function(seed) {
   tretspef_codes <- sort(sample(get_tretspef_lookup()[["code"]], 25)) |>
     withr::with_seed(seed = seed)
@@ -46,6 +58,12 @@ create_demo_tretspef_losgroup_tbl <- function(seed) {
 }
 
 
+#' Function to create a "tretspef + age group" table with synthetic values
+#' The table contains synthetic (randomly created) values for a selection of
+#'  PODs, tretspefs, age groups and measures, across 2 "sites", as if created
+#'  by 64 model runs
+#' @inheritParams create_demo_default_tbl
+#' @keywords internal
 create_demo_sex_agegroup_tbl <- function(seed) {
   # fmt: skip
   age_groups <- c(
@@ -254,4 +272,42 @@ add_horizon_values <- function(tbl_with_baseline, initial_means, seed) {
 generate_horizon_values <- function(baseline, mitigation, seed, picks = 64) {
   distr <- withr::with_seed(seed, rnorm(picks, 1, 0.1))
   as.integer(round(distr * mitigation * baseline))
+}
+
+
+#' Helper function
+#' @keywords internal
+create_ae_base_tbl <- function() {
+  ae_pods <- paste0("aae_type-0", seq(5))
+  ae_measures <- c("ambulance", "walk-in")
+  tidyr::expand_grid(pod = ae_pods, measure = ae_measures)
+}
+
+#' Helper function
+#' @keywords internal
+create_ip_base_tbl <- function() {
+  ip_pods <- c(
+    paste0("ip_", c("elective", "maternity", "non-elective"), "_admission"),
+    paste0("ip_regular_", c("night", "day"), "_attender")
+  )
+  ip_measures <- c("admissions", "beddays", "procedures")
+  tidyr::expand_grid(pod = ip_pods, measure = ip_measures)
+}
+
+#' Helper function
+#' @keywords internal
+create_op_base_tbl <- function() {
+  op_pods <- paste0("op_", c("first", "follow-up", "procedure"))
+  op_measures <- paste0(c("", "tele_"), "attendances")
+  tidyr::expand_grid(pod = op_pods, measure = op_measures)
+}
+
+#' Helper function
+#' @keywords internal
+get_full_initial_means <- function(ae_mean, ip_mean, op_mean) {
+  c(
+    rep(ae_mean, nrow(create_ae_base_tbl())),
+    rep(ip_mean, nrow(create_ip_base_tbl())),
+    rep(op_mean, nrow(create_op_base_tbl()))
+  )
 }
