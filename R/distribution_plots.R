@@ -80,7 +80,7 @@ make_cumulative_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
     x_end = rep(c(x_quantiles, principal_value), 2),
     y_start = c(quantiles, principal_pct, rep(0, 3)),
     y_end = rep(c(quantiles, principal_pct), 2),
-    colour = rep(c(rep(plot_red, 2), plot_blue), 2)
+    colour = rep(c(rep(plot_blue, 2), plot_red), 2)
   )
   interim_plot <- tibble::tibble(x = x_vals, y = y_vals) |>
     ggplot2::ggplot(ggplot2::aes(.data[["x"]], .data[["y"]])) +
