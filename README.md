@@ -17,7 +17,6 @@ is being actively developed][repostatus_svg]][repostatus_info]
 
 An R package (just called `reskit`) that helps process NHP model results.
 
-
 ## Installation
 
 You should be able to run the following R command to install {reskit}:
@@ -29,6 +28,7 @@ pak::pak("The-Strategy-Unit/nhp_reskit")
 
 On Windows, you may need to have [RTools](https://cloud.r-project.org/)
 already installed in order to install reskit.
+
 
 ## Usage
 
@@ -113,8 +113,7 @@ Your `.Renviron` file should contain the variables below.
 Ask a member of [the Data Science team][suds] for the necessary values.
 
 ```
-AZ_STORAGE_EP=[your azure storage blob endpoint url]
-AZ_TABLE_EP=[your azure storage table endpoint url]
+AZ_STORAGE_EP =
 ```
 
 For convenience, an example `.Renviron.example` file is provided in this
