@@ -29,7 +29,6 @@ pak::pak("The-Strategy-Unit/nhp_reskit")
 On Windows, you may need to have [RTools](https://cloud.r-project.org/)
 already installed in order to install reskit.
 
-
 ## Usage
 
 As this package relies on [`{azkit}`][azk] for some of its functionality, you
@@ -113,7 +112,8 @@ Your `.Renviron` file should contain the variables below.
 Ask a member of [the Data Science team][suds] for the necessary values.
 
 ```
-AZ_STORAGE_EP =
+AZ_STORAGE_EP=[your azure storage blob endpoint url]
+AZ_TABLE_EP=[your azure storage table endpoint url]
 ```
 
 For convenience, an example `.Renviron.example` file is provided in this
