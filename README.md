@@ -18,17 +18,6 @@ is being actively developed][repostatus_svg]][repostatus_info]
 An R package (just called `reskit`) that helps process NHP model results.
 
 
-## Status
-
-The package is now at version 0.5 and contains a range of useful functions.
-While of course it is still in development, and we may make further signficant
-changes to the user interface for some functions, the package is now ready to be
-used.
-
-Using it will be very helpful as it will no doubt surface some bugs or areas
-where the documentation needs to be improved.
-
-
 ## Installation
 
 You should be able to run the following R command to install {reskit}:
@@ -41,14 +30,74 @@ pak::pak("The-Strategy-Unit/nhp_reskit")
 On Windows, you may need to have [RTools](https://cloud.r-project.org/)
 already installed in order to install reskit.
 
-
 ## Usage
 
-You will need certain environment variables to be available (see section below).
+As this package relies on [`{azkit}`][azk] for some of its functionality, you
+will need certain environment variables to be available (see section below) in
+order for these to work.
+
+It is a good idea to check that your [azkit authentication][azkt] is set up
+correctly before using this package.
+Try:
+
+```
+az login
+```
+
+at your terminal, or
+
+```r
+azkit::get_auth_token()
+```
+
+to check these are running correctly.
+
+### Examples of usage
 
 Some key functions and workflows you might want to use include:
 
-#TODO
+
+1. Use {azkit} to access an Azure data container, and read in all results
+parquet files from a specific location on that container:
+
+```r
+# This assumes you have Azure authentication working, and the correct
+# Azure endpoint variables in your environment.
+# NB the file/data locations used here are invented examples.
+# The best way to obtain a real results folder location is probably to read and
+# filter a table of model runs metadata and extract the appropriate path
+# variable; see `azkit::read_azure_table` for help with this.
+data_container <- azkit::get_container("data_container")
+results_location <- "results/dev/national/test"
+results <- reskit::read_results_parquet_files(data_container, results_location)
+```
+
+This should return a named list of tibbles, stored as `results`, one for each
+parquet file in the results location folder.
+
+2. Re-using some of the variables above, you could instead retrieve data for
+just some of the parquet files:
+
+```r
+# NB do not add the `.parquet` ext; just the basename of the file is required
+selected_tables <- c("acuity", "default")
+
+selected_results <- data_container |>
+  reskit::read_results_parquet_files(results_location, selected_tables)
+```
+
+3. You can use your results list to support the creation of summary tables and
+charts. For example:
+
+```r
+# generates a {gt} (HTML) table
+reskit::compile_principal_pod_data(results) |>
+  reskit::make_principal_pod_table()
+```
+
+
+See the "Plots and tables with reskit" vignette for more examples of things you
+can do.
 
 ## Environment variables
 
@@ -64,12 +113,15 @@ Your `.Renviron` file should contain the variables below.
 Ask a member of [the Data Science team][suds] for the necessary values.
 
 ```
-AZ_STORAGE_EP =
+AZ_STORAGE_EP=[your azure storage blob endpoint url]
+AZ_TABLE_EP=[your azure storage table endpoint url]
 ```
 
-An example `.Renviron.example` file is provided in this repository.
-Copy it, renamed as just `.Renviron`, into the root of any project folder where
-you are using {reskit}.
+For convenience, an example `.Renviron.example` file is provided in this
+repository.
+You can copy/save it, renamed to just `.Renviron`, to the root of any project
+folder where you are using {reskit}.
+
 
 ## Getting help
 
@@ -79,6 +131,8 @@ or problems, including with the package documentation.
 Alternatively, to ask any questions about the package you may contact
 [Fran Barton](mailto:francis.barton@nhs.net).
 
+[azk]: https://the-strategy-unit.github.io/azkit/
+[azkt]: https://the-strategy-unit.github.io/azkit/articles/troubleshooting.html
 [posit_env]: https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron
 [github]: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 [suds]: https://the-strategy-unit.github.io/data_science/about.html
