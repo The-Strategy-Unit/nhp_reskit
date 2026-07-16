@@ -218,5 +218,4 @@ convert_activity_type <- function(x) {
 #' @keywords internal
 gregv <- \(x, rx, g = parent.frame()) grepv(glue::glue_data(g, rx), x)
 
-
 is_not_null <- \(x) !is.null(x)
