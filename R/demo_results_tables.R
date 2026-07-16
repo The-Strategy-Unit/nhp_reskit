@@ -98,6 +98,47 @@ create_demo_sex_agegroup_tbl <- function(seed) {
 }
 
 
+#' Function to create a "sex + tretspef_grouped" table with synthetic values
+#' The table contains synthetic (randomly created) values for 2 sexes, a
+#'  selection of tretspef group codes, and measures, across 2 "sites", as if
+#'  created by 64 model runs
+#' @inheritParams create_demo_default_tbl
+#' @keywords internal
+create_demo_sex_tretspef_tbl <- function(seed) {
+  # fmt: skip
+  tretspef_groups <- c(
+    "100", "101", "110", "120", "130", "140", "150", "160", "170",
+    "300", "301", "320", "330", "340", "400", "410", "430", "Other"
+  )
+  init_tbl1 <- list(create_ip_base_tbl(), create_op_base_tbl()) |>
+    purrr::list_rbind() |>
+    dplyr::mutate(
+      sitetret = "site1",
+      sex = list(seq(2)),
+      tretspef_grouped = list(tretspef_groups),
+      .after = "pod"
+    ) |>
+    tidyr::unnest_longer("sex") |>
+    tidyr::unnest_longer("tretspef_grouped")
+  init_tbl2 <- dplyr::mutate(init_tbl1, sitetret = "site2")
+  baseline_tbl1 <- add_baseline_values(init_tbl1, c(500L, 4.5e3L), 100L, seed)
+  baseline_tbl2 <- add_baseline_values(init_tbl2, c(100L, 2.2e3L), 100L, seed)
+  multip <- length(seq(2)) * length(tretspef_groups)
+  initial_values <- rep(get_ipop_initial_means(0.8, 0.85), each = multip)
+  horizon_tbl1 <- add_horizon_values(baseline_tbl1, initial_values, seed)
+  horizon_tbl2 <- add_horizon_values(baseline_tbl2, initial_values, seed)
+  dplyr::bind_rows(horizon_tbl1, horizon_tbl2) |>
+    dplyr::arrange(dplyr::pick(c(
+      "pod",
+      "sitetret",
+      "sex",
+      "tretspef_grouped",
+      "measure",
+      "model_run"
+    )))
+}
+
+
 #' Function to create a "step_counts" table with synthetic values
 #' The table contains synthetic (randomly created) values for a selection of
 #'  64 model runs, providing random baselines, random sizes of mitigated
@@ -307,6 +348,16 @@ create_op_base_tbl <- function() {
 get_full_initial_means <- function(ae_mean, ip_mean, op_mean) {
   c(
     rep(ae_mean, nrow(create_ae_base_tbl())),
+    rep(ip_mean, nrow(create_ip_base_tbl())),
+    rep(op_mean, nrow(create_op_base_tbl()))
+  )
+}
+
+
+#' Helper function
+#' @keywords internal
+get_ipop_initial_means <- function(ip_mean, op_mean) {
+  c(
     rep(ip_mean, nrow(create_ip_base_tbl())),
     rep(op_mean, nrow(create_op_base_tbl()))
   )
