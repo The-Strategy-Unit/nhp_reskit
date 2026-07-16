@@ -104,7 +104,7 @@ create_demo_sex_agegroup_tbl <- function(seed) {
 #'  activity across a subset of TPMAs, and random values for demographic growth
 #' @inheritParams create_demo_default_tbl
 #' @keywords internal
-create_dummy_stepcounts_tbl <- function(seed) {
+create_demo_stepcounts_tbl <- function(seed) {
   tpma_lookup <- get_tpma_label_lookup(TRUE)
   # for this demo table, we can just include a subset of all strategies
   n_strategies <- 40
