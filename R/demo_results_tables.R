@@ -40,7 +40,12 @@ create_demo_tretspef_losgroup_tbl <- function(seed) {
     ) |>
     tidyr::unnest_longer("tretspef") |>
     tidyr::unnest_longer("los_group") |>
-    tidyr::expand(tidyselect::everything())
+    tidyr::expand(
+      tidyr::nesting(pod, measure, sitetret),
+      tretspef,
+      los_group
+    ) |>
+    dplyr::relocate("measure", .after = dplyr::last_col())
   init_tbl2 <- dplyr::mutate(init_tbl1, sitetret = "site2")
   baseline_tbl1 <- add_baseline_values(init_tbl1, c(100L, 5e3L), 100L, seed)
   baseline_tbl2 <- add_baseline_values(init_tbl2, c(100L, 2e3L), 100L, seed)
@@ -78,7 +83,8 @@ create_demo_sex_agegroup_tbl <- function(seed) {
     ) |>
     tidyr::unnest_longer("sex") |>
     tidyr::unnest_longer("age_group") |>
-    tidyr::expand(tidyselect::everything())
+    tidyr::expand(tidyr::nesting(pod, measure, sitetret), sex, age_group) |>
+    dplyr::relocate("measure", .after = dplyr::last_col())
   init_tbl2 <- dplyr::mutate(init_tbl1, sitetret = "site2")
   baseline_tbl1 <- add_baseline_values(init_tbl1, c(2e3L, 5e4L), 100L, seed)
   baseline_tbl2 <- add_baseline_values(init_tbl2, c(1e3L, 2e4L), 100L, seed)
