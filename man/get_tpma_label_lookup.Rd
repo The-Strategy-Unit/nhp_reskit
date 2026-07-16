@@ -4,19 +4,11 @@
 \alias{get_tpma_label_lookup}
 \title{Prepare a lookup table for all current TPMAs}
 \usage{
-get_tpma_label_lookup(use_local = FALSE)
-}
-\arguments{
-\item{use_local}{logical. Whether to use a local file (internal to the
-reskit package) or attempt to pull the lookup file from GitHub. Default is
-\code{FALSE}, meaning it will use the GitHub route. If you want to always use a
-local file (for example, for fully offline working), you can set the
-\code{reskit.local.lookups} option to \code{TRUE} using
-\code{options(reskit.local.lookups = TRUE)} or \code{withr::with_options()}}
+get_tpma_label_lookup()
 }
 \value{
-A 4-column tibble, with columns \code{activity_type}, \code{change_factor},
-\code{strategy} and \code{tpma_label}
+A 4-column tibble, with columns \code{strategy}, \code{activity_type},
+\code{change_factor} and \code{tpma_label}
 }
 \description{
 Prepare a lookup table for all current TPMAs
