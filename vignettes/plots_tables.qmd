@@ -20,16 +20,18 @@ The latter may be visually compared to / validated against visualisations
 currently produced by the NHP Outputs app.
 
 Firstly we load the functions in the {reskit} package.
-Then read in a set of results in the "new" format (Parquet files); in this
-vignette we just read in three of the results tables, specified using the
-`tables` argument to `read_results_parquet_files()`, as these are all we will
-need for the visualisations.
+Then we create a fake `results` object which consists of synthetic data
+created by some internal reskit functions.
+It ought to go without saying that the numbers in these synthetic tables are
+entirely fictitious and unrealistic.
+They exist purely to provide a test basis for the data processing and
+visualisation functions in this package.
 
 
 ```{r}
 #| label: setup
-library(reskit)
-# purrr::walk(dir(here::here("R"), full.names = TRUE), source)
+# library(reskit)
+purrr::walk(dir(here::here("R"), full.names = TRUE), source)
 seed <- 1871
 ```
 
@@ -73,7 +75,10 @@ results <- readr::read_rds("vignette_national_results.rds")
 
 ```{r}
 #| label: create-dummy-data
-create_dummy_default_tbl(seed)
+default_tbl <- create_demo_default_tbl(seed)
+tretspef_losgroup_tbl <- create_demo_tretspef_losgroup_tbl(seed)
+sex_agegroup_tbl <- create_demo_sex_agegroup_tbl(seed)
+stepcounts_tbl <- create_demo_stepcounts_tbl(seed)
 create_dummy_tls_tbl(seed)
 create_dummy_sag_tbl(seed)
 ```
