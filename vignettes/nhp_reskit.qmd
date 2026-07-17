@@ -14,3 +14,107 @@ knitr:
 #| label: setup
 library(reskit)
 ```
+
+## Usage
+
+You will need certain environment variables to be available (see section below).
+
+Some key functions and workflows you might want to use include:
+
+```r
+# Compiles a table of metadata for each model run for each scheme
+compile_run_metadata_tbl()
+
+# Get the Azure storage container for results data
+get_results_container() # uses the environment variable "AZ_RESULTS_CONTAINER"
+
+# Return a vector of provider codes from the supporting data container
+get_providers() # requires the environment variable "AZ_SUPPORT_CONTAINER"
+
+# Get the path to a folder of results data
+# (the below example will succeed only if there is a single scenario and a
+# single model run within the particular version and scheme combination below)
+get_results_dir_path(version = "v4.0", scheme = "national", scenario = "test")
+
+# Read all parquet data files from a location
+results_dir <- get_results_dir_path(version = "v4.0", scheme = "national")
+read_results_parquet_files(results_dir)
+
+# Read only selected results files from multiple scenarios
+c("scenario1", "scenario2") |>
+  purrr::map(\(x) get_results_dir_path("v3.6", "RZZ", scenario = x)) |>
+  purrr::map(\(x) read_results_parquet_files(x, files = c("default", "age")))
+```
+
+
+## Environment variables
+
+To access Azure Storage you need to add some variables to a
+[`.Renviron` file][posit_env] in your project.
+
+⚠️These values are sensitive and should not be exposed to anyone outside The
+Strategy Unit.
+Make sure you include `.Renviron` in [the `.gitignore` file][github] for
+your project.
+
+Your `.Renviron` file should contain the variables below.
+Ask a member of [the Data Science team][suds] for the necessary values.
+
+```
+AZ_STORAGE_EP =
+AZ_SUPPORT_CONTAINER =
+AZ_RESULTS_CONTAINER =
+AZ_RESULTS_DIRECTORY =
+```
+
+An example `.Renviron.example` file is provided in this repository.
+Copy it, renamed as just `.Renviron`, into the root of any project folder where
+you are using {reskit}.
+
+
+## Adding reskit as a dependency in an R package
+
+If you're developing an R package and you wish to use reskit functions,
+here's how you can add it as a dependency, as it's not (yet) on CRAN.
+
+In your `DESCRIPTION` file, you will need to add the following to a `Remotes`
+section:
+
+```dcf
+Remotes:
+    reskit=github::The-Strategy-Unit/nhp_reskit
+```
+
+The fiddly bit here is that the repo name is not the same as the package name.
+So we have to specify the package using the `reskit=...` format.
+
+As well as doing that, you still need to add reskit to the `Imports` section:
+
+```dcf
+Imports:
+    reskit
+```
+
+As the package is in active development, you may wish to pin the dependency to
+a specific version, using the `==` syntax, to avoid things breaking.
+
+```dcf
+Imports:
+    reskit (== 1.1.0),
+```
+
+Or, you know, just YOLO it.
+
+
+## Getting help
+
+Please use the [Issues][issues] feature on GitHub to report any bugs, ideas
+or problems, including with the package documentation.
+
+Alternatively, to ask any questions about the package you may contact
+[Fran Barton](mailto:francis.barton@nhs.net).
+
+[posit_env]: https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron
+[github]: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+[suds]: https://the-strategy-unit.github.io/data_science/about.html
+[issues]: https://github.com/The-Strategy-Unit/nhp_reskit/issues

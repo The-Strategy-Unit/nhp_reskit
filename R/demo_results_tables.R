@@ -173,8 +173,6 @@ create_demo_stepcounts_tbl <- function(seed) {
     ) |>
     dplyr::filter_out(
       dplyr::when_any(
-        .data[["measure"]] == "admissions" &
-          .data[["change_factor"]] == "efficiencies",
         .data[["measure"]] == "tele_attendances" &
           grepl("^convert_to_tele", .data[["strategy"]])
       )
@@ -199,7 +197,7 @@ create_demo_stepcounts_tbl <- function(seed) {
     dplyr::left_join(horizon_data, core_cols) |>
     dplyr::mutate(mitigation = .data[["baseline"]] - .data[["horizon"]])
   dgf_values <- withr::with_seed(seed, rnorm(nrow(baseline_tbl), 1, 0.1))
-  dgf_values <- dgf_values * (baseline_tbl[["baseline"]] * 0.01)
+  dgf_values <- dgf_values * (baseline_tbl[["baseline"]] * 0.1)
   impact_tbl <- baseline_tbl |>
     dplyr::mutate(
       demographic_adjustment = dgf_values,
@@ -231,7 +229,7 @@ create_demo_stepcounts_tbl <- function(seed) {
     dplyr::mutate(
       total_mitigation = sum(.data[["value"]]),
       model_interaction_term = .data[["mitigation"]] -
-        (.data[["total_mitigation"]] + .data[["demographic_adjustment"]]),
+        (.data[["total_mitigation"]] - .data[["demographic_adjustment"]]),
       .by = tidyselect::all_of(c(core_cols, "model_run"))
     ) |>
     dplyr::select(!c("horizon", "mitigation", "total_mitigation")) |>
@@ -256,11 +254,11 @@ create_sample_impacts <- function(dat, mitigation, seed, picks = 64) {
   n_rows <- nrow(dat)
   n_zeros <- round(0.2 * n_rows * picks)
   n_picks <- (n_rows * picks) - n_zeros
-  mitigation_mean <- mitigation / n_rows
+  mitigation_mean <- abs(mitigation) / n_rows
   mitigation_dist <- withr::with_seed(seed, rnorm(n_picks, 1, 0.1))
   mitigation_dist <- mitigation_dist * mitigation_mean
 
-  impacts <- abs(sample(c(rep(0, n_zeros), mitigation_dist), n_rows * picks)) |>
+  impacts <- sample(c(rep(0, n_zeros), mitigation_dist), n_rows * picks) |>
     withr::with_seed(seed = seed)
   impacts_tbl <- tibble::tibble(
     rn = rep(seq(n_rows), each = picks),
@@ -270,7 +268,8 @@ create_sample_impacts <- function(dat, mitigation, seed, picks = 64) {
   dat |>
     dplyr::mutate(rn = dplyr::row_number()) |>
     dplyr::left_join(impacts_tbl, "rn") |>
-    dplyr::select(!"rn")
+    dplyr::select(!"rn") |>
+    dplyr::mutate(dplyr::across("value", \(x) abs(x) * -1))
 }
 
 

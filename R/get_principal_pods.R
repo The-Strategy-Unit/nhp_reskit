@@ -12,10 +12,7 @@ get_detailed_pods <- function() {
     purrr::map(list_to_tbl) |>
     purrr::list_rbind() |>
     dplyr::mutate(
-      dplyr::across("pod_label", forcats::fct_inorder),
-      dplyr::across("activity_type_label", \(x) {
-        forcats::fct(x, levels = c("Inpatients", "Outpatients", "A&E"))
-      })
+      dplyr::across(tidyselect::ends_with("label"), forcats::fct_inorder)
     )
 }
 
@@ -29,17 +26,14 @@ get_detailed_pods <- function() {
 #' @export
 get_principal_pods <- function() {
   get_detailed_pods() |>
-    dplyr::filter(dplyr::if_any("activity_type_label", \(x) x != "A&E")) |>
+    dplyr::filter_out(.data[["activity_type_label"]] == "A&E") |>
     dplyr::add_row(
       activity_type_label = "A&E",
       pod = "aae",
       pod_label = "A&E Arrivals"
     ) |>
     dplyr::mutate(
-      dplyr::across("pod_label", forcats::fct_inorder),
-      dplyr::across("activity_type_label", \(x) {
-        forcats::fct(x, levels = c("Inpatients", "Outpatients", "A&E"))
-      })
+      dplyr::across(tidyselect::ends_with("label"), forcats::fct_inorder)
     )
 }
 

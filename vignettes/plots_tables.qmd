@@ -26,12 +26,8 @@ The latter may be visually compared to / validated against visualisations
 currently produced by the NHP Outputs app.
 
 Firstly we load the functions in the {reskit} package.
-Then we create a fake `results` object which consists of synthetic data
-created by some internal reskit functions.
-It ought to go without saying that the numbers in these synthetic tables are
-entirely fictitious and unrealistic.
-They exist purely to provide a test basis for the data processing and
-visualisation functions in this package.
+
+
 
 
 ```{r}
@@ -41,10 +37,26 @@ purrr::walk(dir(here::here("R"), full.names = TRUE), source)
 seed <- 1871
 ```
 
+Then we create a fake `results` object which consists of synthetic data
+created by some internal reskit functions.
+It ought to go without saying that the numbers in these synthetic tables are
+entirely fictitious and unrealistic.
+They exist purely to provide a test basis for the data processing and
+visualisation functions in this package.
+
+This is so we don't have to go and read in actual data for the sake of this
+vignette.
+
+In real life however  you would do something a bit like the steps in the next
+little section...
+
+
+
 ## Example using azkit and reskit to download results
 
 Here is an example of some code that you might use to access results data from
-Azure storage
+Azure storage.
+(We're not running it here, it's just provided as an example.)
 
 
 ```r
@@ -68,6 +80,13 @@ results_path <- azkit::read_azure_table(
 
 results <- read_results_parquet_files(results_container, results_path)
 ```
+
+
+## Back to our synthetic results data
+
+OK so back in vignette world (worst theme park ever), let's use reskit's
+experimental `create_demo*` functions to create some fake results data.
+
 
 ```{r}
 #| label: create-demo-data
@@ -96,15 +115,23 @@ results <- list(
 ```
 
 
+We now have a real `results` object (an R list) to work with for the remainder
+of the vignette.
+
+
+## Moving on to the outputs (tables and charts)
+
 Having shown one way of accessing the results parquet files, this vignette now
 runs through the suggested pipelines of functions that generate the NHP Outputs
-app tables and charts, which usually comprise in their simplest form, a data
-preparation function which passes data into a table or chart creation function.
+app tables and charts, which usually comprise in their simplest form:
 
-This series of example outputs is followed by a breakdown of one of the data
-preparation functions, showing how a results data table may be filtered,
-enhanced, summarised and arranged using {reskit} functions to produce standard
-statistics and outputs.
+* a data preparation function which creates a data frame ready to be used by:
+* a visualisation function that creates a table or chart.
+
+Some data preparation functions have sub-functions that may occsaionally be
+useful; there are also `export*` functions designed to create csv versions of
+prepared results data (in the same form as the data used by the visualisation
+function, but with all sites, measures, activity types etc included.)
 
 
 ## Outputs: tables
@@ -237,9 +264,10 @@ results |>
 ```
 
 
-And a couple of individual change factors charts:
+#### Individual change factor charts
 
 
+And a couple of individual change factor charts:
 
 ```{r}
 #| label: indiv-waterfall-chart1
@@ -251,3 +279,121 @@ results |>
   ) |>
   make_individual_cf_plot()
 ```
+
+
+```{r}
+#| label: indiv-waterfall-chart2
+results |>
+  compile_indiv_change_factor_data(
+    measure = "arrivals",
+    activity_type = "aae",
+    pods = NULL,
+    sites = "site2"
+  ) |>
+  make_individual_cf_plot()
+```
+
+
+### Activity in detail charts
+
+
+These are even more tricky to specify as they require several arguments to be
+provided.
+
+#### A chart by sex and age_group
+
+```{r}
+#| label: activity-detail-chart1
+results |>
+  compile_detailed_activity_data(
+    measure = "walk-in",
+    activity_type = "aae",
+    aggregation = "age_group"
+  ) |>
+  make_detailed_activity_table(final_year = "2029/30")
+```
+
+#### A chart by sex and treatment speciality
+
+```{r}
+#| label: activity-detail-chart2
+results |>
+  compile_detailed_activity_data(
+    measure = "beddays",
+    activity_type = "ip",
+    aggregation = "tretspef_grouped"
+  ) |>
+  make_detailed_activity_table(final_year = "2029/30")
+```
+
+
+## Distribution tables and charts
+
+These show the distribution across all model runs rather than just the
+calculated mean or principal values.
+For the synthetic results data we are using here, there are only 64 runs - the
+real model would usually use 512 or 256 runs.
+
+Create a summary table:
+
+```{r}
+#| label: activity-distrib-summary-table1
+results |>
+  compile_distribution_summary_data("median") |> # median is the default value
+  make_distribution_summary_table()
+```
+
+An alternative:
+
+```{r}
+#| label: activity-distrib-summary-table2
+results |>
+  compile_distribution_summary_data("principal") |>
+  make_distribution_summary_table()
+```
+
+Create a beeswarm chart:
+
+```{r}
+#| label: activity-distrib-summary-plot1
+results |>
+  compile_distribution_plot_data(measure = "walk-in", activity_type = "aae") |>
+  make_beeswarm_distrib_plot()
+```
+
+The same beeswarm chart but with the zero point shown:
+
+```{r}
+#| label: activity-distrib-summary-plot2
+results |>
+  compile_distribution_plot_data(measure = "walk-in", activity_type = "aae") |>
+  make_beeswarm_distrib_plot(show_zero = TRUE)
+```
+
+Create a cumulative distribution (ecdf) chart:
+
+```{r}
+#| label: activity-distrib-summary-plot3
+results |>
+  compile_distribution_plot_data(measure = "walk-in", activity_type = "aae") |>
+  make_cumulative_distrib_plot()
+```
+
+The same cumulative distribution chart but with the zero point shown:
+
+```{r}
+#| label: activity-distrib-summary-plot4
+results |>
+  compile_distribution_plot_data(measure = "walk-in", activity_type = "aae") |>
+  make_cumulative_distrib_plot(show_zero = TRUE)
+```
+
+## Conclusion
+
+This vignette has included a summary of the main methods to process results data
+using functions from {reskit}, and to produce tables and charts.
+
+There are many more variations on the charts shown, depending on the selection
+of activity type, PoD, measure and site.
+But this vignette shows the main processes you might need to follow - amend as
+necessary!

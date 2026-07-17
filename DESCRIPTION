@@ -35,7 +35,6 @@ Imports:
     ggplot2,
     glue,
     gt,
-    httr2,
     purrr,
     rlang,
     scales,

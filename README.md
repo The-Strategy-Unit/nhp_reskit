@@ -1,18 +1,17 @@
 # reskit ![R](https://www.r-project.org/favicon-32x32.png) 📦🍪🦺
 
 <!-- badges: start -->
-![GitHub License][gh_licence]
-[![Project Status: WIP – Initial development is in progress, but there
-has not yet been a stable release][repostatus_svg]][repostatus_info]
-[![Lifecycle: experimental][lifecycle_svg]][lifecycle]
-![GitHub R package version][gh_ver]
+[![License: MIT][mit_svg]](https://opensource.org/licenses/MIT) [![Project
+Status: WIP -- Initial development is in progress, but there has not yet been a
+stable release][repostatus_svg]][repostatus_info] [![Lifecycle:
+experimental][lifecycle_svg]][lifecycle] ![GitHub R package version][gh_ver]
 
-[gh_licence]: https://img.shields.io/github/license/The-Strategy-Unit/nhp_reskit
-[gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/nhp_reskit
-[repostatus_info]: https://www.repostatus.org/#wip
+[mit_svg]: https://img.shields.io/badge/License-MIT-yellow.svg
 [repostatus_svg]: https://www.repostatus.org/badges/latest/wip.svg
-[lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
+[repostatus_info]: https://www.repostatus.org/#wip
 [lifecycle_svg]: https://img.shields.io/badge/lifecycle-experimental-orange.svg
+[lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
+[gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/nhp_reskit
 <!-- badges: end -->
 
 An R package (just called `{reskit}`) helping process NHP model results.
@@ -90,6 +89,41 @@ AZ_RESULTS_DIRECTORY =
 An example `.Renviron.example` file is provided in this repository.
 Copy it, renamed as just `.Renviron`, into the root of any project folder where
 you are using {reskit}.
+
+
+## Adding reskit as a dependency in an R package
+
+If you're developing an R package and you wish to use reskit functions,
+here's how you can add it as a dependency, as it's not (yet) on CRAN.
+
+In your `DESCRIPTION` file, you will need to add the following to a `Remotes`
+section:
+
+```dcf
+Remotes:
+    reskit=github::The-Strategy-Unit/nhp_reskit
+```
+
+The fiddly bit here is that the repo name is not the same as the package name.
+So we have to specify the package using the `reskit=...` format.
+
+As well as doing that, you still need to add reskit to the `Imports` section:
+
+```dcf
+Imports:
+    reskit
+```
+
+As the package is in active development, you may wish to pin the dependency to
+a specific version, using the `==` syntax, to avoid things breaking.
+
+```dcf
+Imports:
+    reskit (== 1.1.0),
+```
+
+Or, you know, just YOLO it.
+
 
 ## Getting help
 
