@@ -4,3 +4,7 @@
 # might be more appropriately kept as project-specific values.)
 # Contact a member of SU Data Science to get the required values for these.
 AZ_STORAGE_EP =
+AZ_TABLE_EP =
+RESKIT_GITHUB_APP_PAT=
+RESKIT_GITHUB_APP_PRIVATE_KEY=
+RESKIT_GITHUB_APP_ID=
