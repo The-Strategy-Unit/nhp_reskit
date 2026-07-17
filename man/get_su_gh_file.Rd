@@ -15,7 +15,7 @@ use the root folder of the repo.}
 \item{file}{string. The name of the file to read in}
 }
 \value{
-The file contents as a stream, to be passed to a reader function
+The URL to the raw file contents, to be passed to a reader function
 }
 \description{
 Read in a file from a Strategy Unit GitHub repo

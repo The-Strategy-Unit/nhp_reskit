@@ -120,6 +120,7 @@ relabel_ip_activity_types <- function(tbl) {
   tbl |>
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) {
+        x <- sub("s$", "", x)
         dplyr::if_else(
           x == "Inpatient",
           paste0(x, " ", uppercase_init(.data[["measure"]])),
