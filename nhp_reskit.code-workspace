@@ -1,0 +1,50 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "windowColor.mainColor": "#cd1885",
+    "window.title": "{reskit}",
+    "workbench.colorCustomizations": {
+      "editorRuler.foreground": "#ff4081",
+      "statusBarItem.warningBackground": "#497292",
+      "statusBarItem.warningForeground": "#ffffff",
+      "statusBarItem.warningHoverBackground": "#497292",
+      "statusBarItem.warningHoverForeground": "#ffffff90",
+      "statusBarItem.remoteBackground": "#567f9f",
+      "statusBarItem.remoteForeground": "#ffffff",
+      "statusBarItem.remoteHoverBackground": "#638cac",
+      "statusBarItem.remoteHoverForeground": "#ffffff90",
+      "statusBar.background": "#497292",
+      "statusBar.foreground": "#ffffff",
+      "statusBar.border": "#497292",
+      "statusBar.debuggingBackground": "#497292",
+      "statusBar.debuggingForeground": "#ffffff",
+      "statusBar.debuggingBorder": "#497292",
+      "statusBar.noFolderBackground": "#497292",
+      "statusBar.noFolderForeground": "#ffffff",
+      "statusBar.noFolderBorder": "#497292",
+      "statusBar.prominentBackground": "#497292",
+      "statusBar.prominentForeground": "#ffffff",
+      "statusBar.prominentHoverBackground": "#497292",
+      "statusBar.prominentHoverForeground": "#ffffff90",
+      "titleBar.activeBackground": "#497292",
+      "titleBar.activeForeground": "#ffffff",
+      "titleBar.inactiveBackground": "#497292",
+      "titleBar.inactiveForeground": "#ffffff90"
+    },
+    "projectColors.mainColor": "#497292",
+    "projectColors.name": "{reskit}",
+    "projectColors.isActivityBarColored": false,
+    "projectColors.isTitleBarColored": true,
+    "projectColors.isStatusBarColored": true,
+    "projectColors.isProjectNameColored": false,
+    "projectColors.isActiveItemsColored": false,
+    "projectColors.setWindowTitle": true,
+    "quarto.visualEditor.spellingDictionary": "en_GB",
+    "quarto.useBundledQuartoInPositron": true,
+    "quarto.usePipQuarto": false
+  }
+}
