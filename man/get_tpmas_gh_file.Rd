@@ -4,16 +4,10 @@
 \alias{get_tpmas_gh_file}
 \title{Read in a file from the TPMAs GitHub repo}
 \usage{
-get_tpmas_gh_file(file, folder = "reference")
+get_tpmas_gh_file(...)
 }
 \arguments{
-\item{file}{string. The name of the file to read in}
-
-\item{folder}{string. The folder where the file is located. \code{"reference"} by
-default. Set to \code{""} to use the root folder of the repo.}
-}
-\value{
-The file contents as a stream, to be passed to a reader function
+\item{...}{Pass the name of the file in via \code{...}}
 }
 \description{
 Read in a file from the TPMAs GitHub repo
