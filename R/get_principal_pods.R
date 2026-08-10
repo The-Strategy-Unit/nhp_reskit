@@ -28,7 +28,7 @@ get_detailed_pods <- function() {
 #' @export
 get_principal_pods <- function() {
   get_detailed_pods() |>
-    dplyr::filter(dplyr::if_any("activity_type_label", \(x) x != "A&E")) |>
+    dplyr::filter_out(dplyr::if_any("activity_type_label", \(x) x == "A&E")) |>
     dplyr::add_row(
       activity_type_label = "A&E",
       pod = "aae",
