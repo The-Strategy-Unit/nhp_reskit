@@ -28,7 +28,7 @@ make_principal_los_table <- function(principal_los_data) {
 }
 
 
-#' Create a gt table with data from compile_detailed_activity_data()
+#' Create a gt table with data from [compile_detailed_activity_data]
 #'
 #' @param detailed_activity_data A suitable tibble
 #' @param final_year string. The horizon year eg "2042/43"
@@ -50,7 +50,7 @@ make_detailed_activity_table <- function(detailed_activity_data, final_year) {
 }
 
 
-#' Create a gt table with data from compile_distribution_summary_data()
+#' Create a gt table with data from [compile_distribution_summary_data]
 #'
 #' @param distr_summary_data A suitable tibble
 #' @returns A gt table
