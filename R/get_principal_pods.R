@@ -1,35 +1,20 @@
 #' Prepare a lookup table with activity type labels and PoD labels for each PoD
 #'
-#' @param use_local logical. Whether to use a local file (internal to the
-#'  reskit package) or attempt to pull the lookup file from GitHub. Default is
-#'  `FALSE`, meaning it will use the GitHub route. If you want to always use a
-#'  local file (for example, for fully offline working), you can set the
-#'  `reskit.local.lookups` option to `TRUE` using
-#'  `options(reskit.local.lookups = TRUE)` or `withr::with_options()`
 #' @returns A tibble
 #' @export
-get_detailed_pods <- function(use_local = FALSE) {
-  use_local <- getOption("reskit.local.lookups") %||% use_local
-  yaml_data <- system.file("pod_measures.yml", package = "reskit") |>
-    yaml12::read_yaml()
-  yaml_data_from_gh <- NULL
-  if (!use_local) {
-    yaml_raw <- possibly_get_outputs_gh_file("golem-config.yml")
-    if (!is.null(yaml_raw)) {
-      yaml_data_from_gh <- yaml12::parse_yaml(readr::read_lines(yaml_raw)) |>
-        purrr::pluck("default")
-    }
-  }
-  yaml_data <- yaml_data_from_gh %||% yaml_data
+get_detailed_pods <- function() {
+  yaml_raw <- possibly_get_outputs_gh_file("golem-config.yml")
+  msg <- "Unable to read POD lookup file from GitHub"
+  azkit::check_that(yaml_raw, is_not_null, msg)
+  yaml_data <- yaml12::parse_yaml(readr::read_lines(yaml_raw))[["default"]]
   yaml_data |>
     purrr::pluck("pod_measures") |>
     purrr::map(list_to_tbl) |>
     purrr::list_rbind() |>
     dplyr::mutate(
       dplyr::across("pod_label", forcats::fct_inorder),
-      dplyr::across("activity_type_label", \(x) sub("patients$", "patient", x)),
       dplyr::across("activity_type_label", \(x) {
-        forcats::fct(x, levels = c("Inpatient", "Outpatient", "A&E"))
+        forcats::fct(x, levels = c("Inpatients", "Outpatients", "A&E"))
       })
     )
 }
@@ -42,8 +27,8 @@ get_detailed_pods <- function(use_local = FALSE) {
 #' @rdname get_detailed_pods
 #' @returns A tibble
 #' @export
-get_principal_pods <- function(use_local = FALSE) {
-  get_detailed_pods(use_local) |>
+get_principal_pods <- function() {
+  get_detailed_pods() |>
     dplyr::filter(dplyr::if_any("activity_type_label", \(x) x != "A&E")) |>
     dplyr::add_row(
       activity_type_label = "A&E",
@@ -53,7 +38,7 @@ get_principal_pods <- function(use_local = FALSE) {
     dplyr::mutate(
       dplyr::across("pod_label", forcats::fct_inorder),
       dplyr::across("activity_type_label", \(x) {
-        forcats::fct(x, levels = c("Inpatient", "Outpatient", "A&E"))
+        forcats::fct(x, levels = c("Inpatients", "Outpatients", "A&E"))
       })
     )
 }
