@@ -1,3 +1,16 @@
+#' Read the pods lookup table from a YAML file in the NHP Outputs repo
+read_pods_lookup <- function(file = "golem-config.yml") {
+  yaml12::parse_yaml(readr::read_lines(get_outputs_gh_url(file)))
+}
+possibly_read_pods_lookup <- \(...) purrr::possibly(read_pods_lookup)(...)
+
+#' Read the TPMAs lookup table from a CSV file in the TPMAs repo
+read_tpmas_lookup <- function(file = "tpma-lookup.csv") {
+  readr::read_csv(get_tpmas_gh_url(file), col_types = "-ccccc---c")
+}
+possibly_read_tpmas_lookup <- \(...) purrr::possibly(read_tpmas_lookup)(...)
+
+
 #' Get the direct URL to a file in the NHP Outputs GitHub repo
 #'
 #' @param ... Pass the name of the file in via `...`
@@ -13,18 +26,6 @@ get_outputs_gh_url <- function(...) {
 get_tpmas_gh_url <- function(...) {
   purrr::partial(get_su_gh_file, repo = "TPMAs", folder = "reference")(...)
 }
-
-#' Read the pods lookup table from a YAML file in the NHP Outputs repo
-read_pods_lookup <- function(file = "golem-config.yml") {
-  yaml12::parse_yaml(readr::read_lines(get_outputs_gh_url(file)))
-}
-possibly_read_pods_lookup <- \(...) purrr::possibly(read_pods_lookup)(...)
-
-#' Read the TPMAs lookup table from a CSV file in the TPMAs repo
-read_tpmas_lookup <- function(file = "tpma-lookup.csv") {
-  readr::read_csv(get_tpmas_gh_url(file), col_types = "-ccccc---c")
-}
-possibly_read_tpmas_lookup <- \(...) purrr::possibly(read_tpmas_lookup)(...)
 
 
 #' Read in a file from a Strategy Unit GitHub repo

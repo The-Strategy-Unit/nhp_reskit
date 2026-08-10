@@ -5,14 +5,11 @@
 [![Project Status: Active – The project has reached a stable, usable state and
 is being actively developed][repostatus_svg]][repostatus_info]
 ![GitHub R package version][gh_ver]
-[![R CMD check status][cmd_svg]][cmd_yaml]
 
 [mit_svg]: https://img.shields.io/badge/License-MIT-yellow.svg?label=licence
 [repostatus_svg]: https://www.repostatus.org/badges/latest/active.svg
 [repostatus_info]: https://www.repostatus.org/#active
 [gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/azkit?logo=r&label=version
-[cmd_svg]: https://github.com/The-Strategy-Unit/nhp_reskit/actions/workflows/R-CMD-check.yaml/badge.svg?event=release
-[cmd_yaml]: https://github.com/The-Strategy-Unit/nhp_reskit/actions/workflows/R-CMD-check.yaml
 <!-- badges: end -->
 
 An R package (just called `reskit`) that helps process NHP model results.
@@ -114,7 +111,6 @@ Ask a member of [the Data Science team][suds] for the necessary values.
 
 ```
 AZ_STORAGE_EP=[your azure storage blob endpoint url]
-AZ_TABLE_EP=[your azure storage table endpoint url]
 ```
 
 For convenience, an example `.Renviron.example` file is provided in this
