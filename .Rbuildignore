@@ -13,3 +13,5 @@
 ^[.]lintr$
 ^jarl[.]toml$
 ^\.github$
+^vignettes/\.quarto$
+^vignettes/*_files$
