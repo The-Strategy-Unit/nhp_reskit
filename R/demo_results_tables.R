@@ -152,7 +152,7 @@ create_demo_sex_tretspef_tbl <- function(seed) {
 #' @inheritParams create_demo_default_tbl
 #' @keywords internal
 create_demo_stepcounts_tbl <- function(seed) {
-  tpma_lookup <- get_tpma_label_lookup(TRUE)
+  tpma_lookup <- get_tpma_label_lookup()
   # for this demo table, we can just include a subset of all strategies
   n_strategies <- 40
   strategies <- dplyr::slice_sample(tpma_lookup, n = n_strategies) |>
