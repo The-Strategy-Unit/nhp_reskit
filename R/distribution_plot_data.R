@@ -12,6 +12,7 @@ compile_distribution_plot_data <- function(
   pod_lookup = get_detailed_pods(),
   sites = NULL
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   init_data <- results[["default"]] |>
     filter_to_selected_sites(sites) |>
@@ -42,7 +43,7 @@ prepare_distribution_plot_data <- function(dat, pod_lookup) {
   dat |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     check_single_row_groups(group_cols) |>
     dplyr::mutate(
       stage = dplyr::if_else(.data[["model_run"]] == 0, "baseline", "principal")

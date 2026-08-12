@@ -4,7 +4,7 @@
 \alias{get_su_gh_file}
 \title{Read in a file from a Strategy Unit GitHub repo}
 \usage{
-get_su_gh_file(repo, folder, file)
+get_su_gh_file(repo, folder, path)
 }
 \arguments{
 \item{repo}{string. The name of the repository in which to find the file}
@@ -12,7 +12,7 @@ get_su_gh_file(repo, folder, file)
 \item{folder}{string. The folder where the file is located. Set to \code{""} to
 use the root folder of the repo.}
 
-\item{file}{string. The name of the file to read in}
+\item{path}{string. The path relative to \code{folder} to the file to read in}
 }
 \value{
 The URL to the raw file contents, to be passed to a reader function
