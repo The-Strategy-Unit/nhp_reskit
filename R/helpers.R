@@ -120,6 +120,7 @@ relabel_ip_activity_types <- function(tbl) {
   tbl |>
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) {
+        x <- sub("s$", "", x)
         dplyr::if_else(
           x == "Inpatient",
           paste0(x, " ", uppercase_init(.data[["measure"]])),
@@ -177,36 +178,37 @@ get_tretspef_lookup <- function() {
 
 #' Prepare a lookup table for all current TPMAs
 #'
-#' @param use_local logical. Whether to use a local file (internal to the
-#'  reskit package) or attempt to pull the lookup file from GitHub. Default is
-#'  `FALSE`, meaning it will use the GitHub route. If you want to always use a
-#'  local file (for example, for fully offline working), you can set the
-#'  `reskit.local.lookups` option to `TRUE` using
-#'  `options(reskit.local.lookups = TRUE)` or `withr::with_options()`
-#' @returns A 4-column tibble, with columns `activity_type`, `change_factor`,
-#'  `strategy` and `tpma_label`
+#' @returns A 4-column tibble, with columns `strategy`, `activity_type`,
+#'  `change_factor` and `tpma_label`
 #' @export
-get_tpma_label_lookup <- function(use_local = FALSE) {
-  read_cols <- "cccc----c"
-  use_local <- getOption("reskit.local.lookups") %||% use_local
-  csv_data <- system.file("mitigator-lookup.csv", package = "reskit") |>
-    readr::read_csv(col_types = read_cols)
-  csv_data_from_gh <- NULL
-  if (!use_local) {
-    csv_data_raw <- possibly_get_tpmas_gh_file("mitigator-lookup.csv")
-    if (!is.null(csv_data_raw)) {
-      csv_data_from_gh <- readr::read_csv(csv_data_raw, col_types = read_cols)
-    }
-  }
-  csv_data <- csv_data_from_gh %||% csv_data
+get_tpma_label_lookup <- function() {
+  csv_data <- possibly_read_tpmas_lookup()
+  msg <- "Unable to read TPMA lookup table from GitHub"
+  azkit::check_that(csv_data, is_not_null, msg)
   csv_data |>
     dplyr::filter(dplyr::if_any("active_to", is.na)) |>
     dplyr::select(!"active_to") |>
-    dplyr::rename(
-      change_factor = "mitigator_type",
-      strategy = "mitigator_variable",
-      tpma_label = "mitigator_name"
-    )
+    dplyr::mutate(
+      tpma_label = glue::glue("{tpma_name} ({tpma_subtype})"),
+      dplyr::across("tpma_type", \(x) tolower(sub(" ", "_", x))),
+      dplyr::across("activity_type", convert_activity_type),
+      .keep = "unused"
+    ) |>
+    dplyr::rename(change_factor = "tpma_type", strategy = "tpma_variable")
+}
+
+
+#' Converts "In|Outpatients", "A&E" strings to "ip", "op" and "aae"
+#' @param x A character vector
+#' @returns A character vector
+#' @keywords internal
+convert_activity_type <- function(x) {
+  dplyr::recode_values(
+    x,
+    "A&E" ~ "aae",
+    "Inpatients" ~ "ip",
+    "Outpatients" ~ "op"
+  )
 }
 
 
@@ -216,3 +218,5 @@ get_tpma_label_lookup <- function(use_local = FALSE) {
 #' @returns A character vector: all values of x that match the regex in rx
 #' @keywords internal
 gregv <- \(x, rx, g = parent.frame()) grepv(glue::glue_data(g, rx), x)
+
+is_not_null <- \(x) !is.null(x)
