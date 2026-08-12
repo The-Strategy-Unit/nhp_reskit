@@ -94,3 +94,4 @@ venv.bak/
 *.rds
 inst/doc
 **/.quarto/
+docs
