@@ -1,0 +1,230 @@
+# reskit ![R](https://www.r-project.org/favicon-32x32.png) 📦🍪🦺
+
+An R package (just called `reskit`) that helps process NHP model
+results.
+
+## Installation
+
+You should be able to run the following R command to install {reskit}:
+
+``` r
+
+# install.packages("pak") # if not already installed
+pak::pak("The-Strategy-Unit/nhp_reskit")
+```
+
+On Windows, you may need to have [RTools](https://cloud.r-project.org/)
+already installed in order to install reskit.
+
+## Usage
+
+As this package relies on
+[`{azkit}`](https://the-strategy-unit.github.io/azkit/) for some of its
+functionality, you will need certain environment variables to be
+available (see section below) in order for these to work.
+
+It is a good idea to check that your [azkit
+authentication](https://the-strategy-unit.github.io/azkit/articles/troubleshooting.html)
+is set up correctly before using this package. Try:
+
+    az login
+
+at your terminal, or
+
+``` r
+
+azkit::get_auth_token()
+```
+
+to check these are running correctly.
+
+### Examples of usage
+
+Some key functions and workflows you might want to use include:
+
+1.  Use {azkit} to access an Azure data container, and read in all
+    results parquet files from a specific location on that container:
+
+``` r
+
+# This assumes you have Azure authentication working, and the correct
+# Azure endpoint variables in your environment.
+# NB the file/data locations used here are invented examples.
+# The best way to obtain a real results folder location is probably to read and
+# filter a table of model runs metadata and extract the appropriate path
+# variable; see `azkit::read_azure_table` for help with this.
+data_container <- azkit::get_container("data_container")
+results_location <- "results/dev/national/test"
+results <- reskit::read_results_parquet_files(data_container, results_location)
+```
+
+This should return a named list of tibbles, stored as `results`, one for
+each parquet file in the results location folder.
+
+2.  Re-using some of the variables above, you could instead retrieve
+    data for just some of the parquet files:
+
+``` r
+
+# NB do not add the `.parquet` ext; just the basename of the file is required
+selected_tables <- c("acuity", "default")
+
+selected_results <- data_container |>
+  reskit::read_results_parquet_files(results_location, selected_tables)
+```
+
+3.  You can use your results list to support the creation of summary
+    tables and charts. For example:
+
+``` r
+
+# generates a {gt} (HTML) table
+reskit::compile_principal_pod_data(results) |>
+  reskit::make_principal_pod_table()
+```
+
+See the “Plots and tables with reskit” vignette for more examples of
+things you can do.
+
+## Environment variables
+
+To access Azure Storage you need to add some variables to a [`.Renviron`
+file](https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron)
+in your project.
+
+⚠️These values are sensitive and should not be exposed to anyone outside
+The Strategy Unit. Make sure you include `.Renviron` in [the
+`.gitignore`
+file](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files)
+for your project.
+
+Your `.Renviron` file should contain the variables below. Ask a member
+of [the Data Science
+team](https://the-strategy-unit.github.io/data_science/about.html) for
+the necessary values.
+
+    AZ_STORAGE_EP=[your azure storage blob endpoint url]
+
+For convenience, an example `.Renviron.example` file is provided in this
+repository. You can copy/save it, renamed to just `.Renviron`, to the
+root of any project folder where you are using {reskit}.
+
+## Getting help
+
+Please use the
+[Issues](https://github.com/The-Strategy-Unit/nhp_reskit/issues) feature
+on GitHub to report any bugs, ideas or problems, including with the
+package documentation.
+
+Alternatively, to ask any questions about the package you may contact
+[Fran Barton](mailto:francis.barton@nhs.net).
+
+# Package index
+
+## All functions
+
+- [`add_change_cols()`](https://the-strategy-unit.github.io/nhp_reskit/reference/add_change_cols.md)
+  :
+
+  Add `change` and `change_pct` columns to a prepared results table
+
+- [`compile_change_factor_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_change_factor_data.md)
+  :
+
+  Prepare data from the `step_counts` results table for display as
+  charts
+
+- [`compile_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_detailed_activity_data.md)
+  :
+
+  Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
+
+- [`compile_distribution_plot_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_distribution_plot_data.md)
+  : Compile data to support the "activity distribution summary" tables
+
+- [`compile_distribution_summary_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_distribution_summary_data.md)
+  : Compile data to support the "activity distribution summary" tables
+
+- [`compile_indiv_change_factor_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_indiv_change_factor_data.md)
+  :
+
+  Prepare data from `step_counts` results table for display as charts
+
+- [`compile_principal_los_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_principal_los_data.md)
+  : Prepare data from tretspef+los_group results for displaying as
+  summary table
+
+- [`compile_principal_pod_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_principal_pod_data.md)
+  : Prepare data from default results table for displaying as summary
+  table
+
+- [`export_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_detailed_activity_data.md)
+  : Prepare a site-level summary of detailed activity results by PoD and
+  LoS
+
+- [`export_distribution_summary_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_distribution_summary_data.md)
+  : Prepare a site-level summary of activity distribution summary data
+
+- [`export_principal_cf_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_cf_data.md)
+  : Prepare a site-level summary table of change_factor results
+
+- [`export_principal_los_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_los_data.md)
+  : Prepare a site-level summary of main projection results by PoD and
+  LoS
+
+- [`export_principal_pod_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_pod_data.md)
+  : Prepare a site-level summary of main projection results
+
+- [`get_detailed_pods()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_detailed_pods.md)
+  [`get_principal_pods()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_detailed_pods.md)
+  : Prepare a lookup table with activity type labels and PoD labels for
+  each PoD
+
+- [`get_tpma_label_lookup()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_tpma_label_lookup.md)
+  : Prepare a lookup table for all current TPMAs
+
+- [`get_tretspef_lookup()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_tretspef_lookup.md)
+  : Get a lookup of tretspef codes to descriptions
+
+- [`get_trust_sites()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_trust_sites.md)
+  : From any results table, get list of all site codes for this scheme
+
+- [`make_beeswarm_distrib_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_beeswarm_distrib_plot.md)
+  : Generate a "beeswarm" chart showing the distribution of model run
+  values
+
+- [`make_cumulative_distrib_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_cumulative_distrib_plot.md)
+  : Generate a cumulative distribution function (ecdf) chart of model
+  run values
+
+- [`make_detailed_activity_table()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_detailed_activity_table.md)
+  : Create a gt table with data from compile_detailed_activity_data
+
+- [`make_distribution_summary_table()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_distribution_summary_table.md)
+  : Create a gt table with data from compile_distribution_summary_data
+
+- [`make_individual_cf_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_individual_cf_plot.md)
+  : Generate bar charts by change factor at individual TPMA level
+
+- [`make_overall_cf_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_overall_cf_plot.md)
+  : Generate overall change factor ("waterfall") chart
+
+- [`make_principal_los_table()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_principal_los_table.md)
+  : Create a gt table with data from compile_principal_los_data
+
+- [`make_principal_pod_table()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_principal_pod_table.md)
+  : Create a gt table with data from compile_principal_pod_data
+
+- [`read_results_parquet_files()`](https://the-strategy-unit.github.io/nhp_reskit/reference/read_results_parquet_files.md)
+  : Read a selection of (or all) parquet files in an Azure directory
+
+- [`shim_results()`](https://the-strategy-unit.github.io/nhp_reskit/reference/shim_results.md)
+  : Wrangle tables from old-style results to match format of new-style
+  results
+
+# Articles
+
+### All vignettes
+
+- [Plots and tables with
+  reskit](https://the-strategy-unit.github.io/nhp_reskit/articles/plots_tables.md):

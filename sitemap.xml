@@ -1,15 +1,80 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://The-Strategy-Unit.github.io/nhp_reskit/vignettes/plots_tables.html</loc>
-    <lastmod>2026-07-30T17:55:55.387Z</lastmod>
-  </url>
-  <url>
-    <loc>https://The-Strategy-Unit.github.io/nhp_reskit/LICENSE.html</loc>
-    <lastmod>2026-07-30T17:54:13.003Z</lastmod>
-  </url>
-  <url>
-    <loc>https://The-Strategy-Unit.github.io/nhp_reskit/vignettes/nhp_reskit.html</loc>
-    <lastmod>2026-07-30T17:55:55.386Z</lastmod>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/404.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/LICENSE-text.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/LICENSE.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/articles/index.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/articles/plots_tables.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/authors.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/index.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/add_baseline_values.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/add_change_cols.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/add_horizon_values.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/calculate_principal_stats.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/compile_change_factor_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/compile_detailed_activity_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/compile_distribution_plot_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/compile_distribution_summary_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/compile_indiv_change_factor_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/compile_principal_los_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/compile_principal_pod_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/convert_activity_type.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_ae_base_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_base_tbl_with_sitetret.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_demo_default_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_demo_sex_agegroup_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_demo_sex_tretspef_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_demo_stepcounts_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_demo_tretspef_losgroup_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_ip_base_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_op_base_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_sample_impacts.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/exclude_op_teleatt_procedures.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_detailed_activity_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_distribution_summary_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_cf_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_los_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_pod_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/filter_to_main_measures.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/format_bar_cols.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/format_gt_core.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/generate_horizon_values.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_activity_type_from_pod.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_detailed_pods.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_full_initial_means.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_ipop_initial_means.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_outputs_gh_url.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_su_gh_file.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_tpma_label_lookup.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_tpmas_gh_url.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_tretspef_lookup.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/get_trust_sites.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/gregv.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/gt_bar.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/gt_theme.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/index.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/inner_join_for_labels.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/list_to_tbl.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_beeswarm_distrib_plot.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_cumulative_distrib_plot.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_detailed_activity_table.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_distribution_summary_table.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_individual_cf_plot.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_overall_cf_plot.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_principal_los_table.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/make_principal_pod_table.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_age_group_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_detailed_activity_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_distribution_plot_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_distribution_summary_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_principal_cf_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_principal_los_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_principal_pod_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/prepare_tretspef_data.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/read_pods_lookup.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/read_results_parquet_files.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/read_tpmas_lookup.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/relabel_pods.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/reskit-package.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/shim_results.html</loc></url>
 </urlset>
+
