@@ -22,7 +22,7 @@ get_detailed_pods <- function() {
 #' Prepare a lookup table with activity type labels and PoD labels for each PoD
 #'
 #' This function condenses all A&E activity to a single category - compare
-#'  `get_detailed_pods()` which _keeps_ all A&E categories
+#'  [get_detailed_pods] which _keeps_ all A&E categories
 #' @rdname get_detailed_pods
 #' @returns A tibble
 #' @export
