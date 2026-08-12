@@ -19,7 +19,7 @@ compile_change_factor_data <- function(
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
-  pod_lookup = get_principal_pods(),
+  pod_lookup = get_detailed_pods(),
   tpma_lookup = get_tpma_label_lookup(),
   include_baseline = TRUE
 ) {
@@ -145,8 +145,7 @@ prepare_principal_cf_data <- function(
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
   dat_prepared <- if (include_baseline) dat else bsline_filtered
   dat_prepared |>
-    dplyr::filter(dplyr::if_any("value", \(x) x != 0)) |>
-    combine_all_aae_pods() |>
+    dplyr::filter(dplyr::if_any("model_run", \(x) x != 0)) |>
     inner_join_for_labels(pod_lookup) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>

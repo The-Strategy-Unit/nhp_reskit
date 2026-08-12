@@ -10,7 +10,7 @@ compile_change_factor_data(
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
-  pod_lookup = get_principal_pods(),
+  pod_lookup = get_detailed_pods(),
   tpma_lookup = get_tpma_label_lookup(),
   include_baseline = TRUE
 )
