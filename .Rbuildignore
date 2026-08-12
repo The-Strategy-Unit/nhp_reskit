@@ -12,3 +12,9 @@
 ^test_results[.]rds$
 ^[.]lintr$
 ^jarl[.]toml$
+^\.github$
+^vignettes/\.quarto$
+^vignettes/*_files$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

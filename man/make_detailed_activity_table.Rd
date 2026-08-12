@@ -2,7 +2,7 @@
 % Please edit documentation in R/tables.R
 \name{make_detailed_activity_table}
 \alias{make_detailed_activity_table}
-\title{Create a gt table with data from compile_detailed_activity_data()}
+\title{Create a gt table with data from \link{compile_detailed_activity_data}}
 \usage{
 make_detailed_activity_table(detailed_activity_data, final_year)
 }
@@ -15,5 +15,5 @@ make_detailed_activity_table(detailed_activity_data, final_year)
 A gt table
 }
 \description{
-Create a gt table with data from compile_detailed_activity_data()
+Create a gt table with data from \link{compile_detailed_activity_data}
 }
