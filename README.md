@@ -9,7 +9,7 @@ is being actively developed][repostatus_svg]][repostatus_info]
 [mit_svg]: https://img.shields.io/badge/License-MIT-yellow.svg?label=licence
 [repostatus_svg]: https://www.repostatus.org/badges/latest/active.svg
 [repostatus_info]: https://www.repostatus.org/#active
-[gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/azkit?logo=r&label=version
+[gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/nhp_reskit?logo=r&label=version
 <!-- badges: end -->
 
 An R package (just called `reskit`) that helps process NHP model results.
