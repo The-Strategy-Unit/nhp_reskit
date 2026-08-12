@@ -2,7 +2,7 @@
 % Please edit documentation in R/tables.R
 \name{make_distribution_summary_table}
 \alias{make_distribution_summary_table}
-\title{Create a gt table with data from compile_distribution_summary_data()}
+\title{Create a gt table with data from \link{compile_distribution_summary_data}}
 \usage{
 make_distribution_summary_table(distr_summary_data)
 }
@@ -13,5 +13,5 @@ make_distribution_summary_table(distr_summary_data)
 A gt table
 }
 \description{
-Create a gt table with data from compile_distribution_summary_data()
+Create a gt table with data from \link{compile_distribution_summary_data}
 }
