@@ -28,6 +28,8 @@ export(make_principal_los_table)
 export(make_principal_pod_table)
 export(read_results_parquet_files)
 export(shim_results)
-importFrom(rlang,":=")
-importFrom(rlang,.data)
-importFrom(rlang,.env)
+importFrom(rlang,
+  ":=",
+  .data,
+  .env
+)
