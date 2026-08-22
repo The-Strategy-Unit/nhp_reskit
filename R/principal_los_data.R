@@ -51,7 +51,7 @@ compile_principal_los_data <- function(
 prepare_principal_los_data <- function(dat, pod_lookup) {
   grp_cols <- default_group_cols(c("measure", "los_group"))
   dat |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     relabel_pods() |>
     dplyr::summarise(
       dplyr::across("value", sum),

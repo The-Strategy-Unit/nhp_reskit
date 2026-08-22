@@ -87,11 +87,11 @@ filter_to_main_measures <- function(tbl) {
 
 #' Use a lookup table to get more readable labels for PoDs
 #' @param tbl A tibble
-#' @param lookup A lookup table with pod and pod_label columns
+#' @param lookup A lookup table with `pod` and `pod_label` columns
 #' @keywords internal
-inner_join_for_labels <- function(tbl, lookup) {
+join_for_labels <- function(tbl, lookup) {
   tbl |>
-    dplyr::inner_join(lookup, "pod") |>
+    dplyr::left_join(lookup, "pod") |>
     dplyr::relocate(c("pod_label", "activity_type_label"), .after = "pod")
 }
 
