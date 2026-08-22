@@ -160,13 +160,13 @@ uppercase_init <- \(x) sub("^([[:alpha:]])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
 
 #' Get a lookup of tretspef codes to descriptions
 #'
-#' Currently reads from a fixed location within the package.
 #' @returns A 2-column tibble with columns `code` and `tretspef`
 #' @export
 get_tretspef_lookup <- function() {
-  system.file("tx-lookup.json", package = "reskit") |>
-    yyjsonr::read_json_file() |>
-    tibble::as_tibble() |>
+  json_data <- possibly_read_tx_lookup()
+  msg <- "Unable to read tretspef data from GitHub"
+  azkit::check_that(json_data, is_not_null, msg)
+  tibble::as_tibble(json_data) |>
     dplyr::select(c(code = "Code", tretspef = "Description")) |>
     dplyr::mutate(
       dplyr::across("tretspef", \(x) sub(" Service$", "", x)),
