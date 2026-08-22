@@ -42,7 +42,7 @@ prepare_distribution_plot_data <- function(dat, pod_lookup) {
   dat |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     check_single_row_groups(group_cols) |>
     dplyr::mutate(
       stage = dplyr::if_else(.data[["model_run"]] == 0, "baseline", "principal")

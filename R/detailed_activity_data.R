@@ -85,7 +85,7 @@ prepare_detailed_activity_data <- function(dat, aggregation, pod_lookup) {
       dplyr::across("sex", convert_sex_codes),
       dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male")))
     ) |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     relabel_pods() |>
     calculate_principal_stats(detailed_activity_sort_vars(aggregation)) |>
     keep_mean_only()
