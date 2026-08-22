@@ -37,7 +37,6 @@ Imports:
     purrr,
     rlang,
     scales,
-    snakecase,
     stats,
     tidyr,
     tidyselect,

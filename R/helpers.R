@@ -152,6 +152,7 @@ get_trust_sites <- \(res_tbl, col = "sitetret") sort(unique(res_tbl[[col]]))
 
 convert_sex_codes <- \(x) dplyr::if_else(x == 1L, "Male", "Female")
 
+create_measure_label <- \(x) uppercase_init(sub("dd", "d D", gsub("_", "-", x)))
 
 uppercase_init <- \(x) sub("^([[:alpha:]])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
 
