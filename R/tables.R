@@ -59,6 +59,10 @@ make_distribution_summary_table <- function(distr_summary_data) {
   value_col <- intersect(c("median", "principal"), colnames(distr_summary_data))
   int_cols <- c("baseline", value_col, "change", "lower", "upper")
   distr_summary_data |>
+    dplyr::mutate(dplyr::across("pod_label", \(x) {
+      paste0(.data[["activity_type_label"]], " ", x)
+    })) |>
+    dplyr::select(!"activity_type_label") |>
     gt::gt(groupname_col = "pod_label") |>
     gt::fmt_integer(tidyselect::all_of(int_cols)) |>
     gt::fmt_percent("change_pct", decimals = 0) |>
@@ -95,6 +99,31 @@ format_gt_core <- function(gt_table, extra_col = NULL) {
     gt::cols_align("left", tidyselect::all_of(left_cols)) |>
     gt::cols_label_with(fn = uppercase_init) |>
     gt::cols_label(change_pct = "Percent Change")
+}
+
+
+#' Function to style gt tables
+#' @keywords internal
+gt_theme <- function(data) {
+  data |>
+    gt::tab_options(
+      heading.subtitle.font.size = 12,
+      heading.align = "left",
+      column_labels.font.weight = "bold",
+      row_group.border.top.width = gt::px(2),
+      row_group.border.top.color = "black",
+      row_group.border.bottom.color = "black",
+      row_group.background.color = "#686f73",
+      table_body.hlines.color = "white",
+      table.border.top.color = "white",
+      table.border.top.width = gt::px(2),
+      table.border.bottom.color = "white",
+      table.border.bottom.width = gt::px(3),
+      column_labels.border.bottom.color = "black",
+      column_labels.border.bottom.width = gt::px(1),
+      summary_row.background.color = "#b2b7b9",
+      grand_summary_row.background.color = "#343739"
+    )
 }
 
 
