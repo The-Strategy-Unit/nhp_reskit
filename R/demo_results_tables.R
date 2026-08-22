@@ -197,12 +197,12 @@ create_demo_stepcounts_tbl <- function(seed) {
   baseline_tbl <- init_tbl |>
     dplyr::left_join(baseline_data, core_cols) |>
     dplyr::left_join(horizon_data, core_cols) |>
-    dplyr::mutate(mitigation = .data[["baseline"]] - .data[["horizon"]])
-  dgf_values <- withr::with_seed(seed, rnorm(nrow(baseline_tbl), 1, 0.1))
-  dgf_values <- dgf_values * (baseline_tbl[["baseline"]] * 0.01)
+    dplyr::mutate(mitigation = .data[["horizon"]] - .data[["baseline"]])
+  dga_values <- withr::with_seed(seed, stats::rnorm(nrow(baseline_tbl), 1, 0.1))
+  dga_values <- dga_values * (baseline_tbl[["baseline"]] * 0.01)
   impact_tbl <- baseline_tbl |>
     dplyr::mutate(
-      demographic_adjustment = dgf_values,
+      demographic_adjustment = dga_values,
       impact_data = purrr::map2(
         .data[["data"]],
         .data[["mitigation"]],
@@ -257,10 +257,10 @@ create_sample_impacts <- function(dat, mitigation, seed, picks = 64) {
   n_zeros <- round(0.2 * n_rows * picks)
   n_picks <- (n_rows * picks) - n_zeros
   mitigation_mean <- mitigation / n_rows
-  mitigation_dist <- withr::with_seed(seed, rnorm(n_picks, 1, 0.1))
+  mitigation_dist <- withr::with_seed(seed, stats::rnorm(n_picks, 1, 0.5))
   mitigation_dist <- mitigation_dist * mitigation_mean
 
-  impacts <- abs(sample(c(rep(0, n_zeros), mitigation_dist), n_rows * picks)) |>
+  impacts <- sample(c(rep(0, n_zeros), mitigation_dist), n_rows * picks) |>
     withr::with_seed(seed = seed)
   impacts_tbl <- tibble::tibble(
     rn = rep(seq(n_rows), each = picks),
@@ -300,7 +300,7 @@ add_baseline_values <- function(base_tbl, baseline_range, step = 100L, seed) {
 #' Helper function
 #' @keywords internal
 add_horizon_values <- function(tbl_with_baseline, initial_means, seed) {
-  distrib_values <- rnorm(nrow(tbl_with_baseline), 1, 0.1) |>
+  distrib_values <- stats::rnorm(nrow(tbl_with_baseline), 1, 0.1) |>
     withr::with_seed(seed = seed)
   mitigations <- distrib_values * initial_means
   ghv_partial <- purrr::partial(generate_horizon_values, seed = seed)
@@ -317,7 +317,7 @@ add_horizon_values <- function(tbl_with_baseline, initial_means, seed) {
 #' Helper function
 #' @keywords internal
 generate_horizon_values <- function(baseline, mitigation, seed, picks = 64) {
-  distr <- withr::with_seed(seed, rnorm(picks, 1, 0.1))
+  distr <- withr::with_seed(seed, stats::rnorm(picks, 1, 0.1))
   as.integer(round(distr * mitigation * baseline))
 }
 
