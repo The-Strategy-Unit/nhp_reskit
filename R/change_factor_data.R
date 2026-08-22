@@ -37,7 +37,10 @@ compile_change_factor_data <- function(
         include_baseline
       ) |>
       summarise_for_all_sites() |>
-      dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
+      dplyr::summarise(
+        dplyr::across("value", sum),
+        .by = c("change_factor", "measure")
+      ) |>
       # Here we need to sort by decreasing value (biggest increases in activity
       # (+ve 'value's) at the top), and we need to ensure that the 'baseline'
       # row, if any, is at the top so that the cumsum() step works correctly.
@@ -52,6 +55,7 @@ compile_change_factor_data <- function(
 
     estimate_row <- tibble::tibble_row(
       change_factor = "estimate",
+      measure = .env[["measure"]],
       value = sum(interim_data[["value"]]),
       hide = 0,
       total = .data[["value"]]
