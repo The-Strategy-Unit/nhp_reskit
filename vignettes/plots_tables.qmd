@@ -271,7 +271,6 @@ And a couple of individual change factor charts:
 
 ```{r}
 #| label: indiv-waterfall-chart1
-#| eval: false
 results |>
   compile_indiv_change_factor_data(
     measure = "attendances",
@@ -284,7 +283,6 @@ results |>
 
 ```{r}
 #| label: indiv-waterfall-chart2
-#| eval: false
 results |>
   compile_indiv_change_factor_data(
     measure = "arrivals",
