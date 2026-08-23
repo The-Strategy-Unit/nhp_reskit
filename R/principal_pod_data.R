@@ -15,31 +15,65 @@ compile_principal_pod_data <- function(
   pod_lookup = get_principal_pods(),
   sites = NULL
 ) {
-  init_data <- results[["default"]] |>
-    prepare_principal_pod_data(pod_lookup) |>
-    filter_to_selected_sites(sites)
-  if (nrow(init_data) == 0) {
-    init_data
-  } else {
-    at_levels <- c(
-      "Inpatient Admissions",
-      "Inpatient Bed Days",
-      "Outpatient",
-      "A&E"
-    )
-    init_data |>
-      summarise_for_all_sites() |>
-      add_change_cols() |>
-      dplyr::mutate(
-        dplyr::across("activity_type_label", \(x) forcats::fct(x, at_levels)),
-        # display pods in descending order of baseline value, by activity type
-        dplyr::across("pod_label", \(x) {
-          forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
-        })
-      ) |>
-      dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
+  # Guard on the user's selection before doing any preparation work: an
+  # unmatched `sites` value is much the most likely source of an empty result.
+  # Every grouping in prepare_principal_pod_data() includes `sitetret`, so
+  # filtering here rather than afterwards leaves the statistics unchanged.
+  selected_data <- filter_to_selected_sites(results[["default"]], sites)
+  if (nrow(selected_data) == 0) {
+    return(empty_result(
+      proto_principal_pod_data(),
+      "No principal PoD data for the selected sites."
+    ))
   }
+
+  # A second guard is still needed: prepare_principal_pod_data() drops rows
+  # via filter_to_main_measures() and keep_mean_only(), so it can empty a
+  # non-empty input.
+  init_data <- prepare_principal_pod_data(selected_data, pod_lookup)
+  if (nrow(init_data) == 0) {
+    return(empty_result(
+      proto_principal_pod_data(),
+      "No main-measure activity found in the `default` results table."
+    ))
+  }
+
+  at_levels <- c(
+    "Inpatient Admissions",
+    "Inpatient Bed Days",
+    "Outpatient",
+    "A&E"
+  )
+  init_data |>
+    summarise_for_all_sites() |>
+    add_change_cols() |>
+    dplyr::mutate(
+      dplyr::across("activity_type_label", \(x) forcats::fct(x, at_levels)),
+      # display pods in descending order of baseline value, by activity type
+      dplyr::across("pod_label", \(x) {
+        forcats::fct_reorder(x, .data[["baseline"]], sum, .desc = TRUE)
+      })
+    ) |>
+    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
 }
+
+#' Zero-row prototype for the [compile_principal_pod_data] output
+#'
+#' The column names and types here must match what [compile_principal_pod_data]
+#'  returns when rows are present; `test-empty_results.R` asserts this.
+#' @returns A zero-row tibble
+#' @keywords internal
+proto_principal_pod_data <- function() {
+  tibble::tibble(
+    pod_label = factor(),
+    activity_type_label = factor(),
+    baseline = numeric(),
+    principal = numeric(),
+    change = numeric(),
+    change_pct = numeric()
+  )
+}
+
 
 #' Initial preparation of site-level data for the main summary table
 #'

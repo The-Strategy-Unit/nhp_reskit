@@ -29,7 +29,13 @@ compile_change_factor_data <- function(
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites)
   if (nrow(init_data) == 0) {
-    init_data
+    tibble::tibble(
+      change_factor = character(0),
+      measure = character(0),
+      value = numeric(0),
+      hide = numeric(0),
+      total = numeric(0)
+    )
   } else {
     interim_data <- init_data |>
       prepare_principal_cf_data(
@@ -95,7 +101,12 @@ compile_indiv_change_factor_data <- function(
     filter_principal_data(measure, activity_type, pods) |>
     filter_to_selected_sites(sites)
   if (nrow(init_data) == 0) {
-    init_data
+    tibble::tibble(
+      change_factor = character(0),
+      measure = character(0),
+      tpma_label = factor(0),
+      value = numeric(0)
+    )
   } else {
     table_data <- init_data |>
       prepare_principal_cf_data(
@@ -108,7 +119,8 @@ compile_indiv_change_factor_data <- function(
         dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
       )
     if (nrow(table_data) == 0) {
-      table_data
+      table_data |>
+        dplyr::select(c("change_factor", "measure", "tpma_label", "value"))
     } else {
       table_data <- table_data |>
         dplyr::summarise(
@@ -116,9 +128,9 @@ compile_indiv_change_factor_data <- function(
           .by = c("change_factor", "measure", "tpma_label")
         ) |>
         dplyr::filter(
-          dplyr::if_any("tpma_label", \(x) x != "-") &
-            # we only want to show TPMAs that _reduce_ the activity measure
-            dplyr::if_any("value", \(x) x < 0)
+          dplyr::if_any("tpma_label", \(x) x != "-"),
+          # we only want to show TPMAs that _reduce_ the activity measure
+          dplyr::if_any("value", \(x) x < 0)
         )
       # I would like to apologise for nesting ifs
       if (nrow(table_data) == 0) {
@@ -148,6 +160,11 @@ prepare_principal_cf_data <- function(
   include_baseline
 ) {
   tpma_lookup <- dplyr::select(tpma_lookup, c("strategy", "tpma_label"))
+  pod_lookup <- pod_lookup |>
+    dplyr::mutate(dplyr::across("measure", \(x) {
+      dplyr::if_else(.data[["activity_type"]] == "aae", "arrivals", x)
+    })) |>
+    dplyr::distinct()
   bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
   dat_prepared <- if (include_baseline) dat else bsline_filtered
   dat_prepared |>
@@ -157,6 +174,9 @@ prepare_principal_cf_data <- function(
     dplyr::left_join(tpma_lookup, "strategy") |>
     dplyr::select(!"strategy") |>
     dplyr::mutate(
+      dplyr::across("measure", \(x) {
+        dplyr::if_else(.data[["activity_type"]] == "aae", "arrivals", x)
+      }),
       dplyr::across("tpma_label", \(x) tidyr::replace_na(x, "-"))
     ) |>
     dplyr::summarise(
@@ -175,7 +195,7 @@ prepare_principal_cf_data <- function(
 export_principal_cf_data <- function(
   results,
   sites = NULL,
-  pod_lookup = get_principal_pods(),
+  pod_lookup = get_detailed_pods(),
   tpma_lookup = get_tpma_label_lookup()
 ) {
   results[["step_counts"]] |>
