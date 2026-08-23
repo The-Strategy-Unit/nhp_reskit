@@ -12,6 +12,7 @@ compile_distribution_plot_data <- function(
   pod_lookup = get_detailed_pods(),
   sites = NULL
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   init_data <- results[["default"]] |>
     filter_to_selected_sites(sites) |>

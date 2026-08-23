@@ -12,6 +12,7 @@ compile_principal_los_data <- function(
   pod_lookup = get_principal_pods(),
   sites = NULL
 ) {
+  check_measure(measure)
   init_data <- results[["tretspef+los_group"]] |>
     dplyr::filter(dplyr::if_any("measure", \(x) x == .env[["measure"]])) |>
     filter_to_selected_sites(sites)

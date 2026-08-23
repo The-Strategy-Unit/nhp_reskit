@@ -71,7 +71,8 @@ keep_mean_only <- function(tbl) {
 
 #' Filter a table so the `measure` column only contains 6 selected measures
 #'
-#' Currently this contains 6 of the 7 possible values; it excludes "procedures".
+#' Currently this contains 6 of 7 possible values in principal data; it
+#'  excludes "procedures". ("arrivals" is found in the step counts file).
 #' This function is used in several places in reskit as a filter.
 #' @param tbl A tibble
 #' @keywords internal
@@ -208,6 +209,22 @@ convert_activity_type <- function(x) {
     "A&E" ~ "aae",
     "Inpatients" ~ "ip",
     "Outpatients" ~ "op"
+  )
+}
+
+
+check_measure <- function(measure) {
+  measure_list <- rlang::set_names(potential_measures(), "*")
+  measure_msg <- c("{.arg measure} must be one of ", measure_list)
+  azkit::check_that(measure, \(x) x %in% potential_measures(), measure_msg)
+}
+
+
+potential_measures <- function() {
+  # fmt: skip
+  c(
+    "admissions", "ambulance", "arrivals", "attendances", "beddays",
+    "procedures", "tele_attendances", "walk-in"
   )
 }
 
