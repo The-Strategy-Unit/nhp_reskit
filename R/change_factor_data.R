@@ -23,6 +23,7 @@ compile_change_factor_data <- function(
   tpma_lookup = get_tpma_label_lookup(),
   include_baseline = TRUE
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   init_data <- results[["step_counts"]] |>
     filter_principal_data(measure, activity_type, pods) |>
@@ -85,6 +86,7 @@ compile_indiv_change_factor_data <- function(
   tpma_lookup = get_tpma_label_lookup(),
   sort_by = c("value", "tpma_label")
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
