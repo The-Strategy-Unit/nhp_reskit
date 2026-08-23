@@ -38,6 +38,7 @@ Imports:
     rlang,
     scales,
     stats,
+    tibble,
     tidyr,
     tidyselect,
     yaml12,
@@ -50,7 +51,6 @@ Suggests:
     quarto,
     readr,
     testthat (>= 3.0.0),
-    tibble,
     withr
 Config/roxygen2/version: 8.1.0
 VignetteBuilder: quarto

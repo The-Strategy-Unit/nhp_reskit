@@ -4,6 +4,9 @@
 #' @returns A gt table
 #' @export
 make_principal_pod_table <- function(principal_pod_data) {
+  if (nrow(principal_pod_data) == 0) {
+    return(make_no_data_table(no_data_reason(principal_pod_data)))
+  }
   principal_pod_data |>
     format_bar_cols() |>
     gt::gt(groupname_col = "activity_type_label") |>
@@ -74,6 +77,23 @@ make_distribution_summary_table <- function(distr_summary_data) {
 }
 
 
+#' Render a placeholder table when there are no data to display
+#'
+#' Preferred over returning an empty `gt` table, which renders as a bare set of
+#'  column headings and gives the reader no clue why it is blank.
+#' @param reason A string explaining why there are no data, or `NULL`
+#' @returns A gt table
+#' @keywords internal
+make_no_data_table <- function(reason = NULL) {
+  reason <- reason %||% "No data available for the current selection."
+  tibble::tibble(no_data = reason) |>
+    gt::gt() |>
+    gt::tab_options(column_labels.hidden = TRUE) |>
+    gt::cols_align("left") |>
+    gt_theme()
+}
+
+
 #' Format horizontal `gt_bar`s within tables
 #' @keywords internal
 format_bar_cols <- function(tbl, p_col = "principal", p_clr = "#686f73") {
@@ -136,7 +156,7 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
   neg_colour <- colours[[1]]
   pos_colour <- colours[[2]]
   which_infinite <- which(is.infinite(x))
-  x <- dplyr::if_else(is.infinite(x), 0, x)
+  x[which_infinite] <- 0
   x_min <- min(min(x, na.rm = TRUE), 0) # if min(x) > 0, set x_min to 0
   x_max <- max(max(x, na.rm = TRUE), 0) # if max(x) < 0, set x_max to 0
   x_range <- x_max - x_min
