@@ -49,17 +49,12 @@ compile_distribution_summary_data <- function(
 #' @returns A tibble
 #' @keywords internal
 prepare_distribution_summary_data <- function(default_tbl, pod_lookup) {
+  grp_cols <- c("activity_type_label", "measure")
   default_tbl |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
     inner_join_for_labels(pod_lookup) |>
-    dplyr::mutate(
-      dplyr::across("pod_label", \(x) {
-        paste0(.data[["activity_type_label"]], " ", x)
-      }),
-      .keep = "unused"
-    ) |>
-    calculate_principal_stats(default_group_cols("measure")) |>
+    calculate_principal_stats(default_group_cols(grp_cols)) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {
         sub("_", "-", sub("Beddays", "Bed days", uppercase_init(x)))

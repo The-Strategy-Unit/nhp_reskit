@@ -8,13 +8,12 @@
 ^[.]vscode$
 ^air[.]toml$
 ^[.]Renviron[.]example$
-^inst/a_.*$
-^test_results[.]rds$
 ^[.]lintr$
 ^jarl[.]toml$
 ^\.github$
-^vignettes/\.quarto$
+^[.]quarto$
+^vignettes/[.]quarto$
 ^vignettes/*_files$
-^_pkgdown\.yml$
+^_pkgdown[.]yml$
 ^docs$
 ^pkgdown$
