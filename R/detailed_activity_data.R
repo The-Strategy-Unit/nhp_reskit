@@ -132,8 +132,7 @@ export_detailed_activity_data <- function(
     aggregation <- "tretspef"
   }
   sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
-  interim_data <-
-    init_data |>
+  interim_data <- init_data |>
     filter_to_selected_sites(sites) |>
     prepare_detailed_activity_data(aggregation, pod_lookup)
 

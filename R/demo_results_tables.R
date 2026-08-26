@@ -10,10 +10,9 @@ create_demo_default_tbl <- function(seed) {
   baseline_tbl1 <- add_baseline_values(init_tbl1, c(5e3L, 85e3L), 1e3L, seed)
   baseline_tbl2 <- add_baseline_values(init_tbl2, c(3e3L, 45e3L), 1e3L, seed)
   initial_means <- get_full_initial_means(0.8, 0.9, 1)
-  horizon_tbl1 <- add_horizon_values(baseline_tbl1, initial_means, seed)
-  horizon_tbl2 <- add_horizon_values(baseline_tbl2, initial_means, seed)
-  dplyr::bind_rows(horizon_tbl1, horizon_tbl2) |>
-    dplyr::arrange(dplyr::pick(c("pod", "sitetret", "measure", "model_run")))
+  list(baseline_tbl1, baseline_tbl2) |>
+    purrr::map(\(df) add_horizon_values(df, initial_means, seed)) |>
+    bind_and_arrange()
 }
 
 
@@ -26,40 +25,21 @@ create_demo_default_tbl <- function(seed) {
 create_demo_tretspef_losgroup_tbl <- function(seed) {
   tretspef_codes <- sort(sample(get_tretspef_lookup()[["code"]], 25)) |>
     withr::with_seed(seed = seed)
+  # fmt: skip
   los_groups <- paste0(
-    c("0", "1", "2", "3", "4-7", "8-14", "15-21", "22+"),
-    " days"
+    c("0", "1", "2", "3", "4-7", "8-14", "15-21", "22+"), " days"
   ) |>
     sub("^1 days$", "1 day", x = _)
   init_tbl1 <- create_ip_base_tbl() |>
-    dplyr::mutate(
-      sitetret = "site1",
-      tretspef = list(tretspef_codes),
-      los_group = list(los_groups),
-      .after = "pod"
-    ) |>
-    tidyr::unnest_longer("tretspef") |>
-    tidyr::unnest_longer("los_group") |>
-    tidyr::expand(
-      tidyr::nesting(pod, measure, sitetret),
-      tretspef,
-      los_group
-    ) |>
+    dplyr::mutate(sitetret = "site1") |>
+    tidyr::expand_grid(tretspef = tretspef_codes, los_group = los_groups) |>
     dplyr::relocate("measure", .after = dplyr::last_col())
   init_tbl2 <- dplyr::mutate(init_tbl1, sitetret = "site2")
   baseline_tbl1 <- add_baseline_values(init_tbl1, c(100L, 5e3L), 100L, seed)
   baseline_tbl2 <- add_baseline_values(init_tbl2, c(100L, 2e3L), 100L, seed)
-  horizon_tbl1 <- add_horizon_values(baseline_tbl1, 0.85, seed)
-  horizon_tbl2 <- add_horizon_values(baseline_tbl2, 0.85, seed)
-  dplyr::bind_rows(horizon_tbl1, horizon_tbl2) |>
-    dplyr::arrange(dplyr::pick(c(
-      "pod",
-      "sitetret",
-      "tretspef",
-      "los_group",
-      "measure",
-      "model_run"
-    )))
+  list(baseline_tbl1, baseline_tbl2) |>
+    purrr::map(\(df) add_horizon_values(df, 0.85, seed)) |>
+    bind_and_arrange(cols = c("tretspef", "los_group"))
 }
 
 
@@ -76,31 +56,16 @@ create_demo_sex_agegroup_tbl <- function(seed) {
     "50-64", "65-74", "75-84", "85+"
   )
   init_tbl1 <- create_base_tbl_with_sitetret("site1") |>
-    dplyr::mutate(
-      sex = list(seq(2)),
-      age_group = list(age_groups),
-      .after = "sitetret"
-    ) |>
-    tidyr::unnest_longer("sex") |>
-    tidyr::unnest_longer("age_group") |>
-    tidyr::expand(tidyr::nesting(pod, measure, sitetret), sex, age_group) |>
+    tidyr::expand_grid(sex = seq(2), age_group = age_groups) |>
     dplyr::relocate("measure", .after = dplyr::last_col())
   init_tbl2 <- dplyr::mutate(init_tbl1, sitetret = "site2")
   baseline_tbl1 <- add_baseline_values(init_tbl1, c(2e3L, 5e4L), 100L, seed)
   baseline_tbl2 <- add_baseline_values(init_tbl2, c(1e3L, 2e4L), 100L, seed)
   multip <- length(seq(2)) * length(age_groups)
   initial_values <- rep(get_full_initial_means(0.9, 0.85, 0.8), each = multip)
-  horizon_tbl1 <- add_horizon_values(baseline_tbl1, initial_values, seed)
-  horizon_tbl2 <- add_horizon_values(baseline_tbl2, initial_values, seed)
-  dplyr::bind_rows(horizon_tbl1, horizon_tbl2) |>
-    dplyr::arrange(dplyr::pick(c(
-      "pod",
-      "sitetret",
-      "sex",
-      "age_group",
-      "measure",
-      "model_run"
-    )))
+  list(baseline_tbl1, baseline_tbl2) |>
+    purrr::map(\(df) add_horizon_values(df, initial_values, seed)) |>
+    bind_and_arrange(cols = c("sex", "age_group"))
 }
 
 
@@ -131,17 +96,9 @@ create_demo_sex_tretspef_tbl <- function(seed) {
   baseline_tbl2 <- add_baseline_values(init_tbl2, c(100L, 2.2e3L), 100L, seed)
   multip <- length(seq(2)) * length(tretspef_groups)
   initial_values <- rep(get_ipop_initial_means(0.8, 0.85), each = multip)
-  horizon_tbl1 <- add_horizon_values(baseline_tbl1, initial_values, seed)
-  horizon_tbl2 <- add_horizon_values(baseline_tbl2, initial_values, seed)
-  dplyr::bind_rows(horizon_tbl1, horizon_tbl2) |>
-    dplyr::arrange(dplyr::pick(c(
-      "pod",
-      "sitetret",
-      "sex",
-      "tretspef_grouped",
-      "measure",
-      "model_run"
-    )))
+  list(baseline_tbl1, baseline_tbl2) |>
+    purrr::map(\(df) add_horizon_values(df, initial_values, seed)) |>
+    bind_and_arrange(cols = c("sex", "tretspef_grouped"))
 }
 
 
@@ -197,12 +154,12 @@ create_demo_stepcounts_tbl <- function(seed) {
   baseline_tbl <- init_tbl |>
     dplyr::left_join(baseline_data, core_cols) |>
     dplyr::left_join(horizon_data, core_cols) |>
-    dplyr::mutate(mitigation = .data[["baseline"]] - .data[["horizon"]])
-  dgf_values <- withr::with_seed(seed, rnorm(nrow(baseline_tbl), 1, 0.1))
-  dgf_values <- dgf_values * (baseline_tbl[["baseline"]] * 0.01)
+    dplyr::mutate(mitigation = .data[["horizon"]] - .data[["baseline"]])
+  dga_values <- withr::with_seed(seed, stats::rnorm(nrow(baseline_tbl), 1, 0.1))
+  dga_values <- dga_values * (baseline_tbl[["baseline"]] * 0.01)
   impact_tbl <- baseline_tbl |>
     dplyr::mutate(
-      demographic_adjustment = dgf_values,
+      demographic_adjustment = dga_values,
       impact_data = purrr::map2(
         .data[["data"]],
         .data[["mitigation"]],
@@ -257,10 +214,10 @@ create_sample_impacts <- function(dat, mitigation, seed, picks = 64) {
   n_zeros <- round(0.2 * n_rows * picks)
   n_picks <- (n_rows * picks) - n_zeros
   mitigation_mean <- mitigation / n_rows
-  mitigation_dist <- withr::with_seed(seed, rnorm(n_picks, 1, 0.1))
+  mitigation_dist <- withr::with_seed(seed, stats::rnorm(n_picks, 1, 0.5))
   mitigation_dist <- mitigation_dist * mitigation_mean
 
-  impacts <- abs(sample(c(rep(0, n_zeros), mitigation_dist), n_rows * picks)) |>
+  impacts <- sample(c(rep(0, n_zeros), mitigation_dist), n_rows * picks) |>
     withr::with_seed(seed = seed)
   impacts_tbl <- tibble::tibble(
     rn = rep(seq(n_rows), each = picks),
@@ -300,7 +257,7 @@ add_baseline_values <- function(base_tbl, baseline_range, step = 100L, seed) {
 #' Helper function
 #' @keywords internal
 add_horizon_values <- function(tbl_with_baseline, initial_means, seed) {
-  distrib_values <- rnorm(nrow(tbl_with_baseline), 1, 0.1) |>
+  distrib_values <- stats::rnorm(nrow(tbl_with_baseline), 1, 0.1) |>
     withr::with_seed(seed = seed)
   mitigations <- distrib_values * initial_means
   ghv_partial <- purrr::partial(generate_horizon_values, seed = seed)
@@ -317,7 +274,7 @@ add_horizon_values <- function(tbl_with_baseline, initial_means, seed) {
 #' Helper function
 #' @keywords internal
 generate_horizon_values <- function(baseline, mitigation, seed, picks = 64) {
-  distr <- withr::with_seed(seed, rnorm(picks, 1, 0.1))
+  distr <- withr::with_seed(seed, stats::rnorm(picks, 1, 0.1))
   as.integer(round(distr * mitigation * baseline))
 }
 
@@ -367,4 +324,10 @@ get_ipop_initial_means <- function(ip_mean, op_mean) {
     rep(ip_mean, nrow(create_ip_base_tbl())),
     rep(op_mean, nrow(create_op_base_tbl()))
   )
+}
+
+
+bind_and_arrange <- function(lst, cols = NULL) {
+  cols <- c("pod", "sitetret", cols, "measure", "model_run")
+  dplyr::arrange(dplyr::bind_rows(lst), dplyr::pick(tidyselect::all_of(cols)))
 }
