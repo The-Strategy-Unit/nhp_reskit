@@ -135,6 +135,8 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
   stopifnot(length(colours) == 2)
   neg_colour <- colours[[1]]
   pos_colour <- colours[[2]]
+  which_infinite <- which(is.infinite(x))
+  x <- dplyr::if_else(is.infinite(x), 0, x)
   x_min <- min(min(x, na.rm = TRUE), 0) # if min(x) > 0, set x_min to 0
   x_max <- max(max(x, na.rm = TRUE), 0) # if max(x) < 0, set x_max to 0
   x_range <- x_max - x_min
@@ -148,7 +150,7 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
     )
   }
   create_val_span <- function(value) {
-    glue::glue("<span style='width: 50%;' align=right>{value}</span>")
+    glue::glue("<span style='width: 50%;' align=right> {value}</span>")
   }
 
   empty_bar_tbl <- tibble::tibble(
@@ -165,6 +167,7 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
     purrr::pmap_chr(value_bar_tbl, create_bar_span),
     purrr::map_chr(format_fn(x), create_val_span)
   )
+  bar_spans[which_infinite] <- "<span><em>Inf.</em></span>"
 
   purrr::map(paste("<div>", bar_spans, "</div>", sep = "\n"), gt::html)
 }

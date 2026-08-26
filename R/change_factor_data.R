@@ -23,6 +23,7 @@ compile_change_factor_data <- function(
   tpma_lookup = get_tpma_label_lookup(),
   include_baseline = TRUE
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   init_data <- results[["step_counts"]] |>
     filter_principal_data(measure, activity_type, pods) |>
@@ -37,7 +38,10 @@ compile_change_factor_data <- function(
         include_baseline
       ) |>
       summarise_for_all_sites() |>
-      dplyr::summarise(dplyr::across("value", sum), .by = "change_factor") |>
+      dplyr::summarise(
+        dplyr::across("value", sum),
+        .by = c("change_factor", "measure")
+      ) |>
       # Here we need to sort by decreasing value (biggest increases in activity
       # (+ve 'value's) at the top), and we need to ensure that the 'baseline'
       # row, if any, is at the top so that the cumsum() step works correctly.
@@ -52,6 +56,7 @@ compile_change_factor_data <- function(
 
     estimate_row <- tibble::tibble_row(
       change_factor = "estimate",
+      measure = .env[["measure"]],
       value = sum(interim_data[["value"]]),
       hide = 0,
       total = .data[["value"]]
@@ -77,10 +82,11 @@ compile_indiv_change_factor_data <- function(
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
-  pod_lookup = get_principal_pods(),
+  pod_lookup = get_detailed_pods(),
   tpma_lookup = get_tpma_label_lookup(),
   sort_by = c("value", "tpma_label")
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
@@ -146,7 +152,7 @@ prepare_principal_cf_data <- function(
   dat_prepared <- if (include_baseline) dat else bsline_filtered
   dat_prepared |>
     dplyr::filter(dplyr::if_any("model_run", \(x) x != 0)) |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>
     dplyr::select(!"strategy") |>

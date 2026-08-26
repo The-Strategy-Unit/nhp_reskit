@@ -53,11 +53,11 @@ prepare_distribution_summary_data <- function(default_tbl, pod_lookup) {
   default_tbl |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     calculate_principal_stats(default_group_cols(grp_cols)) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {
-        sub("_", "-", sub("Beddays", "Bed days", uppercase_init(x)))
+        sub("Beddays", "Bed days", uppercase_init(sub("_", "-", x)))
       })
     )
 }
