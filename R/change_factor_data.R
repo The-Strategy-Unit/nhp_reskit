@@ -88,7 +88,7 @@ compile_indiv_change_factor_data <- function(
   activity_type = c("ip", "op", "aae"),
   pods = NULL,
   sites = NULL,
-  pod_lookup = get_principal_pods(),
+  pod_lookup = get_detailed_pods(),
   tpma_lookup = get_tpma_label_lookup(),
   sort_by = c("value", "tpma_label")
 ) {
@@ -174,6 +174,9 @@ prepare_principal_cf_data <- function(
     dplyr::left_join(tpma_lookup, "strategy") |>
     dplyr::select(!"strategy") |>
     dplyr::mutate(
+      dplyr::across("measure", \(x) {
+        dplyr::if_else(.data[["activity_type"]] == "aae", "arrivals", x)
+      }),
       dplyr::across("tpma_label", \(x) tidyr::replace_na(x, "-"))
     ) |>
     dplyr::summarise(
