@@ -33,6 +33,36 @@ filter_to_selected_sites <- function(dat, sites, site_col = "sitetret") {
 }
 
 
+#' Return a zero-row result that keeps the expected output shape
+#'
+#' Used by the `compile_*` functions when filtering leaves no rows. Returning a
+#'  correctly shaped zero-row tibble, rather than whatever partially prepared
+#'  object happened to be in hand, means the downstream `make_*` functions can
+#'  rely on the output columns existing.
+#' The `reskit_no_data` attribute lets those functions render an explicit
+#'  "no data" panel rather than a blank chart or a cryptic missing-column error.
+#' This function and its documentation were suggested by an LLM.
+#' @param prototype A zero-row tibble giving the columns and types that the
+#'  calling function returns when data are available
+#' @param reason A string explaining why no rows remain
+#' @returns `prototype`, carrying a `reskit_no_data` attribute
+#' @keywords internal
+empty_result <- function(prototype, reason = NULL) {
+  stopifnot(nrow(prototype) == 0)
+  reason <- reason %||% "No data available for the current selection."
+  rlang::inform(reason, class = "reskit_no_data")
+  attr(prototype, "reskit_no_data") <- reason
+  prototype
+}
+
+
+#' Recover the explanation attached by [empty_result]
+#' @param x A tibble returned by a `compile_*` function
+#' @returns A string, or `NULL` if the result was not flagged as empty
+#' @keywords internal
+no_data_reason <- \(x) attr(x, "reskit_no_data", exact = TRUE)
+
+
 #' Exclude outpatient procedures from tele-attendances count only
 #' @param tbl A tibble
 #' @keywords internal
