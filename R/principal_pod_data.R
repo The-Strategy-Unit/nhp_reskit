@@ -15,10 +15,7 @@ compile_principal_pod_data <- function(
   pod_lookup = get_principal_pods(),
   sites = NULL
 ) {
-  # Guard on the user's selection before doing any preparation work: an
-  # unmatched `sites` value is much the most likely source of an empty result.
-  # Every grouping in prepare_principal_pod_data() includes `sitetret`, so
-  # filtering here rather than afterwards leaves the statistics unchanged.
+  # Guard against an unmatched `sites` value producing an empty result.
   selected_data <- filter_to_selected_sites(results[["default"]], sites)
   if (nrow(selected_data) == 0) {
     return(empty_result(
@@ -26,23 +23,18 @@ compile_principal_pod_data <- function(
       "No principal PoD data for the selected sites."
     ))
   }
-
-  # A second guard is still needed: prepare_principal_pod_data() drops rows
-  # via filter_to_main_measures() and keep_mean_only(), so it can empty a
-  # non-empty input.
+  # Guard against filter steps producing a zero-row tibble
   init_data <- prepare_principal_pod_data(selected_data, pod_lookup)
   if (nrow(init_data) == 0) {
     return(empty_result(
       proto_principal_pod_data(),
-      "No main-measure activity found in the `default` results table."
+      "{.fn prepare_principal_pod_data} produced an empty table."
     ))
   }
 
+  # fmt: skip
   at_levels <- c(
-    "Inpatient Admissions",
-    "Inpatient Bed Days",
-    "Outpatient",
-    "A&E"
+    "Inpatient Admissions", "Inpatient Bed Days", "Outpatient", "A&E"
   )
   init_data |>
     summarise_for_all_sites() |>
