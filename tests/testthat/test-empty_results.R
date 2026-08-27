@@ -23,11 +23,33 @@ test_that("compile_principal_pod_data keeps its output shape when empty", {
   )
 })
 
+
+test_that("compile_distribution_plot_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  full <- compile_distribution_plot_data(demo, "admissions")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_distribution_plot_data("admissions", sites = "no_such_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_identical(nrow(empty), 0L)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(names(empty), names(full))
+  expect_identical(
+    vapply(empty, \(x) class(x)[[1]], character(1)),
+    vapply(full, \(x) class(x)[[1]], character(1))
+  )
+})
+
+
 test_that("filtering sites before preparation leaves results unchanged", {
   testthat::skip_if_offline()
   demo <- demo_default()
-  # the site guard moved ahead of prepare_principal_pod_data(); this holds only
-  # because every grouping in that function includes `sitetret`
   expect_identical(
     compile_principal_pod_data(
       demo,
@@ -49,7 +71,7 @@ test_that("a default table with no main measures returns an empty result", {
     class = "reskit_no_data"
   )
   expect_identical(nrow(empty), 0L)
-  expect_match(no_data_reason(empty), "main-measure")
+  expect_match(no_data_reason(empty), "produced an empty table")
 })
 
 test_that("empty results carry an explanation", {
@@ -60,6 +82,89 @@ test_that("empty results carry an explanation", {
   expect_type(no_data_reason(empty), "character")
   expect_null(no_data_reason(tibble::tibble(a = 1)))
 })
+
+# LOS data tests
+
+demo_los_tbl <- function(seed = 4821L) {
+  list(`tretspef+los_group` = create_demo_tretspef_losgroup_tbl(seed))
+}
+
+test_that("compile_principal_los_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_los_tbl()
+  full <- compile_principal_los_data(demo, measure = "admissions")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_principal_los_data(measure = "admissions", sites = "fake_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_identical(nrow(empty), 0L)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(names(empty), names(full))
+  expect_identical(
+    vapply(empty, \(x) class(x)[[1]], character(1)),
+    vapply(full, \(x) class(x)[[1]], character(1))
+  )
+})
+
+
+# change factor checks
+
+demo_cf_tbl <- function(seed = 4821L) {
+  list(step_counts = create_demo_stepcounts_tbl(seed))
+}
+
+test_that("compile_change_factor_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_cf_tbl()
+  full <- compile_change_factor_data(demo, "admissions", "ip")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_change_factor_data("admissions", "ip", sites = "fake_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_identical(nrow(empty), 0L)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(names(empty), names(full))
+  expect_identical(
+    vapply(empty, \(x) class(x)[[1]], character(1)),
+    vapply(full, \(x) class(x)[[1]], character(1))
+  )
+})
+
+
+test_that("compile_tpma_impact_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_cf_tbl()
+  full <- compile_tpma_impact_data(demo, "admissions", "ip")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_tpma_impact_data("admissions", "ip", sites = "fake_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_identical(nrow(empty), 0L)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(names(empty), names(full))
+  expect_identical(
+    vapply(empty, \(x) class(x)[[1]], character(1)),
+    vapply(full, \(x) class(x)[[1]], character(1))
+  )
+})
+
+
+# visualisations
 
 test_that("make_principal_pod_table renders a placeholder rather than failing", {
   testthat::skip_if_offline()

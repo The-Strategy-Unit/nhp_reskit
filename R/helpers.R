@@ -64,9 +64,9 @@ no_data_reason <- \(x) attr(x, "reskit_no_data", exact = TRUE)
 exclude_op_teleatt_procedures <- function(tbl) {
   stopifnot(all(c("measure", "pod") %in% colnames(tbl)))
   tbl |>
-    dplyr::filter(
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
+    dplyr::filter_out(
+      dplyr::if_any("measure", \(x) x == "tele_attendances") &
+        dplyr::if_any("pod", \(x) x == "op_procedure")
     )
 }
 
