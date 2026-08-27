@@ -45,6 +45,26 @@ test_that("compile_distribution_plot_data keeps its output shape when empty", {
     vapply(full, \(x) class(x)[[1]], character(1))
   )
 })
+test_that("compile_distrib_summary_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  full <- compile_distribution_summary_data(demo)
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- compile_distribution_summary_data(demo, sites = "no_such_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_identical(nrow(empty), 0L)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(names(empty), names(full))
+  expect_identical(
+    vapply(empty, \(x) class(x)[[1]], character(1)),
+    vapply(full, \(x) class(x)[[1]], character(1))
+  )
+})
 
 
 test_that("filtering sites before preparation leaves results unchanged", {
