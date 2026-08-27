@@ -4,11 +4,10 @@
 \alias{make_overall_cf_plot}
 \title{Generate overall change factor ("waterfall") chart}
 \usage{
-make_overall_cf_plot(principal_change_factor_data)
+make_overall_cf_plot(change_factor_data)
 }
 \arguments{
-\item{principal_change_factor_data}{data frame. As produced by
-\link{compile_change_factor_data}}
+\item{change_factor_data}{tibble, as produced by \link{compile_change_factor_data}}
 }
 \description{
 Generate overall change factor ("waterfall") chart

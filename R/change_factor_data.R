@@ -25,52 +25,59 @@ compile_change_factor_data <- function(
 ) {
   check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
-  init_data <- results[["step_counts"]] |>
-    filter_principal_data(measure, activity_type, pods) |>
-    filter_to_selected_sites(sites)
-  if (nrow(init_data) == 0) {
-    tibble::tibble(
-      change_factor = character(0),
-      measure = character(0),
-      value = numeric(0),
-      hide = numeric(0),
-      total = numeric(0)
-    )
-  } else {
-    interim_data <- init_data |>
-      prepare_principal_cf_data(
-        pod_lookup,
-        tpma_lookup,
-        include_baseline
-      ) |>
-      summarise_for_all_sites() |>
-      dplyr::summarise(
-        dplyr::across("value", sum),
-        .by = c("change_factor", "measure")
-      ) |>
-      # Here we need to sort by decreasing value (biggest increases in activity
-      # (+ve 'value's) at the top), and we need to ensure that the 'baseline'
-      # row, if any, is at the top so that the cumsum() step works correctly.
-      dplyr::arrange(dplyr::desc(dplyr::pick("value"))) |>
-      move_baseline_row_to_top() |>
-      dplyr::mutate(
-        cmvalue = cumsum(.data[["value"]]),
-        hide = dplyr::lag(.data[["cmvalue"]], 1, 0) + pmin(.data[["value"]], 0),
-        total = abs(.data[["value"]]) + .data[["hide"]]
-      ) |>
-      dplyr::select(!"cmvalue")
-
-    estimate_row <- tibble::tibble_row(
-      change_factor = "estimate",
-      measure = .env[["measure"]],
-      value = sum(interim_data[["value"]]),
-      hide = 0,
-      total = .data[["value"]]
-    )
-    interim_data |>
-      dplyr::bind_rows(estimate_row) |>
-      dplyr::mutate(dplyr::across("change_factor", forcats::fct_inorder))
+  sc_tbl <- results[["step_counts"]]
+  # Guard against an unmatched `sites` value producing an empty result
+  selected_sites_data <- filter_to_selected_sites(sc_tbl, sites)
+  if (nrow(selected_sites_data) == 0) {
+    return(empty_result(
+      proto_change_factor_data(),
+      "No step count data for the selected sites."
+    ))
   }
+  # Guard against filter steps producing a zero-row tibble
+  filtered_data <- selected_sites_data |>
+    filter_principal_data(measure, activity_type, pods)
+  if (nrow(filtered_data) == 0) {
+    return(empty_result(
+      proto_change_factor_data(),
+      "No step count data for the selected measure/activity type/pods."
+    ))
+  }
+
+  interim <- filtered_data |>
+    prepare_change_factor_data(pod_lookup, tpma_lookup) |>
+    summarise_for_all_sites() |>
+    dplyr::summarise(
+      dplyr::across("value", sum),
+      # altho we've already filtered to 1 measure, we need to retain the column
+      .by = c("change_factor", "activity_type_label", "measure")
+    ) |>
+    # Here we need to sort by decreasing value (biggest increases in activity
+    # (+ve 'value's) at the top), and then we need to ensure that the 'baseline'
+    # row, if any, is at the top so that the cumsum() step works correctly.
+    dplyr::arrange(dplyr::desc(dplyr::pick("value")))
+  if (include_baseline) {
+    next_tbl <- move_baseline_row_to_top(interim)
+  } else {
+    next_tbl <- dplyr::filter(interim, .data[["change_factor"]] != "baseline")
+  }
+  estimate_row <- tibble::tibble_row(
+    change_factor = "estimate",
+    activity_type_label = unique(next_tbl[["activity_type_label"]]),
+    measure = .env[["measure"]],
+    value = sum(next_tbl[["value"]]),
+    hide = 0,
+    total = .data[["value"]]
+  )
+  next_tbl |>
+    dplyr::mutate(
+      cmvalue = cumsum(.data[["value"]]),
+      hide = dplyr::lag(.data[["cmvalue"]], 1, 0) + pmin(.data[["value"]], 0),
+      total = abs(.data[["value"]]) + .data[["hide"]]
+    ) |>
+    dplyr::select(!"cmvalue") |>
+    dplyr::bind_rows(estimate_row) |>
+    dplyr::mutate(dplyr::across("change_factor", forcats::fct_inorder))
 }
 
 
@@ -82,7 +89,7 @@ compile_change_factor_data <- function(
 #'  the TPMA label
 #' @returns A prepared tibble of projected negative changes in activity, by TPMA
 #' @export
-compile_indiv_change_factor_data <- function(
+compile_tpma_impact_data <- function(
   results,
   measure,
   activity_type = c("ip", "op", "aae"),
@@ -96,79 +103,93 @@ compile_indiv_change_factor_data <- function(
   activity_type <- rlang::arg_match(activity_type)
   sort_by <- rlang::arg_match(sort_by)
   impact_factors <- c("activity_avoidance", "efficiencies")
+  sc_tbl <- results[["step_counts"]]
 
-  init_data <- results[["step_counts"]] |>
-    filter_principal_data(measure, activity_type, pods) |>
-    filter_to_selected_sites(sites)
-  if (nrow(init_data) == 0) {
-    tibble::tibble(
-      change_factor = character(0),
-      measure = character(0),
-      tpma_label = factor(0),
-      value = numeric(0)
-    )
-  } else {
-    table_data <- init_data |>
-      prepare_principal_cf_data(
-        pod_lookup,
-        tpma_lookup,
-        include_baseline = FALSE
-      ) |>
-      summarise_for_all_sites() |>
-      dplyr::filter(
-        dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }})
-      )
-    if (nrow(table_data) == 0) {
-      table_data |>
-        dplyr::select(c("change_factor", "measure", "tpma_label", "value"))
-    } else {
-      table_data <- table_data |>
-        dplyr::summarise(
-          dplyr::across("value", sum),
-          .by = c("change_factor", "measure", "tpma_label")
-        ) |>
-        dplyr::filter(
-          dplyr::if_any("tpma_label", \(x) x != "-"),
-          # we only want to show TPMAs that _reduce_ the activity measure
-          dplyr::if_any("value", \(x) x < 0)
-        )
-      # I would like to apologise for nesting ifs
-      if (nrow(table_data) == 0) {
-        table_data
-      } else {
-        table_data |>
-          dplyr::arrange(
-            dplyr::desc(dplyr::pick(tidyselect::all_of(sort_by)))
-          ) |>
-          dplyr::mutate(dplyr::across("tpma_label", forcats::fct_inorder))
-      }
-    }
+  # Guard against an unmatched `sites` value producing an empty result
+  selected_sites_data <- filter_to_selected_sites(sc_tbl, sites)
+  if (nrow(selected_sites_data) == 0) {
+    return(empty_result(
+      proto_tpma_impact_data(),
+      "No TPMA impact data for the selected sites."
+    ))
   }
+  # Guard against filter steps producing a zero-row tibble
+  filtered_data <- selected_sites_data |>
+    filter_principal_data(measure, activity_type, pods)
+  if (nrow(filtered_data) == 0) {
+    return(empty_result(
+      proto_tpma_impact_data(),
+      "No TPMA impact data for the selected measure/activity type/pods."
+    ))
+  }
+
+  interim_data <- filtered_data |>
+    prepare_change_factor_data(pod_lookup, tpma_lookup) |>
+    summarise_for_all_sites() |>
+    dplyr::summarise(
+      dplyr::across("value", sum),
+      # altho we've already filtered to 1 measure, we need to retain the column
+      .by = c("change_factor", "activity_type_label", "measure", "tpma_label")
+    ) |>
+    dplyr::filter(
+      dplyr::if_any("change_factor", \(x) x %in% {{ impact_factors }}),
+      dplyr::if_any("tpma_label", \(x) x != "-"),
+      # we only want to show TPMAs that _reduce_ the activity measure
+      dplyr::if_any("value", \(x) x < 0)
+    )
+  # Return an empty tibble and a message if no TPMAs had an impact
+  if (nrow(interim_data) == 0) {
+    return(empty_result(
+      proto_tpma_impact_data(),
+      "No TPMAs had an impact on activity for this set of parameters."
+    ))
+  }
+
+  interim_data |>
+    dplyr::arrange(dplyr::desc(dplyr::pick(tidyselect::all_of(sort_by)))) |>
+    dplyr::mutate(dplyr::across("tpma_label", forcats::fct_inorder))
 }
 
 
-#' Data preparation step for `change_factor` data
+#' Zero-row prototype for the [compile_change_factor_data] output
 #'
-#' @param dat A tibble
-#' @inheritParams compile_change_factor_data
-#' @returns A tibble
+#' The column names and types here must match what [compile_change_factor_data]
+#'  returns when rows are present; `test-empty_results.R` asserts this.
+#' @returns A zero-row tibble
 #' @keywords internal
-prepare_principal_cf_data <- function(
-  dat,
-  pod_lookup,
-  tpma_lookup,
-  include_baseline
-) {
+proto_change_factor_data <- function() {
+  tibble::tibble(
+    change_factor = factor(),
+    activity_type_label = factor(),
+    measure = character(),
+    value = numeric(),
+    hide = numeric(),
+    total = numeric()
+  )
+}
+
+
+#' Zero-row prototype for the [compile_tpma_impact_data] output
+#'
+#' The column names and types here must match what [compile_tpma_impact_data]
+#'  returns when rows are present; `test-empty_results.R` asserts this.
+#' @returns A zero-row tibble
+#' @keywords internal
+proto_tpma_impact_data <- function() {
+  tibble::tibble(
+    change_factor = character(),
+    activity_type_label = factor(),
+    measure = character(),
+    tpma_label = factor(),
+    value = numeric()
+  )
+}
+
+
+prepare_change_factor_data <- function(filtered_data, pod_lookup, tpma_lookup) {
   tpma_lookup <- dplyr::select(tpma_lookup, c("strategy", "tpma_label"))
-  pod_lookup <- pod_lookup |>
-    dplyr::mutate(dplyr::across("measure", \(x) {
-      dplyr::if_else(.data[["activity_type"]] == "aae", "arrivals", x)
-    })) |>
-    dplyr::distinct()
-  bsline_filtered <- dplyr::filter(dat, .data[["change_factor"]] != "baseline")
-  dat_prepared <- if (include_baseline) dat else bsline_filtered
-  dat_prepared |>
-    dplyr::filter(dplyr::if_any("model_run", \(x) x != 0)) |>
+  filtered_data |>
+    dplyr::filter_out(dplyr::if_any("model_run", \(x) x == 0)) |>
     join_for_labels(pod_lookup) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>
@@ -179,12 +200,22 @@ prepare_principal_cf_data <- function(
       }),
       dplyr::across("tpma_label", \(x) tidyr::replace_na(x, "-"))
     ) |>
+    # calculate the mean of all model runs for each combination of variables
     dplyr::summarise(
       dplyr::across("value", mean),
       .by = tidyselect::all_of(change_factor_sort_vars())
     )
 }
 
+
+move_baseline_row_to_top <- function(dat, var = "change_factor") {
+  stopifnot(!("rn" %in% colnames(dat)))
+  # add row_number column to ensure we don't lose any rows in setdiff below
+  dat <- dplyr::mutate(dat, rn = dplyr::row_number())
+  baseline_row <- dplyr::filter(dat, .data[[var]] == "baseline")
+  dplyr::bind_rows(baseline_row, dplyr::setdiff(dat, baseline_row)) |>
+    dplyr::select(!"rn")
+}
 
 #' Prepare a site-level summary table of change_factor results
 #'
@@ -198,13 +229,16 @@ export_principal_cf_data <- function(
   pod_lookup = get_detailed_pods(),
   tpma_lookup = get_tpma_label_lookup()
 ) {
-  results[["step_counts"]] |>
-    filter_to_selected_sites(sites) |>
-    prepare_principal_cf_data(
-      pod_lookup,
-      tpma_lookup,
-      include_baseline = TRUE
-    ) |>
+  sc_tbl <- results[["step_counts"]]
+  selected_data <- filter_to_selected_sites(sc_tbl, sites)
+  if (nrow(selected_data) == 0) {
+    return(empty_result(
+      proto_change_factor_data(),
+      "No step count data for the selected sites."
+    ))
+  }
+  selected_data |>
+    prepare_change_factor_data(pod_lookup, tpma_lookup) |>
     dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
 }
 
@@ -215,14 +249,4 @@ change_factor_sort_vars <- function() {
     "activity_type_label", "change_factor", "pod_label",
     "measure", "sitetret", "tpma_label"
   )
-}
-
-
-move_baseline_row_to_top <- function(dat, var = "change_factor") {
-  stopifnot(!("rn" %in% colnames(dat)))
-  # add row_number column to ensure we don't lose any rows in setdiff below
-  dat <- dplyr::mutate(dat, rn = dplyr::row_number())
-  baseline_row <- dplyr::filter(dat, .data[[var]] == "baseline")
-  dplyr::bind_rows(baseline_row, dplyr::setdiff(dat, baseline_row)) |>
-    dplyr::select(!"rn")
 }

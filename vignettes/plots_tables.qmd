@@ -264,33 +264,33 @@ results |>
 ```
 
 
-#### Individual change factor charts
+#### Individual change factor (TPMA) impact charts
 
 
 And a couple of individual change factor charts:
 
 ```{r}
-#| label: indiv-waterfall-chart1
+#| label: tpma-impact-chart1
 results |>
-  compile_indiv_change_factor_data(
+  compile_tpma_impact_data(
     measure = "attendances",
     activity_type = "op",
     pods = NULL
   ) |>
-  make_individual_cf_plot()
+  make_tpma_impact_plot()
 ```
 
 
 ```{r}
-#| label: indiv-waterfall-chart2
+#| label: tpma-impact-chart2
 results |>
-  compile_indiv_change_factor_data(
+  compile_tpma_impact_data(
     measure = "arrivals",
     activity_type = "aae",
     pods = NULL,
     sites = "site2"
   ) |>
-  make_individual_cf_plot()
+  make_tpma_impact_plot()
 ```
 
 
