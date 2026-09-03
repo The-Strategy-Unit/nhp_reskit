@@ -71,7 +71,8 @@ keep_mean_only <- function(tbl) {
 
 #' Filter a table so the `measure` column only contains 6 selected measures
 #'
-#' Currently this contains 6 of the 7 possible values; it excludes "procedures".
+#' Currently this contains 6 of 7 possible values in principal data; it
+#'  excludes "procedures". ("arrivals" is found in the step counts file).
 #' This function is used in several places in reskit as a filter.
 #' @param tbl A tibble
 #' @keywords internal
@@ -87,11 +88,11 @@ filter_to_main_measures <- function(tbl) {
 
 #' Use a lookup table to get more readable labels for PoDs
 #' @param tbl A tibble
-#' @param lookup A lookup table with pod and pod_label columns
+#' @param lookup A lookup table with `pod` and `pod_label` columns
 #' @keywords internal
-inner_join_for_labels <- function(tbl, lookup) {
+join_for_labels <- function(tbl, lookup) {
   tbl |>
-    dplyr::inner_join(lookup, "pod") |>
+    dplyr::left_join(lookup, "pod") |>
     dplyr::relocate(c("pod_label", "activity_type_label"), .after = "pod")
 }
 
@@ -120,7 +121,6 @@ relabel_ip_activity_types <- function(tbl) {
   tbl |>
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) {
-        x <- sub("s$", "", x)
         dplyr::if_else(
           x == "Inpatient",
           paste0(x, " ", uppercase_init(.data[["measure"]])),
@@ -153,19 +153,20 @@ get_trust_sites <- \(res_tbl, col = "sitetret") sort(unique(res_tbl[[col]]))
 
 convert_sex_codes <- \(x) dplyr::if_else(x == 1L, "Male", "Female")
 
+create_measure_label <- \(x) uppercase_init(sub("dd", "d D", gsub("_", "-", x)))
 
 uppercase_init <- \(x) sub("^([[:alpha:]])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
 
 
 #' Get a lookup of tretspef codes to descriptions
 #'
-#' Currently reads from a fixed location within the package.
 #' @returns A 2-column tibble with columns `code` and `tretspef`
 #' @export
 get_tretspef_lookup <- function() {
-  system.file("tx-lookup.json", package = "reskit") |>
-    yyjsonr::read_json_file() |>
-    tibble::as_tibble() |>
+  json_data <- possibly_read_tx_lookup()
+  msg <- "Unable to read tretspef data from GitHub"
+  azkit::check_that(json_data, is_not_null, msg)
+  tibble::as_tibble(json_data) |>
     dplyr::select(c(code = "Code", tretspef = "Description")) |>
     dplyr::mutate(
       dplyr::across("tretspef", \(x) sub(" Service$", "", x)),
@@ -208,6 +209,22 @@ convert_activity_type <- function(x) {
     "A&E" ~ "aae",
     "Inpatients" ~ "ip",
     "Outpatients" ~ "op"
+  )
+}
+
+
+check_measure <- function(measure) {
+  measure_list <- rlang::set_names(potential_measures(), "*")
+  measure_msg <- c("{.arg measure} must be one of ", measure_list)
+  azkit::check_that(measure, \(x) x %in% potential_measures(), measure_msg)
+}
+
+
+potential_measures <- function() {
+  # fmt: skip
+  c(
+    "admissions", "ambulance", "arrivals", "attendances", "beddays",
+    "procedures", "tele_attendances", "walk-in"
   )
 }
 

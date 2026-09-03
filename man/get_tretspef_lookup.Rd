@@ -10,5 +10,5 @@ get_tretspef_lookup()
 A 2-column tibble with columns \code{code} and \code{tretspef}
 }
 \description{
-Currently reads from a fixed location within the package.
+Get a lookup of tretspef codes to descriptions
 }

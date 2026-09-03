@@ -51,7 +51,7 @@ prepare_principal_pod_data <- function(default_tbl, pod_lookup) {
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
     combine_all_aae_pods() |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     relabel_pods() |>
     relabel_ip_activity_types() |>
     dplyr::summarise(

@@ -16,6 +16,7 @@ compile_detailed_activity_data <- function(
   pods = NULL,
   sites = NULL
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   aggregation <- rlang::arg_match(aggregation)
   if (aggregation == "age_group") {
@@ -85,7 +86,7 @@ prepare_detailed_activity_data <- function(dat, aggregation, pod_lookup) {
       dplyr::across("sex", convert_sex_codes),
       dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male")))
     ) |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     relabel_pods() |>
     calculate_principal_stats(detailed_activity_sort_vars(aggregation)) |>
     keep_mean_only()
@@ -132,8 +133,7 @@ export_detailed_activity_data <- function(
     aggregation <- "tretspef"
   }
   sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
-  interim_data <-
-    init_data |>
+  interim_data <- init_data |>
     filter_to_selected_sites(sites) |>
     prepare_detailed_activity_data(aggregation, pod_lookup)
 
