@@ -13,14 +13,10 @@ test_that("compile_principal_pod_data keeps its output shape when empty", {
     class = "reskit_no_data"
   )
 
-  expect_identical(nrow(empty), 0L)
+  expect_shape(empty, nrow = 0)
   # the contract: an empty result is indistinguishable from a populated one
   # apart from having no rows, so downstream make_* functions cannot break
-  expect_identical(names(empty), names(full))
-  expect_identical(
-    vapply(empty, \(x) class(x)[[1]], character(1)),
-    vapply(full, \(x) class(x)[[1]], character(1))
-  )
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
 })
 
 
@@ -36,14 +32,10 @@ test_that("compile_distribution_plot_data keeps its output shape when empty", {
     class = "reskit_no_data"
   )
 
-  expect_identical(nrow(empty), 0L)
+  expect_shape(empty, nrow = 0)
   # the contract: an empty result is indistinguishable from a populated one
   # apart from having no rows, so downstream make_* functions cannot break
-  expect_identical(names(empty), names(full))
-  expect_identical(
-    vapply(empty, \(x) class(x)[[1]], character(1)),
-    vapply(full, \(x) class(x)[[1]], character(1))
-  )
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
 })
 test_that("compile_distrib_summary_data keeps its output shape when empty", {
   testthat::skip_if_offline()
@@ -56,14 +48,10 @@ test_that("compile_distrib_summary_data keeps its output shape when empty", {
     class = "reskit_no_data"
   )
 
-  expect_identical(nrow(empty), 0L)
+  expect_shape(empty, nrow = 0)
   # the contract: an empty result is indistinguishable from a populated one
   # apart from having no rows, so downstream make_* functions cannot break
-  expect_identical(names(empty), names(full))
-  expect_identical(
-    vapply(empty, \(x) class(x)[[1]], character(1)),
-    vapply(full, \(x) class(x)[[1]], character(1))
-  )
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
 })
 
 
@@ -90,7 +78,7 @@ test_that("a default table with no main measures returns an empty result", {
     empty <- compile_principal_pod_data(demo),
     class = "reskit_no_data"
   )
-  expect_identical(nrow(empty), 0L)
+  expect_shape(empty, nrow = 0)
   expect_match(no_data_reason(empty), "produced an empty table")
 })
 
@@ -121,14 +109,10 @@ test_that("compile_principal_los_data keeps its output shape when empty", {
     class = "reskit_no_data"
   )
 
-  expect_identical(nrow(empty), 0L)
+  expect_shape(empty, nrow = 0)
   # the contract: an empty result is indistinguishable from a populated one
   # apart from having no rows, so downstream make_* functions cannot break
-  expect_identical(names(empty), names(full))
-  expect_identical(
-    vapply(empty, \(x) class(x)[[1]], character(1)),
-    vapply(full, \(x) class(x)[[1]], character(1))
-  )
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
 })
 
 
@@ -150,14 +134,10 @@ test_that("compile_change_factor_data keeps its output shape when empty", {
     class = "reskit_no_data"
   )
 
-  expect_identical(nrow(empty), 0L)
+  expect_shape(empty, nrow = 0)
   # the contract: an empty result is indistinguishable from a populated one
   # apart from having no rows, so downstream make_* functions cannot break
-  expect_identical(names(empty), names(full))
-  expect_identical(
-    vapply(empty, \(x) class(x)[[1]], character(1)),
-    vapply(full, \(x) class(x)[[1]], character(1))
-  )
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
 })
 
 
