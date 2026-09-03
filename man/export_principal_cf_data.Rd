@@ -7,7 +7,7 @@
 export_principal_cf_data(
   results,
   sites = NULL,
-  pod_lookup = get_principal_pods(),
+  pod_lookup = get_detailed_pods(),
   tpma_lookup = get_tpma_label_lookup()
 )
 }

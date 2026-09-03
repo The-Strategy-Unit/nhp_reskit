@@ -1,14 +1,9 @@
-filter_principal_data <- function(
-  dat,
-  selected_measure,
-  activity_type,
-  selected_pods = NULL
-) {
-  selected_pods <- selected_pods %||% unique(dat[["pod"]])
+filter_principal_data <- function(dat, measure, activity_type, pods = NULL) {
+  pods <- pods %||% unique(dat[["pod"]])
   dat |>
     dplyr::filter(
-      dplyr::if_any("pod", \(x) x %in% .env[["selected_pods"]]) &
-        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
+      dplyr::if_any("pod", \(x) x %in% .env[["pods"]]) &
+        dplyr::if_any("measure", \(x) x == .env[["measure"]]) &
         dplyr::if_any("activity_type", \(x) x == .env[["activity_type"]])
     )
 }
@@ -33,15 +28,70 @@ filter_to_selected_sites <- function(dat, sites, site_col = "sitetret") {
 }
 
 
+#' Return a zero-row result that keeps the expected output shape
+#'
+#' Used by the `compile_*` functions when filtering leaves no rows. Returning a
+#'  correctly shaped zero-row tibble, rather than whatever partially prepared
+#'  object happened to be in hand, means the downstream `make_*` functions can
+#'  rely on the output columns existing.
+#' The `reskit_no_data` attribute lets those functions render an explicit
+#'  "no data" panel rather than a blank chart or a cryptic missing-column error.
+#' This function and its documentation were suggested by an LLM.
+#' @param prototype A zero-row tibble giving the columns and types that the
+#'  calling function returns when data are available
+#' @param reason A string explaining why no rows remain, stored as an attribute
+#' @returns `prototype`, carrying a `reskit_no_data` attribute
+#' @keywords internal
+empty_result <- function(prototype, reason = NULL) {
+  stopifnot(nrow(prototype) == 0)
+  reason <- reason %||% "No data available for the current selection."
+  rlang::inform(reason, class = "reskit_no_data", use_cli_format = TRUE)
+  attr(prototype, "reskit_no_data") <- reason
+  prototype
+}
+
+
+#' Recover the explanation attached by [empty_result]
+#' @param x A tibble returned by a `compile_*` function
+#' @returns A string, or `NULL` if the result was not flagged as empty
+#' @keywords internal
+no_data_reason <- \(x) attr(x, "reskit_no_data", exact = TRUE)
+
+
+#' Render a placeholder plot when there are no data to display
+#'
+#' The plot equivalent of [make_no_data_table]. Preferred over returning an
+#'  empty ggplot, which renders as a blank panel and gives the reader no clue
+#'  why it is blank. Returning a ggplot object (rather than, say, a table)
+#'  keeps the return type of the `make_*_plot` functions consistent, so callers
+#'  can still pass the result to `plotly::ggplotly()` or a patchwork layout.
+#' @param reason A string explaining why there are no data, or `NULL`
+#' @returns A ggplot object
+#' @keywords internal
+make_no_data_plot <- function(reason = NULL) {
+  reason <- reason %||% "No data available for the current selection."
+  ggplot2::ggplot() +
+    ggplot2::annotate(
+      "text",
+      x = 0,
+      y = 0,
+      label = reason,
+      size = 5,
+      colour = "grey40"
+    ) +
+    ggplot2::theme_void()
+}
+
+
 #' Exclude outpatient procedures from tele-attendances count only
 #' @param tbl A tibble
 #' @keywords internal
 exclude_op_teleatt_procedures <- function(tbl) {
   stopifnot(all(c("measure", "pod") %in% colnames(tbl)))
   tbl |>
-    dplyr::filter(
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
+    dplyr::filter_out(
+      dplyr::if_any("measure", \(x) x == "tele_attendances") &
+        dplyr::if_any("pod", \(x) x == "op_procedure")
     )
 }
 
@@ -138,17 +188,6 @@ relabel_ip_activity_types <- function(tbl) {
 get_activity_type_from_pod <- function(tbl) {
   dplyr::mutate(tbl, activity_type = sub("^([a-z]*).*", "\\1", .data[["pod"]]))
 }
-
-
-#' From any results table, get list of all site codes for this scheme
-#'
-#' The "default" table is recommended
-#' @param res_tbl A tibble from the results list
-#' @param col string The name of the column containing site codes. `sitetret` by
-#'  default
-#' @returns A character vector
-#' @export
-get_trust_sites <- \(res_tbl, col = "sitetret") sort(unique(res_tbl[[col]]))
 
 
 convert_sex_codes <- \(x) dplyr::if_else(x == 1L, "Male", "Female")

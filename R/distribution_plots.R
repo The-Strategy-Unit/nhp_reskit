@@ -6,6 +6,9 @@
 #'  for context.
 #' @export
 make_beeswarm_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
+  if (nrow(distrib_plot_data) == 0) {
+    return(make_no_data_plot(no_data_reason(distrib_plot_data)))
+  }
   baseline_value <- unique(distrib_plot_data[["baseline"]])
   principal_value <- unique(distrib_plot_data[["principal"]])
   stopifnot(all(lengths(c(baseline_value, principal_value)) == 1))
@@ -59,6 +62,9 @@ make_beeswarm_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
 #' @inheritParams make_beeswarm_distrib_plot
 #' @export
 make_cumulative_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
+  if (nrow(distrib_plot_data) == 0) {
+    return(make_no_data_plot(no_data_reason(distrib_plot_data)))
+  }
   baseline_value <- unique(distrib_plot_data[["baseline"]])
   principal_value <- unique(distrib_plot_data[["principal"]])
   stopifnot(all(lengths(c(baseline_value, principal_value)) == 1))
