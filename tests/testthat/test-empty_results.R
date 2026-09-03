@@ -173,14 +173,73 @@ test_that("compile_tpma_impact_data keeps its output shape when empty", {
     class = "reskit_no_data"
   )
 
-  expect_identical(nrow(empty), 0L)
+  expect_shape(empty, nrow = 0)
   # the contract: an empty result is indistinguishable from a populated one
   # apart from having no rows, so downstream make_* functions cannot break
-  expect_identical(names(empty), names(full))
-  expect_identical(
-    vapply(empty, \(x) class(x)[[1]], character(1)),
-    vapply(full, \(x) class(x)[[1]], character(1))
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+})
+
+
+demo_da_tbl <- function(seed = 4821L) {
+  list(
+    create_demo_sex_agegroup_tbl(seed),
+    create_demo_sex_tretspef_tbl(seed)
+  ) |>
+    rlang::set_names(c("sex+age_group", "sex+tretspef_grouped"))
+}
+
+
+test_that("compile_detailed_activity_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_da_tbl()
+  full <- compile_detailed_activity_data(demo, "admissions")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_detailed_activity_data("admissions", sites = "fake_site"),
+    class = "reskit_no_data"
   )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+
+  full2 <- compile_detailed_activity_data(
+    demo,
+    "admissions",
+    aggregation = "tretspef_grouped"
+  )
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty2 <- demo |>
+      compile_detailed_activity_data(
+        "admissions",
+        aggregation = "tretspef_grouped",
+        sites = "fake_site"
+      ),
+    regexp = "selected sites",
+    class = "reskit_no_data"
+  )
+  expect_message(
+    empty3 <- demo |>
+      compile_detailed_activity_data(
+        "admissions",
+        aggregation = "tretspef_grouped",
+        activity_type = "op"
+      ),
+    regexp = "selected measure",
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty2, nrow = 0)
+  expect_shape(empty3, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty2, class), purrr::map_chr(full2, class))
+  expect_identical(purrr::map_chr(empty3, class), purrr::map_chr(full2, class))
 })
 
 
