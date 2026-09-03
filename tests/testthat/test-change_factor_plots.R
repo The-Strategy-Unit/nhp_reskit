@@ -86,7 +86,7 @@ test_that("we can generate a plot using dummy data", {
   make_overall_cf_plot(cf_tbl2)
 
   # Use Matt's original data
-
+  testthat::skip_on_ci()
   pqt_path <- azkit::read_azure_table(
     Sys.getenv("AZ_TABLE_NAME"),
     filter = "dataset eq 'RGP' and scenario eq 'md-test-3-2'",
