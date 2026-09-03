@@ -22,6 +22,9 @@ make_principal_pod_table <- function(principal_pod_data) {
 #' @returns A gt table
 #' @export
 make_principal_los_table <- function(principal_los_data) {
+  if (nrow(principal_los_data) == 0) {
+    return(make_no_data_table(no_data_reason(principal_los_data)))
+  }
   principal_los_data |>
     format_bar_cols() |>
     gt::gt(groupname_col = "pod_label") |>
@@ -38,6 +41,9 @@ make_principal_los_table <- function(principal_los_data) {
 #' @returns A gt table
 #' @export
 make_detailed_activity_table <- function(detailed_activity_data, final_year) {
+  if (nrow(detailed_activity_data) == 0) {
+    return(make_no_data_table(no_data_reason(detailed_activity_data)))
+  }
   dat_cols <- colnames(detailed_activity_data)
   agg <- intersect(c("age_group", "tretspef"), dat_cols)
   agg_label <- ifelse(agg == "age_group", "Age Group", "Treatment Specialty")
@@ -59,6 +65,9 @@ make_detailed_activity_table <- function(detailed_activity_data, final_year) {
 #' @returns A gt table
 #' @export
 make_distribution_summary_table <- function(distr_summary_data) {
+  if (nrow(distr_summary_data) == 0) {
+    return(make_no_data_table(no_data_reason(distr_summary_data)))
+  }
   value_col <- intersect(c("median", "principal"), colnames(distr_summary_data))
   int_cols <- c("baseline", value_col, "change", "lower", "upper")
   distr_summary_data |>
