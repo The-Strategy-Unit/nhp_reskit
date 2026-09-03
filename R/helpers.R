@@ -58,6 +58,31 @@ empty_result <- function(prototype, reason = NULL) {
 no_data_reason <- \(x) attr(x, "reskit_no_data", exact = TRUE)
 
 
+#' Render a placeholder plot when there are no data to display
+#'
+#' The plot equivalent of [make_no_data_table]. Preferred over returning an
+#'  empty ggplot, which renders as a blank panel and gives the reader no clue
+#'  why it is blank. Returning a ggplot object (rather than, say, a table)
+#'  keeps the return type of the `make_*_plot` functions consistent, so callers
+#'  can still pass the result to `plotly::ggplotly()` or a patchwork layout.
+#' @param reason A string explaining why there are no data, or `NULL`
+#' @returns A ggplot object
+#' @keywords internal
+make_no_data_plot <- function(reason = NULL) {
+  reason <- reason %||% "No data available for the current selection."
+  ggplot2::ggplot() +
+    ggplot2::annotate(
+      "text",
+      x = 0,
+      y = 0,
+      label = reason,
+      size = 5,
+      colour = "grey40"
+    ) +
+    ggplot2::theme_void()
+}
+
+
 #' Exclude outpatient procedures from tele-attendances count only
 #' @param tbl A tibble
 #' @keywords internal

@@ -295,4 +295,64 @@ test_that("make_distribution_summary_table renders a placeholder rather than fai
   expect_s3_class(tbl, "gt_tbl")
   expect_match(gt::as_raw_html(tbl), no_data_reason(empty), fixed = TRUE)
 })
+
+
+test_that("make_overall_cf_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_change_factor_data(
+      demo_cf_tbl(),
+      "admissions",
+      "ip",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_overall_cf_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
+})
+
+
+test_that("make_tpma_impact_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_tpma_impact_data(
+      demo_cf_tbl(),
+      "admissions",
+      "ip",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_tpma_impact_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
+})
+
+
+test_that("make_beeswarm_distrib_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_distribution_plot_data(
+      demo_default(),
+      "admissions",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_beeswarm_distrib_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
+})
+
+test_that("make_cumulative_distrib_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_distribution_plot_data(
+      demo_default(),
+      "admissions",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_cumulative_distrib_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
 })

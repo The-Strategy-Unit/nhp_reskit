@@ -3,6 +3,9 @@
 #' @param change_factor_data tibble, as produced by [compile_change_factor_data]
 #' @export
 make_overall_cf_plot <- function(change_factor_data) {
+  if (nrow(change_factor_data) == 0) {
+    return(make_no_data_plot(no_data_reason(change_factor_data)))
+  }
   x_axis_label <- create_measure_label(unique(change_factor_data[["measure"]]))
   change_factor_data |>
     dplyr::mutate(
@@ -45,6 +48,9 @@ make_overall_cf_plot <- function(change_factor_data) {
 #' @param tpma_impact_data tibble, as produced by [compile_tpma_impact_data]
 #' @export
 make_tpma_impact_plot <- function(tpma_impact_data) {
+  if (nrow(tpma_impact_data) == 0) {
+    return(make_no_data_plot(no_data_reason(tpma_impact_data)))
+  }
   x_axis_label <- create_measure_label(unique(tpma_impact_data[["measure"]]))
   tpma_impact_data |>
     dplyr::mutate(
