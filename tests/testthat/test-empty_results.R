@@ -252,9 +252,47 @@ test_that("make_principal_pod_table renders a placeholder rather than failing", 
   )
   tbl <- expect_no_error(make_principal_pod_table(empty))
   expect_s3_class(tbl, "gt_tbl")
-  expect_match(
-    gt::as_raw_html(tbl),
-    "No principal PoD data",
-    fixed = TRUE
+  expect_match(gt::as_raw_html(tbl), "No principal PoD data", fixed = TRUE)
+})
+
+
+test_that("make_principal_los_table renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_principal_los_data(
+      demo_los_tbl(),
+      "admissions",
+      sites = "no_such_site"
+    )
   )
+  tbl <- expect_no_error(make_principal_pod_table(empty))
+  expect_s3_class(tbl, "gt_tbl")
+  expect_match(gt::as_raw_html(tbl), "No principal LoS data", fixed = TRUE)
+})
+
+
+test_that("make_detailed_activity_table renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  demo <- demo_da_tbl()
+  empty <- suppressMessages(
+    compile_detailed_activity_data(demo, "admissions", sites = "fake_site")
+  )
+  tbl <- expect_no_warning(
+    expect_no_error(make_detailed_activity_table(empty, final_year = "2042/43"))
+  )
+  expect_s3_class(tbl, "gt_tbl")
+  expect_match(gt::as_raw_html(tbl), no_data_reason(empty), fixed = TRUE)
+})
+
+
+test_that("make_distribution_summary_table renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  empty <- suppressMessages(
+    compile_distribution_summary_data(demo, sites = "no_such_site")
+  )
+  tbl <- expect_no_error(make_distribution_summary_table(empty))
+  expect_s3_class(tbl, "gt_tbl")
+  expect_match(gt::as_raw_html(tbl), no_data_reason(empty), fixed = TRUE)
+})
 })
