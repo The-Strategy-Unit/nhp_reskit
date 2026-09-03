@@ -10,7 +10,7 @@ empty_result(prototype, reason = NULL)
 \item{prototype}{A zero-row tibble giving the columns and types that the
 calling function returns when data are available}
 
-\item{reason}{A string explaining why no rows remain}
+\item{reason}{A string explaining why no rows remain, stored as an attribute}
 }
 \value{
 \code{prototype}, carrying a \code{reskit_no_data} attribute

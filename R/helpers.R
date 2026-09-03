@@ -39,7 +39,7 @@ filter_to_selected_sites <- function(dat, sites, site_col = "sitetret") {
 #' This function and its documentation were suggested by an LLM.
 #' @param prototype A zero-row tibble giving the columns and types that the
 #'  calling function returns when data are available
-#' @param reason A string explaining why no rows remain
+#' @param reason A string explaining why no rows remain, stored as an attribute
 #' @returns `prototype`, carrying a `reskit_no_data` attribute
 #' @keywords internal
 empty_result <- function(prototype, reason = NULL) {
