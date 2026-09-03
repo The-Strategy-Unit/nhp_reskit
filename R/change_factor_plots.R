@@ -1,12 +1,13 @@
 #' Generate overall change factor ("waterfall") chart
 #'
-#' @param principal_change_factor_data data frame. As produced by
-#'  [compile_change_factor_data]
+#' @param change_factor_data tibble, as produced by [compile_change_factor_data]
 #' @export
-make_overall_cf_plot <- function(principal_change_factor_data) {
-  pcf_data <- principal_change_factor_data
-  x_axis_label <- create_measure_label(unique(pcf_data[["measure"]]))
-  pcf_data |>
+make_overall_cf_plot <- function(change_factor_data) {
+  if (nrow(change_factor_data) == 0) {
+    return(make_no_data_plot(no_data_reason(change_factor_data)))
+  }
+  x_axis_label <- create_measure_label(unique(change_factor_data[["measure"]]))
+  change_factor_data |>
     dplyr::mutate(
       colour = dplyr::case_when(
         .data[["change_factor"]] == "baseline" ~ "#686f73",
@@ -29,7 +30,7 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
         colour = .data[["colour"]]
       ),
       # dynamic: bigger if fewer bars (130 is relative to 600px plot height)
-      lwd = 130 / nrow(pcf_data)
+      lwd = 130 / nrow(change_factor_data)
     ) +
     ggplot2::scale_colour_identity() +
     ggplot2::scale_x_continuous(
@@ -44,13 +45,14 @@ make_overall_cf_plot <- function(principal_change_factor_data) {
 
 #' Generate bar charts by change factor at individual TPMA level
 #'
-#' @param indiv_change_factor_data data frame. As produced by
-#'  [compile_indiv_change_factor_data]
+#' @param tpma_impact_data tibble, as produced by [compile_tpma_impact_data]
 #' @export
-make_individual_cf_plot <- function(indiv_change_factor_data) {
-  icf_data <- indiv_change_factor_data
-  x_axis_label <- create_measure_label(unique(icf_data[["measure"]]))
-  icf_data |>
+make_tpma_impact_plot <- function(tpma_impact_data) {
+  if (nrow(tpma_impact_data) == 0) {
+    return(make_no_data_plot(no_data_reason(tpma_impact_data)))
+  }
+  x_axis_label <- create_measure_label(unique(tpma_impact_data[["measure"]]))
+  tpma_impact_data |>
     dplyr::mutate(
       dplyr::across("change_factor", \(x) {
         sub("Beddays", "Bed days", uppercase_init(gsub("_", " ", x)))

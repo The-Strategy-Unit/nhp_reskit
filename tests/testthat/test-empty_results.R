@@ -1,0 +1,338 @@
+demo_default <- function(seed = 4821L) {
+  list(default = create_demo_default_tbl(seed))
+}
+
+test_that("compile_principal_pod_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  full <- compile_principal_pod_data(demo)
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- compile_principal_pod_data(demo, sites = "no_such_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+})
+
+
+test_that("compile_distribution_plot_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  full <- compile_distribution_plot_data(demo, "admissions")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_distribution_plot_data("admissions", sites = "no_such_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+})
+test_that("compile_distrib_summary_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  full <- compile_distribution_summary_data(demo)
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- compile_distribution_summary_data(demo, sites = "no_such_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+})
+
+
+test_that("filtering sites before preparation leaves results unchanged", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  expect_identical(
+    compile_principal_pod_data(
+      demo,
+      sites = unique(demo[["default"]][["sitetret"]])
+    ),
+    compile_principal_pod_data(demo)
+  )
+})
+
+test_that("a default table with no main measures returns an empty result", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  demo[["default"]] <- dplyr::filter(
+    demo[["default"]],
+    dplyr::if_any("measure", \(x) x == "procedures")
+  )
+  expect_message(
+    empty <- compile_principal_pod_data(demo),
+    class = "reskit_no_data"
+  )
+  expect_shape(empty, nrow = 0)
+  expect_match(no_data_reason(empty), "produced an empty table")
+})
+
+test_that("empty results carry an explanation", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_principal_pod_data(demo_default(), sites = "no_such_site")
+  )
+  expect_type(no_data_reason(empty), "character")
+  expect_null(no_data_reason(tibble::tibble(a = 1)))
+})
+
+# LOS data tests
+
+demo_los_tbl <- function(seed = 4821L) {
+  list(`tretspef+los_group` = create_demo_tretspef_losgroup_tbl(seed))
+}
+
+test_that("compile_principal_los_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_los_tbl()
+  full <- compile_principal_los_data(demo, measure = "admissions")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_principal_los_data(measure = "admissions", sites = "fake_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+})
+
+
+# change factor checks
+
+demo_cf_tbl <- function(seed = 4821L) {
+  list(step_counts = create_demo_stepcounts_tbl(seed))
+}
+
+test_that("compile_change_factor_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_cf_tbl()
+  full <- compile_change_factor_data(demo, "admissions", "ip")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_change_factor_data("admissions", "ip", sites = "fake_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+})
+
+
+test_that("compile_tpma_impact_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_cf_tbl()
+  full <- compile_tpma_impact_data(demo, "admissions", "ip")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_tpma_impact_data("admissions", "ip", sites = "fake_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+})
+
+
+demo_da_tbl <- function(seed = 4821L) {
+  list(
+    create_demo_sex_agegroup_tbl(seed),
+    create_demo_sex_tretspef_tbl(seed)
+  ) |>
+    rlang::set_names(c("sex+age_group", "sex+tretspef_grouped"))
+}
+
+
+test_that("compile_detailed_activity_data keeps its output shape when empty", {
+  testthat::skip_if_offline()
+  demo <- demo_da_tbl()
+  full <- compile_detailed_activity_data(demo, "admissions")
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty <- demo |>
+      compile_detailed_activity_data("admissions", sites = "fake_site"),
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty, class), purrr::map_chr(full, class))
+
+  full2 <- compile_detailed_activity_data(
+    demo,
+    "admissions",
+    aggregation = "tretspef_grouped"
+  )
+  # note the assignment sits inside expect_message(), which returns the
+  # condition rather than the value of the expression
+  expect_message(
+    empty2 <- demo |>
+      compile_detailed_activity_data(
+        "admissions",
+        aggregation = "tretspef_grouped",
+        sites = "fake_site"
+      ),
+    regexp = "selected sites",
+    class = "reskit_no_data"
+  )
+  expect_message(
+    empty3 <- demo |>
+      compile_detailed_activity_data(
+        "admissions",
+        aggregation = "tretspef_grouped",
+        activity_type = "op"
+      ),
+    regexp = "selected measure",
+    class = "reskit_no_data"
+  )
+
+  expect_shape(empty2, nrow = 0)
+  expect_shape(empty3, nrow = 0)
+  # the contract: an empty result is indistinguishable from a populated one
+  # apart from having no rows, so downstream make_* functions cannot break
+  expect_identical(purrr::map_chr(empty2, class), purrr::map_chr(full2, class))
+  expect_identical(purrr::map_chr(empty3, class), purrr::map_chr(full2, class))
+})
+
+
+# visualisations
+
+test_that("make_principal_pod_table renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_principal_pod_data(demo_default(), sites = "no_such_site")
+  )
+  tbl <- expect_no_error(make_principal_pod_table(empty))
+  expect_s3_class(tbl, "gt_tbl")
+  expect_match(gt::as_raw_html(tbl), "No principal PoD data", fixed = TRUE)
+})
+
+
+test_that("make_principal_los_table renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_principal_los_data(
+      demo_los_tbl(),
+      "admissions",
+      sites = "no_such_site"
+    )
+  )
+  tbl <- expect_no_error(make_principal_pod_table(empty))
+  expect_s3_class(tbl, "gt_tbl")
+  expect_match(gt::as_raw_html(tbl), "No principal LoS data", fixed = TRUE)
+})
+
+
+test_that("make_detailed_activity_table renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  demo <- demo_da_tbl()
+  empty <- suppressMessages(
+    compile_detailed_activity_data(demo, "admissions", sites = "fake_site")
+  )
+  tbl <- expect_no_warning(
+    expect_no_error(make_detailed_activity_table(empty, final_year = "2042/43"))
+  )
+  expect_s3_class(tbl, "gt_tbl")
+  expect_match(gt::as_raw_html(tbl), no_data_reason(empty), fixed = TRUE)
+})
+
+
+test_that("make_distribution_summary_table renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  demo <- demo_default()
+  empty <- suppressMessages(
+    compile_distribution_summary_data(demo, sites = "no_such_site")
+  )
+  tbl <- expect_no_error(make_distribution_summary_table(empty))
+  expect_s3_class(tbl, "gt_tbl")
+  expect_match(gt::as_raw_html(tbl), no_data_reason(empty), fixed = TRUE)
+})
+
+
+test_that("make_overall_cf_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_change_factor_data(
+      demo_cf_tbl(),
+      "admissions",
+      "ip",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_overall_cf_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
+})
+
+
+test_that("make_tpma_impact_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_tpma_impact_data(
+      demo_cf_tbl(),
+      "admissions",
+      "ip",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_tpma_impact_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
+})
+
+
+test_that("make_beeswarm_distrib_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_distribution_plot_data(
+      demo_default(),
+      "admissions",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_beeswarm_distrib_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
+})
+
+test_that("make_cumulative_distrib_plot renders a placeholder rather than failing", {
+  testthat::skip_if_offline()
+  empty <- suppressMessages(
+    compile_distribution_plot_data(
+      demo_default(),
+      "admissions",
+      sites = "no_such_site"
+    )
+  )
+  plot <- expect_no_error(make_cumulative_distrib_plot(empty))
+  expect_s3_class(plot, "ggplot")
+  expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
+})

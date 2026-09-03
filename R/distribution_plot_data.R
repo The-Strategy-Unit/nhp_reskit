@@ -14,14 +14,25 @@ compile_distribution_plot_data <- function(
 ) {
   check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
-  init_data <- results[["default"]] |>
-    filter_to_selected_sites(sites) |>
+  # Guard against an unmatched `sites` value producing an empty result
+  selected_sites_data <- filter_to_selected_sites(results[["default"]], sites)
+  if (nrow(selected_sites_data) == 0) {
+    return(empty_result(
+      proto_distribution_plot_data(),
+      "No results data for the selected sites."
+    ))
+  }
+  # Guard against filter steps producing a zero-row tibble
+  filtered_data <- selected_sites_data |>
     get_activity_type_from_pod() |>
     filter_principal_data(measure, activity_type, pods)
-  if (nrow(init_data) == 0) {
-    init_data
+  if (nrow(filtered_data) == 0) {
+    empty_result(
+      proto_distribution_plot_data(),
+      "No results data for the selected measure/activity type/pods."
+    )
   } else {
-    init_data |>
+    filtered_data |>
       prepare_distribution_plot_data(pod_lookup) |>
       dplyr::summarise(
         dplyr::across(c("value", "baseline", "principal"), sum),
@@ -30,9 +41,26 @@ compile_distribution_plot_data <- function(
   }
 }
 
+
+#' Zero-row prototype for the [compile_distribution_plot_data] output
+#'
+#' The column names and types here must match what
+#'  [compile_distribution_plot_data] returns when rows are present;
+#'  `test-empty_results.R` asserts this.
+#' @returns A zero-row tibble
+#' @keywords internal
+proto_distribution_plot_data <- function() {
+  tibble::tibble(
+    model_run = integer(),
+    value = integer(),
+    baseline = numeric(),
+    principal = numeric()
+  )
+}
+
 #' Preparation of site-level data for the main summary table
 #'
-#' @inheritParams prepare_principal_cf_data
+#' @inheritParams compile_change_factor_data
 #' @returns A tibble
 #' @keywords internal
 prepare_distribution_plot_data <- function(dat, pod_lookup) {
@@ -54,6 +82,5 @@ prepare_distribution_plot_data <- function(dat, pod_lookup) {
     ) |>
     tidyr::pivot_wider(names_from = "stage", values_from = "mean") |>
     tidyr::fill("baseline", .by = tidyselect::all_of(fill_cols)) |>
-    dplyr::filter(dplyr::if_any("model_run", \(x) x > 0)) |>
-    dplyr::mutate(dplyr::across("model_run", forcats::as_factor))
+    dplyr::filter(dplyr::if_any("model_run", \(x) x > 0))
 }

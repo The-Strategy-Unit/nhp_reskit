@@ -13,35 +13,57 @@ compile_distribution_summary_data <- function(
   value_type <- rlang::arg_match(value_type)
   remove_col <- setdiff(c("median", "principal"), value_type)
 
-  init_data <- results[["default"]] |>
-    prepare_distribution_summary_data(pod_lookup) |>
-    filter_to_selected_sites(sites)
-  if (nrow(init_data) == 0) {
-    init_data
-  } else {
-    # fmt: skip
-    arr_levels <- c(
+  # Guard against an unmatched `sites` value producing an empty result
+  selected_sites_data <- filter_to_selected_sites(results[["default"]], sites)
+  if (nrow(selected_sites_data) == 0) {
+    return(empty_result(
+      proto_distribution_summary_data(value_type),
+      "No results data for the selected sites."
+    ))
+  }
+
+  # fmt: skip
+  m_levels <- c(
       "Admissions", "Bed days", "Attendances", "Tele-attendances",
       "Ambulance", "Walk-in"
     )
-    init_data |>
-      summarise_for_all_sites() |>
-      tidyr::pivot_wider(names_from = "stat", values_from = "principal") |>
-      dplyr::rename(principal = "mean", lower = "p10", upper = "p90") |>
-      dplyr::select(!{{ remove_col }}) |>
-      dplyr::mutate(
-        change = .data[[value_type]] - .data[["baseline"]],
-        change_pct = .data[["change"]] / .data[["baseline"]],
-        .before = "lower"
-      ) |>
-      dplyr::mutate(
-        dplyr::across("measure", \(x) forcats::fct(x, arr_levels))
-      ) |>
-      dplyr::arrange(dplyr::across("baseline", dplyr::desc)) |>
-      dplyr::arrange(dplyr::pick("measure"))
-  }
+  selected_sites_data |>
+    prepare_distribution_summary_data(pod_lookup) |>
+    summarise_for_all_sites() |>
+    tidyr::pivot_wider(names_from = "stat", values_from = "principal") |>
+    dplyr::rename(principal = "mean", lower = "p10", upper = "p90") |>
+    dplyr::select(!{{ remove_col }}) |>
+    dplyr::mutate(
+      change = .data[[value_type]] - .data[["baseline"]],
+      change_pct = .data[["change"]] / .data[["baseline"]],
+      .before = "lower"
+    ) |>
+    dplyr::mutate(dplyr::across("measure", \(x) forcats::fct(x, m_levels))) |>
+    dplyr::arrange(dplyr::desc(dplyr::pick("baseline"))) |>
+    dplyr::arrange(dplyr::pick("measure"))
 }
 
+
+#' Zero-row prototype for the [compile_distribution_summary_data] output
+#'
+#' The column names and types here must match what
+#'  [compile_distribution_summary_data] returns when rows are present;
+#'  `test-empty_results.R` asserts this.
+#' @returns A zero-row tibble
+#' @keywords internal
+proto_distribution_summary_data <- function(value_type = "median") {
+  tibble::tibble(
+    pod_label = factor(),
+    activity_type_label = factor(),
+    measure = factor(),
+    baseline = numeric(),
+    !!value_type := numeric(),
+    change = numeric(),
+    change_pct = numeric(),
+    lower = numeric(),
+    upper = numeric()
+  )
+}
 
 #' Initial preparation of site-level data for the main summary table
 #'
@@ -57,7 +79,7 @@ prepare_distribution_summary_data <- function(default_tbl, pod_lookup) {
     calculate_principal_stats(default_group_cols(grp_cols)) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {
-        sub("Beddays", "Bed days", uppercase_init(sub("_", "-", x)))
+        sub("Beddays", "Bed days", uppercase_init(gsub("_", "-", x)))
       })
     )
 }
@@ -74,7 +96,15 @@ export_distribution_summary_data <- function(
   pod_lookup = get_detailed_pods(),
   sites = NULL
 ) {
-  results[["default"]] |>
+  # Guard against an unmatched `sites` value producing an empty result
+  selected_sites_data <- filter_to_selected_sites(results[["default"]], sites)
+  if (nrow(selected_sites_data) == 0) {
+    return(empty_result(
+      proto_distribution_summary_data(),
+      "No results data for the selected sites."
+    ))
+  }
+  selected_sites_data |>
     prepare_distribution_summary_data(pod_lookup) |>
     filter_to_selected_sites(sites) |>
     tidyr::pivot_wider(names_from = "stat", values_from = "principal")
