@@ -4,7 +4,7 @@
 #'  containing a `code` column (used as a key for joining to the tretspef
 #'  table) and a `tretspef` column that provides friendly labels for specialties
 #' @param aggregation string. One of "age_group" or "tretspef_grouped"
-#' @inheritParams compile_change_factor_data
+#' @inheritParams compile_grouped_impact_data
 #' @export
 compile_detailed_activity_data <- function(
   results,
@@ -16,31 +16,60 @@ compile_detailed_activity_data <- function(
   pods = NULL,
   sites = NULL
 ) {
+  check_measure(measure)
   activity_type <- rlang::arg_match(activity_type)
   aggregation <- rlang::arg_match(aggregation)
+
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
   } else {
-    # aggregation == "tretspef_grouped"
+    # the second option: aggregation == "tretspef_grouped"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
     aggregation <- "tretspef"
   }
-  interim_data <-
-    init_data |>
-    get_activity_type_from_pod() |>
-    filter_principal_data(measure, activity_type, pods) |>
-    filter_to_selected_sites(sites) |>
-    prepare_detailed_activity_data(aggregation, pod_lookup) |>
-    summarise_for_all_pods(aggregation)
-
-  if (nrow(interim_data) == 0) {
-    interim_data
-  } else {
-    interim_data |>
-      add_change_cols() |>
-      dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
+  # Guard against an unmatched `sites` value producing an empty result
+  selected_sites_data <- filter_to_selected_sites(init_data, sites)
+  if (nrow(selected_sites_data) == 0) {
+    return(empty_result(
+      proto_detailed_activity_data(aggregation),
+      "No data for the selected sites."
+    ))
   }
+  interim_data <- selected_sites_data |>
+    get_activity_type_from_pod() |>
+    filter_principal_data(measure, activity_type, pods)
+  if (nrow(interim_data) == 0) {
+    return(empty_result(
+      proto_detailed_activity_data(aggregation),
+      "No data for the selected measure/activity type/pods."
+    ))
+  }
+
+  interim_data |>
+    prepare_detailed_activity_data(aggregation, pod_lookup) |>
+    summarise_for_all_pods(aggregation) |>
+    add_change_cols() |>
+    dplyr::arrange(dplyr::pick(tidyselect::all_of(c("sex", aggregation))))
 }
+
+#' Zero-row prototype for the [compile_detailed_activity_data] output
+#'
+#' The column names and types here must match what
+#'  [compile_detailed_activity_data] returns when rows are present
+#' @param aggregation character Either "tretspef" or "age_group"
+#' @returns A zero-row tibble
+#' @keywords internal
+proto_detailed_activity_data <- function(aggregation) {
+  tibble::tibble(
+    sex = factor(),
+    !!aggregation := factor(),
+    baseline = numeric(),
+    principal = numeric(),
+    change = numeric(),
+    change_pct = numeric()
+  )
+}
+
 
 #' Prepare data from the 'sex+age_group' results table
 #'
@@ -68,7 +97,8 @@ prepare_tretspef_data <- function(results, tretspef_lookup) {
     dplyr::rename(code = "tretspef_grouped") |>
     dplyr::left_join(tretspef_lookup, "code") |>
     dplyr::mutate(
-      dplyr::across("tretspef", \(x) dplyr::coalesce(x, .data[["code"]]))
+      dplyr::across("tretspef", \(x) dplyr::coalesce(x, .data[["code"]])),
+      dplyr::across("tretspef", forcats::fct_inorder)
     ) |>
     dplyr::select(!"code")
 }
@@ -85,7 +115,7 @@ prepare_detailed_activity_data <- function(dat, aggregation, pod_lookup) {
       dplyr::across("sex", convert_sex_codes),
       dplyr::across("sex", \(x) forcats::fct(x, c("Female", "Male")))
     ) |>
-    inner_join_for_labels(pod_lookup) |>
+    join_for_labels(pod_lookup) |>
     relabel_pods() |>
     calculate_principal_stats(detailed_activity_sort_vars(aggregation)) |>
     keep_mean_only()
@@ -127,21 +157,21 @@ export_detailed_activity_data <- function(
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
   } else {
-    # aggregation == "tretspef"
+    # the second option: aggregation == "tretspef_grouped"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
     aggregation <- "tretspef"
   }
-  sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
-  interim_data <-
-    init_data |>
-    filter_to_selected_sites(sites) |>
-    prepare_detailed_activity_data(aggregation, pod_lookup)
-
-  if (nrow(interim_data) == 0) {
-    interim_data
-  } else {
-    interim_data |>
-      add_change_cols() |>
-      dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
+  # Guard against an unmatched `sites` value producing an empty result
+  selected_sites_data <- filter_to_selected_sites(init_data, sites)
+  if (nrow(selected_sites_data) == 0) {
+    return(empty_result(
+      proto_detailed_activity_data(aggregation),
+      "No data for the selected sites."
+    ))
   }
+  sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
+  selected_sites_data |>
+    prepare_detailed_activity_data(aggregation, pod_lookup) |>
+    add_change_cols() |>
+    dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
 }

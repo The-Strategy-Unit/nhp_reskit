@@ -92,6 +92,5 @@ venv.bak/
 /.vscode/
 
 *.rds
-inst/doc
 **/.quarto/
 docs

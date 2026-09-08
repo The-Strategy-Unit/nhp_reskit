@@ -1,14 +1,9 @@
-filter_principal_data <- function(
-  dat,
-  selected_measure,
-  activity_type,
-  selected_pods = NULL
-) {
-  selected_pods <- selected_pods %||% unique(dat[["pod"]])
+filter_principal_data <- function(dat, measure, activity_type, pods = NULL) {
+  pods <- pods %||% unique(dat[["pod"]])
   dat |>
     dplyr::filter(
-      dplyr::if_any("pod", \(x) x %in% .env[["selected_pods"]]) &
-        dplyr::if_any("measure", \(x) x == .env[["selected_measure"]]) &
+      dplyr::if_any("pod", \(x) x %in% .env[["pods"]]) &
+        dplyr::if_any("measure", \(x) x == .env[["measure"]]) &
         dplyr::if_any("activity_type", \(x) x == .env[["activity_type"]])
     )
 }
@@ -33,15 +28,70 @@ filter_to_selected_sites <- function(dat, sites, site_col = "sitetret") {
 }
 
 
+#' Return a zero-row result that keeps the expected output shape
+#'
+#' Used by the `compile_*` functions when filtering leaves no rows. Returning a
+#'  correctly shaped zero-row tibble, rather than whatever partially prepared
+#'  object happened to be in hand, means the downstream `make_*` functions can
+#'  rely on the output columns existing.
+#' The `reskit_no_data` attribute lets those functions render an explicit
+#'  "no data" panel rather than a blank chart or a cryptic missing-column error.
+#' This function and its documentation were suggested by an LLM.
+#' @param prototype A zero-row tibble giving the columns and types that the
+#'  calling function returns when data are available
+#' @param reason A string explaining why no rows remain, stored as an attribute
+#' @returns `prototype`, carrying a `reskit_no_data` attribute
+#' @keywords internal
+empty_result <- function(prototype, reason = NULL) {
+  stopifnot(nrow(prototype) == 0)
+  reason <- reason %||% "No data available for the current selection."
+  rlang::inform(reason, class = "reskit_no_data", use_cli_format = TRUE)
+  attr(prototype, "reskit_no_data") <- reason
+  prototype
+}
+
+
+#' Recover the explanation attached by [empty_result]
+#' @param x A tibble returned by a `compile_*` function
+#' @returns A string, or `NULL` if the result was not flagged as empty
+#' @keywords internal
+no_data_reason <- \(x) attr(x, "reskit_no_data", exact = TRUE)
+
+
+#' Render a placeholder plot when there are no data to display
+#'
+#' The plot equivalent of [make_no_data_table]. Preferred over returning an
+#'  empty ggplot, which renders as a blank panel and gives the reader no clue
+#'  why it is blank. Returning a ggplot object (rather than, say, a table)
+#'  keeps the return type of the `make_*_plot` functions consistent, so callers
+#'  can still pass the result to `plotly::ggplotly()` or a patchwork layout.
+#' @param reason A string explaining why there are no data, or `NULL`
+#' @returns A ggplot object
+#' @keywords internal
+make_no_data_plot <- function(reason = NULL) {
+  reason <- reason %||% "No data available for the current selection."
+  ggplot2::ggplot() +
+    ggplot2::annotate(
+      "text",
+      x = 0,
+      y = 0,
+      label = reason,
+      size = 5,
+      colour = "grey40"
+    ) +
+    ggplot2::theme_void()
+}
+
+
 #' Exclude outpatient procedures from tele-attendances count only
 #' @param tbl A tibble
 #' @keywords internal
 exclude_op_teleatt_procedures <- function(tbl) {
   stopifnot(all(c("measure", "pod") %in% colnames(tbl)))
   tbl |>
-    dplyr::filter(
-      dplyr::if_any("measure", \(x) x != "tele_attendances") |
-        dplyr::if_any("pod", \(x) x != "op_procedure")
+    dplyr::filter_out(
+      dplyr::if_any("measure", \(x) x == "tele_attendances") &
+        dplyr::if_any("pod", \(x) x == "op_procedure")
     )
 }
 
@@ -71,7 +121,8 @@ keep_mean_only <- function(tbl) {
 
 #' Filter a table so the `measure` column only contains 6 selected measures
 #'
-#' Currently this contains 6 of the 7 possible values; it excludes "procedures".
+#' Currently this contains 6 of 7 possible values in principal data; it
+#'  excludes "procedures". ("arrivals" is found in the step counts file).
 #' This function is used in several places in reskit as a filter.
 #' @param tbl A tibble
 #' @keywords internal
@@ -87,11 +138,11 @@ filter_to_main_measures <- function(tbl) {
 
 #' Use a lookup table to get more readable labels for PoDs
 #' @param tbl A tibble
-#' @param lookup A lookup table with pod and pod_label columns
+#' @param lookup A lookup table with `pod` and `pod_label` columns
 #' @keywords internal
-inner_join_for_labels <- function(tbl, lookup) {
+join_for_labels <- function(tbl, lookup) {
   tbl |>
-    dplyr::inner_join(lookup, "pod") |>
+    dplyr::left_join(lookup, "pod") |>
     dplyr::relocate(c("pod_label", "activity_type_label"), .after = "pod")
 }
 
@@ -120,7 +171,6 @@ relabel_ip_activity_types <- function(tbl) {
   tbl |>
     dplyr::mutate(
       dplyr::across("activity_type_label", \(x) {
-        x <- sub("s$", "", x)
         dplyr::if_else(
           x == "Inpatient",
           paste0(x, " ", uppercase_init(.data[["measure"]])),
@@ -140,32 +190,22 @@ get_activity_type_from_pod <- function(tbl) {
 }
 
 
-#' From any results table, get list of all site codes for this scheme
-#'
-#' The "default" table is recommended
-#' @param res_tbl A tibble from the results list
-#' @param col string The name of the column containing site codes. `sitetret` by
-#'  default
-#' @returns A character vector
-#' @export
-get_trust_sites <- \(res_tbl, col = "sitetret") sort(unique(res_tbl[[col]]))
-
-
 convert_sex_codes <- \(x) dplyr::if_else(x == 1L, "Male", "Female")
 
+create_measure_label <- \(x) uppercase_init(sub("dd", "d D", gsub("_", "-", x)))
 
 uppercase_init <- \(x) sub("^([[:alpha:]])(.+)", "\\U\\1\\E\\2", x, perl = TRUE)
 
 
 #' Get a lookup of tretspef codes to descriptions
 #'
-#' Currently reads from a fixed location within the package.
 #' @returns A 2-column tibble with columns `code` and `tretspef`
 #' @export
 get_tretspef_lookup <- function() {
-  system.file("tx-lookup.json", package = "reskit") |>
-    yyjsonr::read_json_file() |>
-    tibble::as_tibble() |>
+  json_data <- possibly_read_tx_lookup()
+  msg <- "Unable to read tretspef data from GitHub"
+  azkit::check_that(json_data, is_not_null, msg)
+  tibble::as_tibble(json_data) |>
     dplyr::select(c(code = "Code", tretspef = "Description")) |>
     dplyr::mutate(
       dplyr::across("tretspef", \(x) sub(" Service$", "", x)),
@@ -208,6 +248,22 @@ convert_activity_type <- function(x) {
     "A&E" ~ "aae",
     "Inpatients" ~ "ip",
     "Outpatients" ~ "op"
+  )
+}
+
+
+check_measure <- function(measure) {
+  measure_list <- rlang::set_names(potential_measures(), "*")
+  measure_msg <- c("{.arg measure} must be one of ", measure_list)
+  azkit::check_that(measure, \(x) x %in% potential_measures(), measure_msg)
+}
+
+
+potential_measures <- function() {
+  # fmt: skip
+  c(
+    "admissions", "ambulance", "arrivals", "attendances", "beddays",
+    "procedures", "tele_attendances", "walk-in"
   )
 }
 

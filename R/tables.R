@@ -4,6 +4,9 @@
 #' @returns A gt table
 #' @export
 make_principal_pod_table <- function(principal_pod_data) {
+  if (nrow(principal_pod_data) == 0) {
+    return(make_no_data_table(no_data_reason(principal_pod_data)))
+  }
   principal_pod_data |>
     format_bar_cols() |>
     gt::gt(groupname_col = "activity_type_label") |>
@@ -19,6 +22,9 @@ make_principal_pod_table <- function(principal_pod_data) {
 #' @returns A gt table
 #' @export
 make_principal_los_table <- function(principal_los_data) {
+  if (nrow(principal_los_data) == 0) {
+    return(make_no_data_table(no_data_reason(principal_los_data)))
+  }
   principal_los_data |>
     format_bar_cols() |>
     gt::gt(groupname_col = "pod_label") |>
@@ -35,6 +41,9 @@ make_principal_los_table <- function(principal_los_data) {
 #' @returns A gt table
 #' @export
 make_detailed_activity_table <- function(detailed_activity_data, final_year) {
+  if (nrow(detailed_activity_data) == 0) {
+    return(make_no_data_table(no_data_reason(detailed_activity_data)))
+  }
   dat_cols <- colnames(detailed_activity_data)
   agg <- intersect(c("age_group", "tretspef"), dat_cols)
   agg_label <- ifelse(agg == "age_group", "Age Group", "Treatment Specialty")
@@ -56,9 +65,16 @@ make_detailed_activity_table <- function(detailed_activity_data, final_year) {
 #' @returns A gt table
 #' @export
 make_distribution_summary_table <- function(distr_summary_data) {
+  if (nrow(distr_summary_data) == 0) {
+    return(make_no_data_table(no_data_reason(distr_summary_data)))
+  }
   value_col <- intersect(c("median", "principal"), colnames(distr_summary_data))
   int_cols <- c("baseline", value_col, "change", "lower", "upper")
   distr_summary_data |>
+    dplyr::mutate(dplyr::across("pod_label", \(x) {
+      paste0(.data[["activity_type_label"]], " ", x)
+    })) |>
+    dplyr::select(!"activity_type_label") |>
     gt::gt(groupname_col = "pod_label") |>
     gt::fmt_integer(tidyselect::all_of(int_cols)) |>
     gt::fmt_percent("change_pct", decimals = 0) |>
@@ -66,6 +82,23 @@ make_distribution_summary_table <- function(distr_summary_data) {
     gt::tab_spanner("80% prediction interval", c("lower", "upper")) |>
     gt::cols_label_with(fn = uppercase_init) |>
     gt::cols_label(change_pct = gt::html("Percent<br />Change")) |>
+    gt_theme()
+}
+
+
+#' Render a placeholder table when there are no data to display
+#'
+#' Preferred over returning an empty `gt` table, which renders as a bare set of
+#'  column headings and gives the reader no clue why it is blank.
+#' @param reason A string explaining why there are no data, or `NULL`
+#' @returns A gt table
+#' @keywords internal
+make_no_data_table <- function(reason = NULL) {
+  reason <- reason %||% "No data available for the current selection."
+  tibble::tibble(no_data = reason) |>
+    gt::gt() |>
+    gt::tab_options(column_labels.hidden = TRUE) |>
+    gt::cols_align("left") |>
     gt_theme()
 }
 
@@ -98,6 +131,31 @@ format_gt_core <- function(gt_table, extra_col = NULL) {
 }
 
 
+#' Function to style gt tables
+#' @keywords internal
+gt_theme <- function(data) {
+  data |>
+    gt::tab_options(
+      heading.subtitle.font.size = 12,
+      heading.align = "left",
+      column_labels.font.weight = "bold",
+      row_group.border.top.width = gt::px(2),
+      row_group.border.top.color = "black",
+      row_group.border.bottom.color = "black",
+      row_group.background.color = "#686f73",
+      table_body.hlines.color = "white",
+      table.border.top.color = "white",
+      table.border.top.width = gt::px(2),
+      table.border.bottom.color = "white",
+      table.border.bottom.width = gt::px(3),
+      column_labels.border.bottom.color = "black",
+      column_labels.border.bottom.width = gt::px(1),
+      summary_row.background.color = "#b2b7b9",
+      grand_summary_row.background.color = "#343739"
+    )
+}
+
+
 #' Function to handle the size and formatting of gt_bar elements in tables
 #' @keywords internal
 gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
@@ -106,6 +164,8 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
   stopifnot(length(colours) == 2)
   neg_colour <- colours[[1]]
   pos_colour <- colours[[2]]
+  which_infinite <- which(is.infinite(x))
+  x[which_infinite] <- 0
   x_min <- min(min(x, na.rm = TRUE), 0) # if min(x) > 0, set x_min to 0
   x_max <- max(max(x, na.rm = TRUE), 0) # if max(x) < 0, set x_max to 0
   x_range <- x_max - x_min
@@ -119,7 +179,7 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
     )
   }
   create_val_span <- function(value) {
-    glue::glue("<span style='width: 50%;' align=right>{value}</span>")
+    glue::glue("<span style='width: 50%;' align=right> {value}</span>")
   }
 
   empty_bar_tbl <- tibble::tibble(
@@ -136,6 +196,7 @@ gt_bar <- function(x, format_fn = NULL, colours = c("#ec6555", "#f9bf07")) {
     purrr::pmap_chr(value_bar_tbl, create_bar_span),
     purrr::map_chr(format_fn(x), create_val_span)
   )
+  bar_spans[which_infinite] <- "<span><em>Inf.</em></span>"
 
   purrr::map(paste("<div>", bar_spans, "</div>", sep = "\n"), gt::html)
 }

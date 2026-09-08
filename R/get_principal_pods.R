@@ -13,7 +13,8 @@ get_detailed_pods <- function() {
     dplyr::mutate(
       dplyr::across("pod_label", forcats::fct_inorder),
       dplyr::across("activity_type_label", \(x) {
-        forcats::fct(x, levels = c("Inpatients", "Outpatients", "A&E"))
+        x <- sub("s$", "", x)
+        forcats::fct(x, levels = c("Inpatient", "Outpatient", "A&E"))
       })
     )
 }
@@ -37,7 +38,7 @@ get_principal_pods <- function() {
     dplyr::mutate(
       dplyr::across("pod_label", forcats::fct_inorder),
       dplyr::across("activity_type_label", \(x) {
-        forcats::fct(x, levels = c("Inpatients", "Outpatients", "A&E"))
+        forcats::fct(x, levels = c("Inpatient", "Outpatient", "A&E"))
       })
     )
 }
