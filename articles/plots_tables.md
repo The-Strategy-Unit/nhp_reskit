@@ -197,7 +197,7 @@ Code
 ``` r
 
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "admissions",
     activity_type = "ip",
     pods = c(
@@ -207,7 +207,7 @@ results |>
     ),
     include_baseline = TRUE
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 ![](plots_tables_files/figure-html/waterfall-chart1-1.png)
@@ -217,7 +217,7 @@ Code
 ``` r
 
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "beddays",
     activity_type = "ip",
     pods = c(
@@ -228,7 +228,7 @@ results |>
     sites = "site1",
     include_baseline = TRUE
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 ![](plots_tables_files/figure-html/waterfall-chart2-1.png)
@@ -240,12 +240,12 @@ Code
 ``` r
 
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "attendances",
     activity_type = "op",
     pods = c("op_first", "op_follow-up")
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 ![](plots_tables_files/figure-html/waterfall-chart3-1.png)
@@ -257,18 +257,18 @@ Code
 ``` r
 
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "attendances",
     activity_type = "op",
     pods = c("op_first", "op_follow-up"),
     include_baseline = FALSE
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 ![](plots_tables_files/figure-html/waterfall-chart4-1.png)
 
-#### Individual change factor charts
+#### Individual change factor (TPMA) impact charts
 
 And a couple of individual change factor charts:
 
@@ -277,27 +277,31 @@ Code
 ``` r
 
 results |>
-  compile_indiv_change_factor_data(
+  compile_tpma_impact_data(
     measure = "attendances",
     activity_type = "op",
     pods = NULL
   ) |>
-  make_individual_cf_plot()
+  make_tpma_impact_plot()
 ```
+
+![](plots_tables_files/figure-html/tpma-impact-chart1-1.png)
 
 Code
 
 ``` r
 
 results |>
-  compile_indiv_change_factor_data(
+  compile_tpma_impact_data(
     measure = "arrivals",
     activity_type = "aae",
     pods = NULL,
     sites = "site2"
   ) |>
-  make_individual_cf_plot()
+  make_tpma_impact_plot()
 ```
+
+![](plots_tables_files/figure-html/tpma-impact-chart2-1.png)
 
 ### Activity in detail charts
 

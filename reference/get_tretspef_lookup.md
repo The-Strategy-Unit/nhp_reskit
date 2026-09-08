@@ -1,6 +1,6 @@
 # Get a lookup of tretspef codes to descriptions
 
-Currently reads from a fixed location within the package.
+Get a lookup of tretspef codes to descriptions
 
 ## Usage
 

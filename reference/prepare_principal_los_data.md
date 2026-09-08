@@ -5,14 +5,10 @@ Preparation of site-level data for the main LoS summary table
 ## Usage
 
 ``` r
-prepare_principal_los_data(dat, pod_lookup)
+prepare_principal_los_data(filtered_data, pod_lookup)
 ```
 
 ## Arguments
-
-- dat:
-
-  A tibble
 
 - pod_lookup:
 

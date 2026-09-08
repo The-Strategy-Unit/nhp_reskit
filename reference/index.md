@@ -7,12 +7,6 @@
 
   Add `change` and `change_pct` columns to a prepared results table
 
-- [`compile_change_factor_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_change_factor_data.md)
-  :
-
-  Prepare data from the `step_counts` results table for display as
-  charts
-
 - [`compile_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_detailed_activity_data.md)
   :
 
@@ -24,10 +18,10 @@
 - [`compile_distribution_summary_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_distribution_summary_data.md)
   : Compile data to support the "activity distribution summary" tables
 
-- [`compile_indiv_change_factor_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_indiv_change_factor_data.md)
+- [`compile_grouped_impact_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_grouped_impact_data.md)
   :
 
-  Prepare data from `step_counts` results table for display as charts
+  Prepare data from the `step_counts` table to use for waterfall chart
 
 - [`compile_principal_los_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_principal_los_data.md)
   : Prepare data from tretspef+los_group results for displaying as
@@ -37,6 +31,11 @@
   : Prepare data from default results table for displaying as summary
   table
 
+- [`compile_tpma_impact_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_tpma_impact_data.md)
+  :
+
+  Prepare data from `step_counts` table to use for TPMA impact chart
+
 - [`export_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_detailed_activity_data.md)
   : Prepare a site-level summary of detailed activity results by PoD and
   LoS
@@ -44,7 +43,7 @@
 - [`export_distribution_summary_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_distribution_summary_data.md)
   : Prepare a site-level summary of activity distribution summary data
 
-- [`export_principal_cf_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_cf_data.md)
+- [`export_impact_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_impact_data.md)
   : Prepare a site-level summary table of change_factor results
 
 - [`export_principal_los_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_los_data.md)
@@ -65,9 +64,6 @@
 - [`get_tretspef_lookup()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_tretspef_lookup.md)
   : Get a lookup of tretspef codes to descriptions
 
-- [`get_trust_sites()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_trust_sites.md)
-  : From any results table, get list of all site codes for this scheme
-
 - [`make_beeswarm_distrib_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_beeswarm_distrib_plot.md)
   : Generate a "beeswarm" chart showing the distribution of model run
   values
@@ -82,10 +78,7 @@
 - [`make_distribution_summary_table()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_distribution_summary_table.md)
   : Create a gt table with data from compile_distribution_summary_data
 
-- [`make_individual_cf_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_individual_cf_plot.md)
-  : Generate bar charts by change factor at individual TPMA level
-
-- [`make_overall_cf_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_overall_cf_plot.md)
+- [`make_grouped_impact_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_grouped_impact_plot.md)
   : Generate overall change factor ("waterfall") chart
 
 - [`make_principal_los_table()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_principal_los_table.md)
@@ -93,6 +86,9 @@
 
 - [`make_principal_pod_table()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_principal_pod_table.md)
   : Create a gt table with data from compile_principal_pod_data
+
+- [`make_tpma_impact_plot()`](https://the-strategy-unit.github.io/nhp_reskit/reference/make_tpma_impact_plot.md)
+  : Generate bar charts by change factor at individual TPMA level
 
 - [`read_results_parquet_files()`](https://the-strategy-unit.github.io/nhp_reskit/reference/read_results_parquet_files.md)
   : Read a selection of (or all) parquet files in an Azure directory

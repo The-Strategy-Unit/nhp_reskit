@@ -12,11 +12,11 @@
 ## Citation
 
 Barton F (2026). *reskit: Nice selection box of goodies for hobnobbing
-with NHP model results*. R package version 1.1.0.
+with NHP model results*. R package version 1.2.0.
 
     @Manual{,
       title = {reskit: Nice selection box of goodies for hobnobbing with NHP model results},
       author = {Fran Barton},
       year = {2026},
-      note = {R package version 1.1.0},
+      note = {R package version 1.2.0},
     }

@@ -10,10 +10,6 @@ prepare_distribution_plot_data(dat, pod_lookup)
 
 ## Arguments
 
-- dat:
-
-  A tibble
-
 - pod_lookup:
 
   A tibble, or a function that returns a tibble, containing columns

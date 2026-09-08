@@ -5,7 +5,7 @@ Read in a file from a Strategy Unit GitHub repo
 ## Usage
 
 ``` r
-get_su_gh_file(repo, folder, file)
+get_su_gh_file(repo, folder, path)
 ```
 
 ## Arguments
@@ -19,9 +19,9 @@ get_su_gh_file(repo, folder, file)
   string. The folder where the file is located. Set to `""` to use the
   root folder of the repo.
 
-- file:
+- path:
 
-  string. The name of the file to read in
+  string. The path relative to `folder` to the file to read in
 
 ## Value
 
