@@ -1,13 +1,14 @@
 #' Generate overall change factor ("waterfall") chart
 #'
-#' @param change_factor_data tibble, as produced by [compile_change_factor_data]
+#' @param grouped_impact_data tibble, as produced by
+#'  [compile_grouped_impact_data]
 #' @export
-make_overall_cf_plot <- function(change_factor_data) {
-  if (nrow(change_factor_data) == 0) {
-    return(make_no_data_plot(no_data_reason(change_factor_data)))
+make_grouped_impact_plot <- function(grouped_impact_data) {
+  if (nrow(grouped_impact_data) == 0) {
+    return(make_no_data_plot(no_data_reason(grouped_impact_data)))
   }
-  x_axis_label <- create_measure_label(unique(change_factor_data[["measure"]]))
-  change_factor_data |>
+  x_axis_label <- create_measure_label(unique(grouped_impact_data[["measure"]]))
+  grouped_impact_data |>
     dplyr::mutate(
       colour = dplyr::case_when(
         .data[["change_factor"]] == "baseline" ~ "#686f73",
@@ -30,7 +31,7 @@ make_overall_cf_plot <- function(change_factor_data) {
         colour = .data[["colour"]]
       ),
       # dynamic: bigger if fewer bars (130 is relative to 600px plot height)
-      lwd = 130 / nrow(change_factor_data)
+      lwd = 130 / nrow(grouped_impact_data)
     ) +
     ggplot2::scale_colour_identity() +
     ggplot2::scale_x_continuous(

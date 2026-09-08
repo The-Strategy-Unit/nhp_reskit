@@ -1,7 +1,7 @@
 #' Compile data to support the "activity distribution summary" tables
 #'
 #' @inheritParams compile_principal_pod_data
-#' @inheritParams compile_change_factor_data
+#' @inheritParams compile_grouped_impact_data
 #' @returns A tibble
 #' @export
 compile_distribution_plot_data <- function(
@@ -60,7 +60,7 @@ proto_distribution_plot_data <- function() {
 
 #' Preparation of site-level data for the main summary table
 #'
-#' @inheritParams compile_change_factor_data
+#' @inheritParams compile_grouped_impact_data
 #' @returns A tibble
 #' @keywords internal
 prepare_distribution_plot_data <- function(dat, pod_lookup) {

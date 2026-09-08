@@ -122,15 +122,15 @@ demo_cf_tbl <- function(seed = 4821L) {
   list(step_counts = create_demo_stepcounts_tbl(seed))
 }
 
-test_that("compile_change_factor_data keeps its output shape when empty", {
+test_that("compile_grouped_impact_data keeps its output shape when empty", {
   testthat::skip_if_offline()
   demo <- demo_cf_tbl()
-  full <- compile_change_factor_data(demo, "admissions", "ip")
+  full <- compile_grouped_impact_data(demo, "admissions", "ip")
   # note the assignment sits inside expect_message(), which returns the
   # condition rather than the value of the expression
   expect_message(
     empty <- demo |>
-      compile_change_factor_data("admissions", "ip", sites = "fake_site"),
+      compile_grouped_impact_data("admissions", "ip", sites = "fake_site"),
     class = "reskit_no_data"
   )
 
@@ -277,17 +277,17 @@ test_that("make_distribution_summary_table renders a placeholder rather than fai
 })
 
 
-test_that("make_overall_cf_plot renders a placeholder rather than failing", {
+test_that("make_grouped_impact_plot renders placeholder rather than failing", {
   testthat::skip_if_offline()
   empty <- suppressMessages(
-    compile_change_factor_data(
+    compile_grouped_impact_data(
       demo_cf_tbl(),
       "admissions",
       "ip",
       sites = "no_such_site"
     )
   )
-  plot <- expect_no_error(make_overall_cf_plot(empty))
+  plot <- expect_no_error(make_grouped_impact_plot(empty))
   expect_s3_class(plot, "ggplot")
   expect_identical(ggplot2::layer_data(plot)[["label"]], no_data_reason(empty))
 })

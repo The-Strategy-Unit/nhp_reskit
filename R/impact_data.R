@@ -1,4 +1,4 @@
-#' Prepare data from the `step_counts` results table for display as charts
+#' Prepare data from the `step_counts` table to use for waterfall chart
 #'
 #' @param measure The measure to focus on for the output table. Valid values
 #'  depend on which activity_type is selected
@@ -13,7 +13,7 @@
 #' @inheritParams compile_principal_los_data
 #' @returns A prepared tibble of step count changes for each included TPMA
 #' @export
-compile_change_factor_data <- function(
+compile_grouped_impact_data <- function(
   results,
   measure,
   activity_type = c("ip", "op", "aae"),
@@ -30,7 +30,7 @@ compile_change_factor_data <- function(
   selected_sites_data <- filter_to_selected_sites(sc_tbl, sites)
   if (nrow(selected_sites_data) == 0) {
     return(empty_result(
-      proto_change_factor_data(),
+      proto_grouped_impact_data(),
       "No step count data for the selected sites."
     ))
   }
@@ -39,13 +39,13 @@ compile_change_factor_data <- function(
     filter_principal_data(measure, activity_type, pods)
   if (nrow(filtered_data) == 0) {
     return(empty_result(
-      proto_change_factor_data(),
+      proto_grouped_impact_data(),
       "No step count data for the selected measure/activity type/pods."
     ))
   }
 
   interim <- filtered_data |>
-    prepare_change_factor_data(pod_lookup, tpma_lookup) |>
+    prepare_impact_data(pod_lookup, tpma_lookup) |>
     summarise_for_all_sites() |>
     dplyr::summarise(
       dplyr::across("value", sum),
@@ -81,9 +81,9 @@ compile_change_factor_data <- function(
 }
 
 
-#' Prepare data from `step_counts` results table for display as charts
+#' Prepare data from `step_counts` table to use for TPMA impact chart
 #'
-#' @inheritParams compile_change_factor_data
+#' @inheritParams compile_grouped_impact_data
 #' @param sort_by string, one of "value" or "tpma_label". The former sorts
 #'  the output table by the value of the change, the latter alphabetically by
 #'  the TPMA label
@@ -124,7 +124,7 @@ compile_tpma_impact_data <- function(
   }
 
   interim_data <- filtered_data |>
-    prepare_change_factor_data(pod_lookup, tpma_lookup) |>
+    prepare_impact_data(pod_lookup, tpma_lookup) |>
     summarise_for_all_sites() |>
     dplyr::summarise(
       dplyr::across("value", sum),
@@ -151,13 +151,14 @@ compile_tpma_impact_data <- function(
 }
 
 
-#' Zero-row prototype for the [compile_change_factor_data] output
+#' Zero-row prototype for the [compile_grouped_impact_data] function output
 #'
-#' The column names and types here must match what [compile_change_factor_data]
-#'  returns when rows are present; `test-empty_results.R` asserts this.
+#' The column names and types here must match what
+#'  [compile_grouped_impact_data] returns when rows are present
+#'  `test-empty_results.R` asserts this.
 #' @returns A zero-row tibble
 #' @keywords internal
-proto_change_factor_data <- function() {
+proto_grouped_impact_data <- function() {
   tibble::tibble(
     change_factor = factor(),
     activity_type_label = factor(),
@@ -186,7 +187,7 @@ proto_tpma_impact_data <- function() {
 }
 
 
-prepare_change_factor_data <- function(filtered_data, pod_lookup, tpma_lookup) {
+prepare_impact_data <- function(filtered_data, pod_lookup, tpma_lookup) {
   tpma_lookup <- dplyr::select(tpma_lookup, c("strategy", "tpma_label"))
   filtered_data |>
     dplyr::filter_out(dplyr::if_any("model_run", \(x) x == 0)) |>
@@ -203,7 +204,7 @@ prepare_change_factor_data <- function(filtered_data, pod_lookup, tpma_lookup) {
     # calculate the mean of all model runs for each combination of variables
     dplyr::summarise(
       dplyr::across("value", mean),
-      .by = tidyselect::all_of(change_factor_sort_vars())
+      .by = tidyselect::all_of(impact_data_sort_vars())
     )
 }
 
@@ -220,10 +221,10 @@ move_baseline_row_to_top <- function(dat, var = "change_factor") {
 #' Prepare a site-level summary table of change_factor results
 #'
 #' Intended to be used to create a table to be exported to .csv/.xlsx
-#' @inheritParams compile_change_factor_data
+#' @inheritParams compile_grouped_impact_data
 #' @returns A tibble
 #' @export
-export_principal_cf_data <- function(
+export_impact_data <- function(
   results,
   sites = NULL,
   pod_lookup = get_detailed_pods(),
@@ -233,17 +234,33 @@ export_principal_cf_data <- function(
   selected_data <- filter_to_selected_sites(sc_tbl, sites)
   if (nrow(selected_data) == 0) {
     return(empty_result(
-      proto_change_factor_data(),
+      proto_export_impact_data(),
       "No step count data for the selected sites."
     ))
   }
   selected_data |>
-    prepare_change_factor_data(pod_lookup, tpma_lookup) |>
-    dplyr::arrange(dplyr::pick(tidyselect::all_of(change_factor_sort_vars())))
+    prepare_impact_data(pod_lookup, tpma_lookup) |>
+    dplyr::arrange(dplyr::pick(tidyselect::all_of(impact_data_sort_vars())))
+}
+
+#' Zero-row prototype for the [export_impact_data] function output
+#'
+#' @returns A zero-row tibble
+#' @keywords internal
+proto_export_impact_data <- function() {
+  tibble::tibble(
+    activity_type_label = factor(),
+    change_factor = character(),
+    pod_label = character(),
+    measure = character(),
+    sitetret = character(),
+    tpma_label = character(),
+    value = numeric()
+  )
 }
 
 
-change_factor_sort_vars <- function() {
+impact_data_sort_vars <- function() {
   # fmt: skip
   c(
     "activity_type_label", "change_factor", "pod_label",

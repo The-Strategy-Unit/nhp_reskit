@@ -4,7 +4,7 @@
 #'  containing a `code` column (used as a key for joining to the tretspef
 #'  table) and a `tretspef` column that provides friendly labels for specialties
 #' @param aggregation string. One of "age_group" or "tretspef_grouped"
-#' @inheritParams compile_change_factor_data
+#' @inheritParams compile_grouped_impact_data
 #' @export
 compile_detailed_activity_data <- function(
   results,

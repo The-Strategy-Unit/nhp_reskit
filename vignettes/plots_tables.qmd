@@ -204,7 +204,7 @@ As this is for admissions, "efficiencies" should not be shown on the y-axis.
 ```{r}
 #| label: waterfall-chart1
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "admissions",
     activity_type = "ip",
     pods = c(
@@ -214,14 +214,14 @@ results |>
     ),
     include_baseline = TRUE
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 
 ```{r}
 #| label: waterfall-chart2
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "beddays",
     activity_type = "ip",
     pods = c(
@@ -232,7 +232,7 @@ results |>
     sites = "site1",
     include_baseline = TRUE
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 Let's look at an outpatients chart...
@@ -240,12 +240,12 @@ Let's look at an outpatients chart...
 ```{r}
 #| label: waterfall-chart3
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "attendances",
     activity_type = "op",
     pods = c("op_first", "op_follow-up")
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 
@@ -254,13 +254,13 @@ results |>
 ```{r}
 #| label: waterfall-chart4
 results |>
-  compile_change_factor_data(
+  compile_grouped_impact_data(
     measure = "attendances",
     activity_type = "op",
     pods = c("op_first", "op_follow-up"),
     include_baseline = FALSE
   ) |>
-  make_overall_cf_plot()
+  make_grouped_impact_plot()
 ```
 
 

@@ -74,7 +74,7 @@ proto_principal_los_data <- function() {
 
 #' Preparation of site-level data for the main LoS summary table
 #'
-#' @inheritParams compile_change_factor_data
+#' @inheritParams compile_grouped_impact_data
 #' @returns A tibble
 #' @keywords internal
 prepare_principal_los_data <- function(filtered_data, pod_lookup) {

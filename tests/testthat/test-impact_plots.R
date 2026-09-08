@@ -1,12 +1,12 @@
 test_that("we can generate a plot using dummy data", {
   seed <- 87654L
   sc_data <- expect_no_error(create_demo_stepcounts_tbl(seed))
-  cf_tbl <- compile_change_factor_data(
+  cf_tbl <- compile_grouped_impact_data(
     list(step_counts = sc_data),
     "admissions",
     "ip"
   )
-  make_overall_cf_plot(cf_tbl)
+  make_grouped_impact_plot(cf_tbl)
   # Here we have a model interaction term value of -79.1
   # When the plot is viewed at 1200x600px (default Outputs app height is 600px)
   # the grey bar is visible. Let's adjust the value and see if we can make it
@@ -19,7 +19,7 @@ test_that("we can generate a plot using dummy data", {
       }),
       hide = .data[["total"]] - abs(.data[["value"]])
     )
-  make_overall_cf_plot(cf_tbl2)
+  make_grouped_impact_plot(cf_tbl2)
 
   # with a value of -5 the line is invisible to me
   cf_tbl3 <- cf_tbl |>
@@ -29,7 +29,7 @@ test_that("we can generate a plot using dummy data", {
       }),
       hide = .data[["total"]] - abs(.data[["value"]])
     )
-  make_overall_cf_plot(cf_tbl3)
+  make_grouped_impact_plot(cf_tbl3)
   # with a value of -25 the line is just visible to me
 
   # Let's work in percentages
@@ -61,7 +61,7 @@ test_that("we can generate a plot using dummy data", {
       }),
       hide = .data[["total"]] - abs(.data[["value"]])
     )
-  make_overall_cf_plot(cf_tbl2)
+  make_grouped_impact_plot(cf_tbl2)
   # In this case the min_width was ~37 so we know that we should see the line
   # as this is more than the fixed value 25 we already tested.
   # How low can we make `min_width_frac` before we lose the line visibility?
@@ -83,7 +83,7 @@ test_that("we can generate a plot using dummy data", {
       }),
       hide = .data[["total"]] - abs(.data[["value"]])
     )
-  make_overall_cf_plot(cf_tbl2)
+  make_grouped_impact_plot(cf_tbl2)
 
   # Use Matt's original data
   testthat::skip_on_ci()
@@ -96,8 +96,8 @@ test_that("we can generate a plot using dummy data", {
   con <- azkit::get_container("results")
   sc_data_md <- read_results_parquet_files(con, pqt_path, "step_counts")
 
-  cf_tbl_md <- compile_change_factor_data(sc_data_md, "admissions", "ip")
-  make_overall_cf_plot(cf_tbl_md)
+  cf_tbl_md <- compile_grouped_impact_data(sc_data_md, "admissions", "ip")
+  make_grouped_impact_plot(cf_tbl_md)
 
   # set WLA figure to be the same size as the activity_avoidance figure
   # and see how much difference pos vs neg (yellow vs grey) makes to visibility
@@ -112,7 +112,7 @@ test_that("we can generate a plot using dummy data", {
       # }),
       hide = .data[["total"]] - abs(.data[["value"]])
     )
-  make_overall_cf_plot(cf_tbl_md2)
+  make_grouped_impact_plot(cf_tbl_md2)
 
   # yellow is harder to see than grey, even when it's the same value/thickness
 })
