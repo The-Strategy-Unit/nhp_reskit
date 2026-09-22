@@ -1,0 +1,49 @@
+---
+title: "Combining results from multiple scenarios"
+vignette: >
+  %\VignetteIndexEntry{Combining results from multiple scenarios}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+## Examples of code for combining result sets
+
+```r
+#| label: example-1
+
+cont <- azkit::get_container(Sys.getenv("AZ_CONTAINER_RESULTS"))
+bbcs_org_codes <- c("RBK", "RL4", "RNA", "RRK", "RXK")
+filter_string <- paste0("dataset eq '", bbcs_org_codes, "'", collapse = " or ")
+select_cols <- paste0(c("scenario", "aggregated_results_path"), collapse = ",")
+
+modelruns <- Sys.getenv("AZ_RUNS_TABLE") |>
+  azkit::read_azure_table(filter = filter_string, select = select_cols)
+
+bbcs_scenarios <- paste0("20260723-", bbcs_org_codes, "-BASELINE-DEFAULT-35-36")
+
+# get the Azure paths to the results data
+scenario_paths <- modelruns |>
+  dplyr::filter(.data[["scenario"]] %in% bbcs_scenarios) |>
+  dplyr::pull("aggregated_results_path")
+
+# check we have got the expected number of scenarios
+length(scenario_paths) == length(bbcs_org_codes)
+
+# read data from parquets and bind into a single tibble
+stepcounts_combined <- scenario_paths |>
+  purrr::map(\(x) reskit::read_results_parquet_files(cont, x, "step_counts")) |>
+  purrr::map("step_counts") |>
+  purrr::list_rbind()
+
+# create a minimal results list
+results <- list(step_counts = stepcounts_combined)
+
+# process the data and generate the plot
+results |>
+  reskit::compile_grouped_impact_data(measure = "admissions") |>
+  reskit::make_grouped_impact_plot()
+```
