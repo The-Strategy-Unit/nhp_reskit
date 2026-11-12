@@ -190,7 +190,6 @@ proto_tpma_impact_data <- function() {
 prepare_impact_data <- function(filtered_data, pod_lookup, tpma_lookup) {
   tpma_lookup <- dplyr::select(tpma_lookup, c("strategy", "tpma_label"))
   filtered_data |>
-    dplyr::filter_out(dplyr::if_any("model_run", \(x) x == 0)) |>
     join_for_labels(pod_lookup) |>
     relabel_pods() |>
     dplyr::left_join(tpma_lookup, "strategy") |>
