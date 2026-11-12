@@ -89,25 +89,6 @@ prepare_principal_pod_data <- function(default_tbl, pod_lookup) {
 }
 
 
-#' Prepare a site-level summary of main projection results
-#'
-#' Intended to be used to create a table to be exported to .csv/.xlsx
-#' @inheritParams compile_principal_pod_data
-#' @returns A tibble
-#' @export
-export_principal_pod_data <- function(
-  results,
-  pod_lookup = get_principal_pods(),
-  sites = NULL
-) {
-  results[["default"]] |>
-    prepare_principal_pod_data(pod_lookup) |>
-    filter_to_selected_sites(sites) |>
-    add_change_cols() |>
-    dplyr::arrange(dplyr::pick(c("activity_type_label", "pod_label")))
-}
-
-
 combine_all_aae_pods <- function(tbl) {
   dplyr::mutate(tbl, dplyr::across("pod", \(x) sub("^aae.*$", "aae", x)))
 }
