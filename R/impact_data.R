@@ -217,48 +217,6 @@ move_baseline_row_to_top <- function(dat, var = "change_factor") {
     dplyr::select(!"rn")
 }
 
-#' Prepare a site-level summary table of change_factor results
-#'
-#' Intended to be used to create a table to be exported to .csv/.xlsx
-#' @inheritParams compile_grouped_impact_data
-#' @returns A tibble
-#' @export
-export_impact_data <- function(
-  results,
-  sites = NULL,
-  pod_lookup = get_detailed_pods(),
-  tpma_lookup = get_tpma_label_lookup()
-) {
-  sc_tbl <- results[["step_counts"]]
-  selected_data <- filter_to_selected_sites(sc_tbl, sites)
-  if (nrow(selected_data) == 0) {
-    return(empty_result(
-      proto_export_impact_data(),
-      "No step count data for the selected sites."
-    ))
-  }
-  selected_data |>
-    prepare_impact_data(pod_lookup, tpma_lookup) |>
-    dplyr::arrange(dplyr::pick(tidyselect::all_of(impact_data_sort_vars())))
-}
-
-#' Zero-row prototype for the [export_impact_data] function output
-#'
-#' @returns A zero-row tibble
-#' @keywords internal
-proto_export_impact_data <- function() {
-  tibble::tibble(
-    activity_type_label = factor(),
-    change_factor = character(),
-    pod_label = character(),
-    measure = character(),
-    sitetret = character(),
-    tpma_label = character(),
-    value = numeric()
-  )
-}
-
-
 impact_data_sort_vars <- function() {
   # fmt: skip
   c(
