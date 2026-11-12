@@ -165,7 +165,7 @@ demo_da_tbl <- function(seed = 4821L) {
     create_demo_sex_agegroup_tbl(seed),
     create_demo_sex_tretspef_tbl(seed)
   ) |>
-    rlang::set_names(c("sex+age_group", "sex+tretspef_grouped"))
+    rlang::set_names(c("sex+age_group", "sex+tretspef"))
 }
 
 
@@ -189,7 +189,7 @@ test_that("compile_detailed_activity_data keeps its output shape when empty", {
   full2 <- compile_detailed_activity_data(
     demo,
     "admissions",
-    aggregation = "tretspef_grouped"
+    aggregation = "tretspef"
   )
   # note the assignment sits inside expect_message(), which returns the
   # condition rather than the value of the expression
@@ -197,7 +197,7 @@ test_that("compile_detailed_activity_data keeps its output shape when empty", {
     empty2 <- demo |>
       compile_detailed_activity_data(
         "admissions",
-        aggregation = "tretspef_grouped",
+        aggregation = "tretspef",
         sites = "fake_site"
       ),
     regexp = "selected sites",
@@ -207,7 +207,7 @@ test_that("compile_detailed_activity_data keeps its output shape when empty", {
     empty3 <- demo |>
       compile_detailed_activity_data(
         "admissions",
-        aggregation = "tretspef_grouped",
+        aggregation = "tretspef",
         activity_type = "op"
       ),
     regexp = "selected measure",

@@ -69,15 +69,15 @@ create_demo_sex_agegroup_tbl <- function(seed) {
 }
 
 
-#' Function to create a "sex + tretspef_grouped" table with synthetic values
+#' Function to create a "sex + tretspef" table with synthetic values
 #' The table contains synthetic (randomly created) values for 2 sexes, a
-#'  selection of tretspef group codes, and measures, across 2 "sites", as if
+#'  selection of tretspef codes, and measures, across 2 "sites", as if
 #'  created by 64 model runs
 #' @inheritParams create_demo_default_tbl
 #' @keywords internal
 create_demo_sex_tretspef_tbl <- function(seed) {
   # fmt: skip
-  tretspef_groups <- c(
+  tretspefs <- c(
     "100", "101", "110", "120", "130", "140", "150", "160", "170",
     "300", "301", "320", "330", "340", "400", "410", "430", "Other"
   )
@@ -86,19 +86,19 @@ create_demo_sex_tretspef_tbl <- function(seed) {
     dplyr::mutate(
       sitetret = "site1",
       sex = list(seq(2)),
-      tretspef_grouped = list(tretspef_groups),
+      tretspef = list(tretspefs),
       .after = "pod"
     ) |>
     tidyr::unnest_longer("sex") |>
-    tidyr::unnest_longer("tretspef_grouped")
+    tidyr::unnest_longer("tretspef")
   init_tbl2 <- dplyr::mutate(init_tbl1, sitetret = "site2")
   baseline_tbl1 <- add_baseline_values(init_tbl1, c(500L, 4.5e3L), 100L, seed)
   baseline_tbl2 <- add_baseline_values(init_tbl2, c(100L, 2.2e3L), 100L, seed)
-  multip <- length(seq(2)) * length(tretspef_groups)
+  multip <- length(seq(2)) * length(tretspefs)
   initial_values <- rep(get_ipop_initial_means(0.8, 0.85), each = multip)
   list(baseline_tbl1, baseline_tbl2) |>
     purrr::map(\(df) add_horizon_values(df, initial_values, seed)) |>
-    bind_and_arrange(cols = c("sex", "tretspef_grouped"))
+    bind_and_arrange(cols = c("sex", "tretspef"))
 }
 
 
