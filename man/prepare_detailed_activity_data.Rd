@@ -7,7 +7,7 @@
 prepare_detailed_activity_data(dat, aggregation, pod_lookup)
 }
 \arguments{
-\item{aggregation}{string. One of "age_group" or "tretspef_grouped"}
+\item{aggregation}{string. One of "age_group" or "tretspef"}
 
 \item{pod_lookup}{A tibble, or a function that returns a tibble, containing
 columns named \code{activity_type_label}, \code{pod} and \code{pod_label}. This provides

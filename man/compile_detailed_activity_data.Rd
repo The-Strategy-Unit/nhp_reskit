@@ -2,7 +2,7 @@
 % Please edit documentation in R/detailed_activity_data.R
 \name{compile_detailed_activity_data}
 \alias{compile_detailed_activity_data}
-\title{Prepare data from the \code{sex+age_group} or \code{sex+tretspef_grouped} table}
+\title{Prepare data from the \code{sex+age_group} or \code{sex+tretspef} table}
 \usage{
 compile_detailed_activity_data(
   results,
@@ -10,7 +10,7 @@ compile_detailed_activity_data(
   pod_lookup = get_detailed_pods(),
   tretspef_lookup = get_tretspef_lookup(),
   activity_type = c("ip", "op", "aae"),
-  aggregation = c("age_group", "tretspef_grouped"),
+  aggregation = c("age_group", "tretspef"),
   pods = NULL,
   sites = NULL
 )
@@ -32,7 +32,7 @@ table) and a \code{tretspef} column that provides friendly labels for specialtie
 
 \item{activity_type}{string. One of "ip", "op", "aae". "ip" is the default.}
 
-\item{aggregation}{string. One of "age_group" or "tretspef_grouped"}
+\item{aggregation}{string. One of "age_group" or "tretspef"}
 
 \item{pods}{character vector. PoD labels to filter data to. The default
 value of \code{NULL} means no PoDs will be filtered out}
@@ -41,5 +41,5 @@ value of \code{NULL} means no PoDs will be filtered out}
 to. \code{NULL} means don't filter; include all sites present in the data}
 }
 \description{
-Prepare data from the \code{sex+age_group} or \code{sex+tretspef_grouped} table
+Prepare data from the \code{sex+age_group} or \code{sex+tretspef} table
 }

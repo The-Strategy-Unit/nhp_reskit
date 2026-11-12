@@ -101,7 +101,7 @@ stepcounts_tbl <- create_demo_stepcounts_tbl(seed)
 # fmt: skip
 tbl_names <- c(
   "default", "tretspef+los_group", "sex+age_group",
-  "sex+tretspef_grouped", "step_counts"
+  "sex+tretspef", "step_counts"
 )
 
 results <- list(
@@ -321,7 +321,7 @@ results |>
   compile_detailed_activity_data(
     measure = "beddays",
     activity_type = "ip",
-    aggregation = "tretspef_grouped"
+    aggregation = "tretspef"
   ) |>
   make_detailed_activity_table(final_year = "2029/30")
 ```
