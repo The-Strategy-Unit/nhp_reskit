@@ -14,9 +14,9 @@ calculate_principal_stats <- function(tbl, group_cols) {
     ) |>
     dplyr::summarise(
       mean = mean(.data[["value"]]),
-      median = stats::quantile(.data[["value"]], 0.5),
-      p10 = stats::quantile(.data[["value"]], 0.1),
-      p90 = stats::quantile(.data[["value"]], 0.9),
+      median = unname(stats::quantile(.data[["value"]], 0.5)),
+      p10 = unname(stats::quantile(.data[["value"]], 0.1)),
+      p90 = unname(stats::quantile(.data[["value"]], 0.9)),
       .by = tidyselect::all_of(swap_modelrun_for_stage(group_cols))
     ) |>
     tidyr::pivot_longer(tidyselect::any_of(stat_cols), names_to = "stat") |>

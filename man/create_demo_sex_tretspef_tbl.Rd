@@ -2,9 +2,9 @@
 % Please edit documentation in R/demo_results_tables.R
 \name{create_demo_sex_tretspef_tbl}
 \alias{create_demo_sex_tretspef_tbl}
-\title{Function to create a "sex + tretspef_grouped" table with synthetic values
+\title{Function to create a "sex + tretspef" table with synthetic values
 The table contains synthetic (randomly created) values for 2 sexes, a
-selection of tretspef group codes, and measures, across 2 "sites", as if
+selection of tretspef codes, and measures, across 2 "sites", as if
 created by 64 model runs}
 \usage{
 create_demo_sex_tretspef_tbl(seed)
@@ -13,9 +13,9 @@ create_demo_sex_tretspef_tbl(seed)
 \item{seed}{integer, for reproducibility of outputs, a seed value to be used}
 }
 \description{
-Function to create a "sex + tretspef_grouped" table with synthetic values
+Function to create a "sex + tretspef" table with synthetic values
 The table contains synthetic (randomly created) values for 2 sexes, a
-selection of tretspef group codes, and measures, across 2 "sites", as if
+selection of tretspef codes, and measures, across 2 "sites", as if
 created by 64 model runs
 }
 \keyword{internal}
