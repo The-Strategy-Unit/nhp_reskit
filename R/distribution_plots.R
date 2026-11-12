@@ -14,14 +14,13 @@ make_beeswarm_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
   stopifnot(all(lengths(c(baseline_value, principal_value)) == 1))
   min_value <- min(distrib_plot_data[["value"]])
   min_x_value <- ifelse(show_zero, 0, min(baseline_value, min_value))
-  plot_red <- "red"
   interim_plot <- distrib_plot_data |>
     ggplot2::ggplot(ggplot2::aes(.data[["value"]], 1)) +
     ggbeeswarm::geom_quasirandom(
       ggplot2::aes(
         text = glue::glue("Value: {scales::comma(value, accuracy = 1)}")
       ),
-      colour = plot_red,
+      colour = "grey33",
       orientation = "y",
       size = 3,
       alpha = 0.5
@@ -31,14 +30,24 @@ make_beeswarm_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
   interim_plot +
     ggplot2::geom_vline(
       xintercept = baseline_value,
-      colour = "grey50",
+      colour = "white",
+      linewidth = 1.2
+    ) +
+    ggplot2::geom_vline(
+      xintercept = baseline_value,
+      colour = "grey33",
+      linewidth = 0.6
+    ) +
+    ggplot2::geom_vline(
+      xintercept = principal_value,
+      colour = "white",
       linewidth = 1.2
     ) +
     ggplot2::geom_vline(
       xintercept = principal_value,
-      linetype = "dashed",
-      colour = plot_red,
-      linewidth = 1.2
+      linetype = "6111",
+      colour = "red2",
+      linewidth = 0.6
     ) +
     ggplot2::expand_limits(x = ifelse(show_zero, 0, min_x_value)) +
     ggplot2::scale_x_continuous(
@@ -78,15 +87,13 @@ make_cumulative_distrib_plot <- function(distrib_plot_data, show_zero = FALSE) {
   principal_match_value <- which.min(principal_diffs)
   principal_pct <- y_vals[[principal_match_value]]
   min_x_value <- ifelse(show_zero, 0, min(baseline_value, min_value))
-  plot_red <- "red"
-  plot_blue <- "cornflowerblue"
 
   line_guides <- tibble::tibble(
     x_start = c(rep(min_x_value, 3), x_quantiles, principal_value),
     x_end = rep(c(x_quantiles, principal_value), 2),
     y_start = c(quantiles, principal_pct, rep(0, 3)),
     y_end = rep(c(quantiles, principal_pct), 2),
-    colour = rep(c(rep(plot_blue, 2), plot_red), 2)
+    colour = rep(c(rep("cornflowerblue", 2), "red2"), 2)
   )
   interim_plot <- tibble::tibble(x = x_vals, y = y_vals) |>
     ggplot2::ggplot(ggplot2::aes(.data[["x"]], .data[["y"]])) +
