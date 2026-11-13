@@ -8,6 +8,13 @@ make_grouped_impact_plot <- function(grouped_impact_data) {
     return(make_no_data_plot(no_data_reason(grouped_impact_data)))
   }
   x_axis_label <- create_measure_label(unique(grouped_impact_data[["measure"]]))
+  if ("baseline" %in% grouped_impact_data[["change_factor"]]) {
+    baseline_value <- grouped_impact_data |>
+      dplyr::filter(.data[["change_factor"]] == "baseline") |>
+      dplyr::pull("value")
+  } else {
+    baseline_value <- 0
+  }
   grouped_impact_data |>
     dplyr::mutate(
       colour = dplyr::case_when(
@@ -32,6 +39,16 @@ make_grouped_impact_plot <- function(grouped_impact_data) {
       ),
       # dynamic: bigger if fewer bars (130 is relative to 600px plot height)
       lwd = 130 / nrow(grouped_impact_data)
+    ) +
+    ggplot2::geom_vline(
+      xintercept = baseline_value,
+      colour = "white",
+      linewidth = 1.2
+    ) +
+    ggplot2::geom_vline(
+      xintercept = baseline_value,
+      colour = "grey33",
+      linewidth = 0.6
     ) +
     ggplot2::scale_colour_identity() +
     ggplot2::scale_x_continuous(
