@@ -13,8 +13,9 @@ You should be able to run the following R command to install {reskit}:
 pak::pak("The-Strategy-Unit/nhp_reskit")
 ```
 
-On Windows, you may need to have [RTools](https://cloud.r-project.org/)
-already installed in order to install reskit.
+On Windows, you may need to have
+[RTools](https://cloud.r-project.org/bin/windows/Rtools/) already
+installed in order to install reskit.
 
 ## Usage
 
@@ -131,7 +132,7 @@ Alternatively, to ask any questions about the package you may contact
 - [`compile_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_detailed_activity_data.md)
   :
 
-  Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
+  Prepare data from the `sex+age_group` or `sex+tretspef` table
 
 - [`compile_distribution_plot_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_distribution_plot_data.md)
   : Compile data to support the "activity distribution summary" tables
@@ -156,23 +157,6 @@ Alternatively, to ask any questions about the package you may contact
   :
 
   Prepare data from `step_counts` table to use for TPMA impact chart
-
-- [`export_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_detailed_activity_data.md)
-  : Prepare a site-level summary of detailed activity results by PoD and
-  LoS
-
-- [`export_distribution_summary_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_distribution_summary_data.md)
-  : Prepare a site-level summary of activity distribution summary data
-
-- [`export_impact_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_impact_data.md)
-  : Prepare a site-level summary table of change_factor results
-
-- [`export_principal_los_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_los_data.md)
-  : Prepare a site-level summary of main projection results by PoD and
-  LoS
-
-- [`export_principal_pod_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_pod_data.md)
-  : Prepare a site-level summary of main projection results
 
 - [`get_detailed_pods()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_detailed_pods.md)
   [`get_principal_pods()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_detailed_pods.md)
@@ -222,5 +206,7 @@ Alternatively, to ask any questions about the package you may contact
 
 ### All vignettes
 
+- [Combining results from multiple
+  scenarios](https://the-strategy-unit.github.io/nhp_reskit/articles/combining_results.md):
 - [Plots and tables with
   reskit](https://the-strategy-unit.github.io/nhp_reskit/articles/plots_tables.md):

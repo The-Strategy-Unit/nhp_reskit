@@ -1,6 +1,6 @@
-# Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
+# Prepare data from the `sex+age_group` or `sex+tretspef` table
 
-Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
+Prepare data from the `sex+age_group` or `sex+tretspef` table
 
 ## Usage
 
@@ -11,7 +11,7 @@ compile_detailed_activity_data(
   pod_lookup = get_detailed_pods(),
   tretspef_lookup = get_tretspef_lookup(),
   activity_type = c("ip", "op", "aae"),
-  aggregation = c("age_group", "tretspef_grouped"),
+  aggregation = c("age_group", "tretspef"),
   pods = NULL,
   sites = NULL
 )
@@ -47,7 +47,7 @@ compile_detailed_activity_data(
 
 - aggregation:
 
-  string. One of "age_group" or "tretspef_grouped"
+  string. One of "age_group" or "tretspef"
 
 - pods:
 

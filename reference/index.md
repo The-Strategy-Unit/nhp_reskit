@@ -10,7 +10,7 @@
 - [`compile_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_detailed_activity_data.md)
   :
 
-  Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
+  Prepare data from the `sex+age_group` or `sex+tretspef` table
 
 - [`compile_distribution_plot_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/compile_distribution_plot_data.md)
   : Compile data to support the "activity distribution summary" tables
@@ -35,23 +35,6 @@
   :
 
   Prepare data from `step_counts` table to use for TPMA impact chart
-
-- [`export_detailed_activity_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_detailed_activity_data.md)
-  : Prepare a site-level summary of detailed activity results by PoD and
-  LoS
-
-- [`export_distribution_summary_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_distribution_summary_data.md)
-  : Prepare a site-level summary of activity distribution summary data
-
-- [`export_impact_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_impact_data.md)
-  : Prepare a site-level summary table of change_factor results
-
-- [`export_principal_los_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_los_data.md)
-  : Prepare a site-level summary of main projection results by PoD and
-  LoS
-
-- [`export_principal_pod_data()`](https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_pod_data.md)
-  : Prepare a site-level summary of main projection results
 
 - [`get_detailed_pods()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_detailed_pods.md)
   [`get_principal_pods()`](https://the-strategy-unit.github.io/nhp_reskit/reference/get_detailed_pods.md)

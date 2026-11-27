@@ -12,7 +12,7 @@ prepare_detailed_activity_data(dat, aggregation, pod_lookup)
 
 - aggregation:
 
-  string. One of "age_group" or "tretspef_grouped"
+  string. One of "age_group" or "tretspef"
 
 - pod_lookup:
 

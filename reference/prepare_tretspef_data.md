@@ -1,6 +1,6 @@
-# Prepare data from the 'sex+tretspef_grouped' results table
+# Prepare data from the 'sex+tretspef' results table
 
-Prepare data from the 'sex+tretspef_grouped' results table
+Prepare data from the 'sex+tretspef' results table
 
 ## Usage
 

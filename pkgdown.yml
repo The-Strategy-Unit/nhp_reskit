@@ -2,8 +2,9 @@ pandoc: 3.8.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
+  combining_results: combining_results.html
   plots_tables: plots_tables.html
-last_built: 2026-09-08T10:32Z
+last_built: 2026-11-27T12:28Z
 urls:
   reference: https://the-strategy-unit.github.io/nhp_reskit/reference
   article: https://the-strategy-unit.github.io/nhp_reskit/articles

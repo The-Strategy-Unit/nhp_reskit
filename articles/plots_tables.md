@@ -51,11 +51,11 @@ results_container <- azkit::get_container(
 results_path <- azkit::read_azure_table(
   Sys.getenv("AZ_RUNS_TABLE"),
   token = token,
-  filter = "PartitionKey eq 'national' and app_version eq 'v5.1'",
+  filter = "PartitionKey eq 'national' and app_version eq 'v5.2'",
   select = "aggregated_results_path"
 ) |>
   dplyr::pull("aggregated_results_path") |>
-  grepv(pattern = "NDG2\\-zero") |>
+  grepv(pattern = "NDG2\\-NEE") |>
   dplyr::first() # ensure we only get 1 path!
 
 results <- read_results_parquet_files(results_container, results_path)
@@ -79,7 +79,7 @@ stepcounts_tbl <- create_demo_stepcounts_tbl(seed)
 # fmt: skip
 tbl_names <- c(
   "default", "tretspef+los_group", "sex+age_group",
-  "sex+tretspef_grouped", "step_counts"
+  "sex+tretspef", "step_counts"
 )
 
 results <- list(
@@ -335,7 +335,7 @@ results |>
   compile_detailed_activity_data(
     measure = "beddays",
     activity_type = "ip",
-    aggregation = "tretspef_grouped"
+    aggregation = "tretspef"
   ) |>
   make_detailed_activity_table(final_year = "2029/30")
 ```

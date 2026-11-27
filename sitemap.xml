@@ -2,6 +2,7 @@
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/404.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/LICENSE-text.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/LICENSE.html</loc></url>
+<url><loc>https://the-strategy-unit.github.io/nhp_reskit/articles/combining_results.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/articles/index.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/articles/plots_tables.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/authors.html</loc></url>
@@ -30,11 +31,6 @@
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/create_sample_impacts.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/empty_result.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/exclude_op_teleatt_procedures.html</loc></url>
-<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_detailed_activity_data.html</loc></url>
-<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_distribution_summary_data.html</loc></url>
-<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_impact_data.html</loc></url>
-<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_los_data.html</loc></url>
-<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/export_principal_pod_data.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/filter_to_main_measures.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/format_bar_cols.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/format_gt_core.html</loc></url>
@@ -75,7 +71,6 @@
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/proto_detailed_activity_data.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/proto_distribution_plot_data.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/proto_distribution_summary_data.html</loc></url>
-<url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/proto_export_impact_data.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/proto_grouped_impact_data.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/proto_principal_los_data.html</loc></url>
 <url><loc>https://the-strategy-unit.github.io/nhp_reskit/reference/proto_principal_pod_data.html</loc></url>
