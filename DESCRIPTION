@@ -1,6 +1,6 @@
 Package: reskit
 Title: Nice selection box of goodies for hobnobbing with NHP model results
-Version: 1.2.0
+Version: 1.3.0
 Authors@R:
     c(person(
         "Fran", "Barton",
@@ -52,5 +52,5 @@ Suggests:
     readr,
     testthat (>= 3.0.0),
     withr
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1
 VignetteBuilder: quarto

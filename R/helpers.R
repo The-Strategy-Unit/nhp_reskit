@@ -13,6 +13,10 @@ summarise_for_all_sites <- function(dat, site_col = "sitetret") {
   dat |>
     dplyr::select(!tidyselect::all_of({{ site_col }})) |>
     dplyr::summarise(
+      # Take care that this function is always called after any "model_run"
+      # column has been used/processed away, as the model_run number is an
+      # integer type and you don't want to sum it! Generally all other columns
+      # in results tables, apart from "value", are character or factor types.
       dplyr::across(tidyselect::where(is.numeric), sum),
       .by = !tidyselect::where(is.numeric)
     )

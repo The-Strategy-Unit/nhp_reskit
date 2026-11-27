@@ -2,7 +2,7 @@
 % Please edit documentation in R/detailed_activity_data.R
 \name{prepare_tretspef_data}
 \alias{prepare_tretspef_data}
-\title{Prepare data from the 'sex+tretspef_grouped' results table}
+\title{Prepare data from the 'sex+tretspef' results table}
 \usage{
 prepare_tretspef_data(results, tretspef_lookup)
 }
@@ -14,6 +14,6 @@ containing a \code{code} column (used as a key for joining to the tretspef
 table) and a \code{tretspef} column that provides friendly labels for specialties}
 }
 \description{
-Prepare data from the 'sex+tretspef_grouped' results table
+Prepare data from the 'sex+tretspef' results table
 }
 \keyword{internal}

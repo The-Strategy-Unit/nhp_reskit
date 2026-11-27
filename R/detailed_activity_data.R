@@ -1,9 +1,9 @@
-#' Prepare data from the `sex+age_group` or `sex+tretspef_grouped` table
+#' Prepare data from the `sex+age_group` or `sex+tretspef` table
 #'
 #' @param tretspef_lookup A tibble, or a function that returns a tibble,
 #'  containing a `code` column (used as a key for joining to the tretspef
 #'  table) and a `tretspef` column that provides friendly labels for specialties
-#' @param aggregation string. One of "age_group" or "tretspef_grouped"
+#' @param aggregation string. One of "age_group" or "tretspef"
 #' @inheritParams compile_grouped_impact_data
 #' @export
 compile_detailed_activity_data <- function(
@@ -12,7 +12,7 @@ compile_detailed_activity_data <- function(
   pod_lookup = get_detailed_pods(),
   tretspef_lookup = get_tretspef_lookup(),
   activity_type = c("ip", "op", "aae"),
-  aggregation = c("age_group", "tretspef_grouped"),
+  aggregation = c("age_group", "tretspef"),
   pods = NULL,
   sites = NULL
 ) {
@@ -23,7 +23,7 @@ compile_detailed_activity_data <- function(
   if (aggregation == "age_group") {
     init_data <- prepare_age_group_data(results)
   } else {
-    # the second option: aggregation == "tretspef_grouped"
+    # the second option: aggregation == "tretspef"
     init_data <- prepare_tretspef_data(results, tretspef_lookup)
     aggregation <- "tretspef"
   }
@@ -88,13 +88,13 @@ prepare_age_group_data <- function(results) {
 }
 
 
-#' Prepare data from the 'sex+tretspef_grouped' results table
+#' Prepare data from the 'sex+tretspef' results table
 #'
 #' @inheritParams compile_detailed_activity_data
 #' @keywords internal
 prepare_tretspef_data <- function(results, tretspef_lookup) {
-  results[["sex+tretspef_grouped"]] |>
-    dplyr::rename(code = "tretspef_grouped") |>
+  results[["sex+tretspef"]] |>
+    dplyr::rename(code = "tretspef") |>
     dplyr::left_join(tretspef_lookup, "code") |>
     dplyr::mutate(
       dplyr::across("tretspef", \(x) dplyr::coalesce(x, .data[["code"]])),
@@ -137,41 +137,4 @@ summarise_for_all_pods <- function(dat, aggregation) {
       dplyr::across(tidyselect::where(is.numeric), sum),
       .by = tidyselect::all_of(c("sex", aggregation))
     )
-}
-
-
-#' Prepare a site-level summary of detailed activity results by PoD and LoS
-#'
-#' Intended to be used to create a table to be exported to .csv/.xlsx
-#' @inheritParams compile_detailed_activity_data
-#' @returns A tibble
-#' @export
-export_detailed_activity_data <- function(
-  results,
-  pod_lookup = get_detailed_pods(),
-  tretspef_lookup = get_tretspef_lookup(),
-  aggregation = c("age_group", "tretspef_grouped"),
-  sites = NULL
-) {
-  aggregation <- rlang::arg_match(aggregation)
-  if (aggregation == "age_group") {
-    init_data <- prepare_age_group_data(results)
-  } else {
-    # the second option: aggregation == "tretspef_grouped"
-    init_data <- prepare_tretspef_data(results, tretspef_lookup)
-    aggregation <- "tretspef"
-  }
-  # Guard against an unmatched `sites` value producing an empty result
-  selected_sites_data <- filter_to_selected_sites(init_data, sites)
-  if (nrow(selected_sites_data) == 0) {
-    return(empty_result(
-      proto_detailed_activity_data(aggregation),
-      "No data for the selected sites."
-    ))
-  }
-  sort_cols <- c("sex", "activity_type_label", "pod", aggregation)
-  selected_sites_data |>
-    prepare_detailed_activity_data(aggregation, pod_lookup) |>
-    add_change_cols() |>
-    dplyr::arrange(dplyr::pick(tidyselect::all_of(sort_cols)))
 }

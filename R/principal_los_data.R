@@ -89,30 +89,3 @@ prepare_principal_los_data <- function(filtered_data, pod_lookup) {
     calculate_principal_stats(grp_cols) |>
     keep_mean_only()
 }
-
-
-#' Prepare a site-level summary of main projection results by PoD and LoS
-#'
-#' Intended to be used to create a table to be exported to .csv/.xlsx
-#' @inheritParams compile_principal_los_data
-#' @returns A tibble
-#' @export
-export_principal_los_data <- function(
-  results,
-  pod_lookup = get_principal_pods(),
-  sites = NULL
-) {
-  los_tbl <- results[["tretspef+los_group"]]
-  # Guard against an unmatched `sites` value producing an empty result
-  selected_data <- filter_to_selected_sites(los_tbl, sites)
-  if (nrow(selected_data) == 0) {
-    return(empty_result(
-      proto_principal_los_data(),
-      "No principal LoS data for the selected sites."
-    ))
-  }
-  selected_data |>
-    prepare_principal_los_data(pod_lookup) |>
-    add_change_cols() |>
-    dplyr::arrange(dplyr::pick("pod_label"))
-}

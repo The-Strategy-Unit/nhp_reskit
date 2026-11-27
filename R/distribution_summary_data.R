@@ -24,9 +24,9 @@ compile_distribution_summary_data <- function(
 
   # fmt: skip
   m_levels <- c(
-      "Admissions", "Bed days", "Attendances", "Tele-attendances",
-      "Ambulance", "Walk-in"
-    )
+    "Admissions", "Bed days", "Attendances", "Tele-attendances",
+    "Ambulance", "Walk-in"
+  )
   selected_sites_data |>
     prepare_distribution_summary_data(pod_lookup) |>
     summarise_for_all_sites() |>
@@ -71,41 +71,15 @@ proto_distribution_summary_data <- function(value_type = "median") {
 #' @returns A tibble
 #' @keywords internal
 prepare_distribution_summary_data <- function(default_tbl, pod_lookup) {
-  grp_cols <- c("activity_type_label", "measure")
+  group_cols <- c("activity_type_label", "measure")
   default_tbl |>
     filter_to_main_measures() |>
     exclude_op_teleatt_procedures() |>
     join_for_labels(pod_lookup) |>
-    calculate_principal_stats(default_group_cols(grp_cols)) |>
+    calculate_principal_stats(default_group_cols(group_cols)) |>
     dplyr::mutate(
       dplyr::across("measure", \(x) {
         sub("Beddays", "Bed days", uppercase_init(gsub("_", "-", x)))
       })
     )
-}
-
-
-#' Prepare a site-level summary of activity distribution summary data
-#'
-#' Intended to be used to create a table to be exported to .csv/.xlsx
-#' @inheritParams compile_distribution_summary_data
-#' @returns A tibble
-#' @export
-export_distribution_summary_data <- function(
-  results,
-  pod_lookup = get_detailed_pods(),
-  sites = NULL
-) {
-  # Guard against an unmatched `sites` value producing an empty result
-  selected_sites_data <- filter_to_selected_sites(results[["default"]], sites)
-  if (nrow(selected_sites_data) == 0) {
-    return(empty_result(
-      proto_distribution_summary_data(),
-      "No results data for the selected sites."
-    ))
-  }
-  selected_sites_data |>
-    prepare_distribution_summary_data(pod_lookup) |>
-    filter_to_selected_sites(sites) |>
-    tidyr::pivot_wider(names_from = "stat", values_from = "principal")
 }
